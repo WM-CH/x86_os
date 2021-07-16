@@ -1,12 +1,13 @@
 LOADER_BASE_ADDR equ 0x900 
 LOADER_START_SECTOR equ 0x2
-
+section mbr vstart=0x7c00
 start:
 	mov ax, 0xb800
 	mov ds, ax
 	mov ax, 0x7c0
 	mov es, ax
-
+	mov ax, 0
+	mov fs, ax
 	
 	mov ax, 0x600	;清屏
 	mov bx, 0x700
@@ -15,11 +16,11 @@ start:
 	int 0x10
 	
 	mov byte [0x00], 'M'
-	mov byte [0x01], 0xA4
+	mov byte [0x01], 0x07
 	mov byte [0x02], 'B'
-	mov byte [0x03], 0xA4
+	mov byte [0x03], 0x07
 	mov byte [0x04], 'R'
-	mov byte [0x05], 0xA4
+	mov byte [0x05], 0x07
 
 	
 	mov eax, LOADER_START_SECTOR
@@ -84,7 +85,7 @@ not_ready:
 	mov dx,  0x1f0
 go_on_read:
 	in  ax,   dx
-	mov [bx], ax
+	mov [fs:bx], ax
 	add bx,   2
 	loop go_on_read
 	ret
