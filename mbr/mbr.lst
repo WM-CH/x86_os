@@ -1,96 +1,130 @@
-     1                                  LOADER_BASE_ADDR equ 0x900 
-     2                                  LOADER_START_SECTOR equ 0x2
-     3                                  section mbr vstart=0x7c00
-     4                                  start:
-     5 00000000 B800B8                  	mov ax, 0xb800
-     6 00000003 8ED8                    	mov ds, ax
-     7 00000005 B8C007                  	mov ax, 0x7c0
-     8 00000008 8EC0                    	mov es, ax
-     9 0000000A B80000                  	mov ax, 0
-    10 0000000D 8EE0                    	mov fs, ax
-    11                                  	
-    12 0000000F B80006                  	mov ax, 0x600	;清屏
-    13 00000012 BB0007                  	mov bx, 0x700
-    14 00000015 B90000                  	mov cx, 0
-    15 00000018 BA4F18                  	mov dx, 0x184f
-    16 0000001B CD10                    	int 0x10
-    17                                  	
-    18 0000001D C60600004D              	mov byte [0x00], 'M'
-    19 00000022 C606010007              	mov byte [0x01], 0x07
-    20 00000027 C606020042              	mov byte [0x02], 'B'
-    21 0000002C C606030007              	mov byte [0x03], 0x07
-    22 00000031 C606040052              	mov byte [0x04], 'R'
-    23 00000036 C606050007              	mov byte [0x05], 0x07
-    24                                  
-    25                                  	
-    26 0000003B 66B802000000            	mov eax, LOADER_START_SECTOR
-    27 00000041 BB0009                  	mov bx , LOADER_BASE_ADDR
-    28 00000044 B90100                  	mov cx , 1
-    29 00000047 E80300                  	call rd_disk_m_16
-    30                                  	
-    31 0000004A E9(0009)                	jmp LOADER_BASE_ADDR
-    32                                  
-    33                                  ;--------------------------------------
-    34                                  ;eax = LBA
-    35                                  ;bx  = 目的地址
-    36                                  ;cx  = 要读入的扇区数
-    37                                  rd_disk_m_16:
-    38                                  	;备份
-    39 0000004D 6689C6                  	mov esi, eax
-    40 00000050 89CF                    	mov di,  cx
-    41                                  	
-    42                                  	;1.设置扇区数
-    43 00000052 BAF201                  	mov dx,  0x1f2
-    44 00000055 88C8                    	mov al,  cl
-    45 00000057 EE                      	out dx,  al
-    46 00000058 6689F0                  	mov eax, esi	;恢复
-    47                                  	
-    48                                  	;2.设置LBA，每次8位
-    49 0000005B BAF301                  	mov dx,  0x1f3
-    50 0000005E EE                      	out dx,  al
-    51                                  	
-    52 0000005F B108                    	mov cl,  8
-    53 00000061 66D3E8                  	shr eax, cl
-    54 00000064 BAF401                  	mov dx,  0x1f4
-    55 00000067 EE                      	out dx,  al
-    56                                  	
-    57 00000068 66D3E8                  	shr eax, cl
-    58 0000006B BAF501                  	mov dx,  0x1f5
-    59 0000006E EE                      	out dx,  al
-    60                                  	
-    61 0000006F 66D3E8                  	shr eax, cl
-    62 00000072 240F                    	and al,  0x0f
-    63 00000074 0CE0                    	or  al,  0xe0
-    64 00000076 BAF601                  	mov dx,  0x1f6
-    65 00000079 EE                      	out dx,  al
-    66                                  	
-    67                                  	;3.读命令0x20
-    68 0000007A BAF701                  	mov dx,  0x1f7
-    69 0000007D B020                    	mov al,  0x20
-    70 0000007F EE                      	out dx,  al
-    71                                  	
-    72                                  	;4.检测硬盘状态
-    73                                  not_ready:
-    74 00000080 90                      	nop
-    75 00000081 EC                      	in  al,  dx
-    76 00000082 2488                    	and al,  0x88
-    77 00000084 3C08                    	cmp al,  0x08	; bit7=1:busy
-    78 00000086 75F8                    	jnz not_ready
-    79                                  	
-    80                                  	;5.读数据
-    81 00000088 89F8                    	mov ax,  di		;扇区数
-    82 0000008A BA0001                  	mov dx,  256
-    83 0000008D F7E2                    	mul dx
-    84 0000008F 89C1                    	mov cx,  ax		;每次读一个字，次数=扇区数*512/2
-    85 00000091 BAF001                  	mov dx,  0x1f0
-    86                                  go_on_read:
-    87 00000094 ED                      	in  ax,   dx
-    88 00000095 648907                  	mov [fs:bx], ax
-    89 00000098 83C302                  	add bx,   2
-    90 0000009B E2F7                    	loop go_on_read
-    91 0000009D C3                      	ret
-    92                                  	
-    93                                  current:
-    94 0000009E 00<rep 160h>            	times 510 - (current-start) db 0
-    95                                  
-    96 000001FE 55AA                    dw 0xaa55
+     1                                  %include "boot.inc"
+     2                              <1> ;-------------	 loader和kernel   ----------
+     3                              <1> 
+     4                              <1> LOADER_BASE_ADDR equ 0x900 
+     5                              <1> LOADER_START_SECTOR equ 0x2
+     6                              <1> 
+     7                              <1> ;--------------   gdt描述符属性  -------------
+     8                              <1> DESC_G_4K   equ	  1_00000000000000000000000b   
+     9                              <1> DESC_D_32   equ	   1_0000000000000000000000b
+    10                              <1> DESC_L	    equ	    0_000000000000000000000b	;  64位代码标记，此处标记为0便可。
+    11                              <1> DESC_AVL    equ	     0_00000000000000000000b	;  cpu不用此位，暂置为0  
+    12                              <1> DESC_LIMIT_CODE2  equ 1111_0000000000000000b
+    13                              <1> DESC_LIMIT_DATA2  equ DESC_LIMIT_CODE2
+    14                              <1> DESC_LIMIT_VIDEO2  equ 0000_000000000000000b
+    15                              <1> DESC_P	    equ		  1_000000000000000b
+    16                              <1> DESC_DPL_0  equ		   00_0000000000000b
+    17                              <1> DESC_DPL_1  equ		   01_0000000000000b
+    18                              <1> DESC_DPL_2  equ		   10_0000000000000b
+    19                              <1> DESC_DPL_3  equ		   11_0000000000000b
+    20                              <1> DESC_S_CODE equ		     1_000000000000b
+    21                              <1> DESC_S_DATA equ	  DESC_S_CODE
+    22                              <1> DESC_S_sys  equ		     0_000000000000b
+    23                              <1> DESC_TYPE_CODE  equ	      1000_00000000b	;x=1,c=0,r=0,a=0 代码段是可执行的,非依从的,不可读的,已访问位a清0.  
+    24                              <1> DESC_TYPE_DATA  equ	      0010_00000000b	;x=0,e=0,w=1,a=0 数据段是不可执行的,向上扩展的,可写的,已访问位a清0.
+    25                              <1> 
+    26                              <1> DESC_CODE_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_CODE2 + DESC_P + DESC_DPL_0 + DESC_S_CODE + DESC_TYPE_CODE + 0x00
+    27                              <1> DESC_DATA_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_DATA2 + DESC_P + DESC_DPL_0 + DESC_S_DATA + DESC_TYPE_DATA + 0x00
+    28                              <1> DESC_VIDEO_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_VIDEO2 + DESC_P + DESC_DPL_0 + DESC_S_DATA + DESC_TYPE_DATA + 0x0b
+    29                              <1> 
+    30                              <1> ;--------------   选择子属性  ---------------
+    31                              <1> RPL0  equ   00b
+    32                              <1> RPL1  equ   01b
+    33                              <1> RPL2  equ   10b
+    34                              <1> RPL3  equ   11b
+    35                              <1> TI_GDT	 equ   000b
+    36                              <1> TI_LDT	 equ   100b
+     2                                  section mbr vstart=0x7c00
+     3                                  start:
+     4 00000000 B800B8                  	mov ax, 0xb800
+     5 00000003 8ED8                    	mov ds, ax
+     6 00000005 B8C007                  	mov ax, 0x7c0
+     7 00000008 8EC0                    	mov es, ax
+     8 0000000A B80000                  	mov ax, 0
+     9 0000000D 8EE0                    	mov fs, ax
+    10                                  	
+    11 0000000F B80006                  	mov ax, 0x600	;清屏
+    12 00000012 BB0007                  	mov bx, 0x700
+    13 00000015 B90000                  	mov cx, 0
+    14 00000018 BA4F18                  	mov dx, 0x184f
+    15 0000001B CD10                    	int 0x10
+    16                                  	
+    17 0000001D C60600004D              	mov byte [0x00], 'M'
+    18 00000022 C606010007              	mov byte [0x01], 0x07
+    19 00000027 C606020042              	mov byte [0x02], 'B'
+    20 0000002C C606030007              	mov byte [0x03], 0x07
+    21 00000031 C606040052              	mov byte [0x04], 'R'
+    22 00000036 C606050007              	mov byte [0x05], 0x07
+    23                                  
+    24                                  	
+    25 0000003B 66B802000000            	mov eax, LOADER_START_SECTOR
+    26 00000041 BB0009                  	mov bx , LOADER_BASE_ADDR
+    27 00000044 B90400                  	mov cx , 4					;读入loader所需扇区数
+    28 00000047 E80300                  	call rd_disk_m_16
+    29                                  	
+    30 0000004A E9(0009)                	jmp LOADER_BASE_ADDR
+    31                                  
+    32                                  ;--------------------------------------
+    33                                  ;eax = LBA
+    34                                  ;bx  = 目的地址
+    35                                  ;cx  = 要读入的扇区数
+    36                                  rd_disk_m_16:
+    37                                  	;备份
+    38 0000004D 6689C6                  	mov esi, eax
+    39 00000050 89CF                    	mov di,  cx
+    40                                  	
+    41                                  	;1.设置扇区数
+    42 00000052 BAF201                  	mov dx,  0x1f2
+    43 00000055 88C8                    	mov al,  cl
+    44 00000057 EE                      	out dx,  al
+    45 00000058 6689F0                  	mov eax, esi	;恢复
+    46                                  	
+    47                                  	;2.设置LBA，每次8位
+    48 0000005B BAF301                  	mov dx,  0x1f3
+    49 0000005E EE                      	out dx,  al
+    50                                  	
+    51 0000005F B108                    	mov cl,  8
+    52 00000061 66D3E8                  	shr eax, cl
+    53 00000064 BAF401                  	mov dx,  0x1f4
+    54 00000067 EE                      	out dx,  al
+    55                                  	
+    56 00000068 66D3E8                  	shr eax, cl
+    57 0000006B BAF501                  	mov dx,  0x1f5
+    58 0000006E EE                      	out dx,  al
+    59                                  	
+    60 0000006F 66D3E8                  	shr eax, cl
+    61 00000072 240F                    	and al,  0x0f
+    62 00000074 0CE0                    	or  al,  0xe0
+    63 00000076 BAF601                  	mov dx,  0x1f6
+    64 00000079 EE                      	out dx,  al
+    65                                  	
+    66                                  	;3.读命令0x20
+    67 0000007A BAF701                  	mov dx,  0x1f7
+    68 0000007D B020                    	mov al,  0x20
+    69 0000007F EE                      	out dx,  al
+    70                                  	
+    71                                  	;4.检测硬盘状态
+    72                                  not_ready:
+    73 00000080 90                      	nop
+    74 00000081 EC                      	in  al,  dx
+    75 00000082 2488                    	and al,  0x88
+    76 00000084 3C08                    	cmp al,  0x08	; bit7=1:busy
+    77 00000086 75F8                    	jnz not_ready
+    78                                  	
+    79                                  	;5.读数据
+    80 00000088 89F8                    	mov ax,  di		;扇区数
+    81 0000008A BA0001                  	mov dx,  256
+    82 0000008D F7E2                    	mul dx
+    83 0000008F 89C1                    	mov cx,  ax		;每次读一个字，次数=扇区数*512/2
+    84 00000091 BAF001                  	mov dx,  0x1f0
+    85                                  go_on_read:
+    86 00000094 ED                      	in  ax,   dx
+    87 00000095 648907                  	mov [fs:bx], ax
+    88 00000098 83C302                  	add bx,   2
+    89 0000009B E2F7                    	loop go_on_read
+    90 0000009D C3                      	ret
+    91                                  	
+    92                                  current:
+    93 0000009E 00<rep 160h>            	times 510 - (current-start) db 0
+    94                                  
+    95 000001FE 55AA                    dw 0xaa55
