@@ -1,19 +1,110 @@
-     1                                  LOADER_BASE_ADDR equ 0x900 
-     2                                  section loader vstart=0x900
-     3 00000000 B800B8                  	mov ax, 0xb800
-     4 00000003 8ED8                    	mov ds, ax
-     5                                  	
-     6 00000005 C606A0004C              	mov byte [80*2+0x00], 'L'
-     7 0000000A C606A10007              	mov byte [80*2+0x01], 0x07
-     8 0000000F C606A2006F              	mov byte [80*2+0x02], 'o'
-     9 00000014 C606A30007              	mov byte [80*2+0x03], 0x07
-    10 00000019 C606A40061              	mov byte [80*2+0x04], 'a'
-    11 0000001E C606A50007              	mov byte [80*2+0x05], 0x07
-    12 00000023 C606A60064              	mov byte [80*2+0x06], 'd'
-    13 00000028 C606A70007              	mov byte [80*2+0x07], 0x07
-    14 0000002D C606A80065              	mov byte [80*2+0x08], 'e'
-    15 00000032 C606A90007              	mov byte [80*2+0x09], 0x07
-    16 00000037 C606AA0072              	mov byte [80*2+0x0a], 'r'
-    17 0000003C C606AB0007              	mov byte [80*2+0x0b], 0x07
-    18                                  	
-    19 00000041 EBFE                    	jmp $
+     1                                  %include "boot.inc"
+     2                              <1> ;-------------	 loader和kernel   ----------
+     3                              <1> 
+     4                              <1> LOADER_BASE_ADDR equ 0x900 
+     5                              <1> LOADER_START_SECTOR equ 0x2
+     6                              <1> 
+     7                              <1> ;--------------   gdt描述符属性  -------------
+     8                              <1> DESC_G_4K   equ	  1_00000000000000000000000b   
+     9                              <1> DESC_D_32   equ	   1_0000000000000000000000b
+    10                              <1> DESC_L	    equ	    0_000000000000000000000b	;  64位代码标记，此处标记为0便可。
+    11                              <1> DESC_AVL    equ	     0_00000000000000000000b	;  cpu不用此位，暂置为0  
+    12                              <1> DESC_LIMIT_CODE2  equ 1111_0000000000000000b
+    13                              <1> DESC_LIMIT_DATA2  equ DESC_LIMIT_CODE2
+    14                              <1> DESC_LIMIT_VIDEO2  equ 0000_000000000000000b
+    15                              <1> DESC_P	    equ		  1_000000000000000b
+    16                              <1> DESC_DPL_0  equ		   00_0000000000000b
+    17                              <1> DESC_DPL_1  equ		   01_0000000000000b
+    18                              <1> DESC_DPL_2  equ		   10_0000000000000b
+    19                              <1> DESC_DPL_3  equ		   11_0000000000000b
+    20                              <1> DESC_S_CODE equ		     1_000000000000b
+    21                              <1> DESC_S_DATA equ	  DESC_S_CODE
+    22                              <1> DESC_S_sys  equ		     0_000000000000b
+    23                              <1> DESC_TYPE_CODE  equ	      1000_00000000b	;x=1,c=0,r=0,a=0 代码段是可执行的,非依从的,不可读的,已访问位a清0.  
+    24                              <1> DESC_TYPE_DATA  equ	      0010_00000000b	;x=0,e=0,w=1,a=0 数据段是不可执行的,向上扩展的,可写的,已访问位a清0.
+    25                              <1> 
+    26                              <1> DESC_CODE_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_CODE2 + DESC_P + DESC_DPL_0 + DESC_S_CODE + DESC_TYPE_CODE + 0x00
+    27                              <1> DESC_DATA_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_DATA2 + DESC_P + DESC_DPL_0 + DESC_S_DATA + DESC_TYPE_DATA + 0x00
+    28                              <1> DESC_VIDEO_HIGH4 equ (0x00 << 24) + DESC_G_4K + DESC_D_32 + DESC_L + DESC_AVL + DESC_LIMIT_VIDEO2 + DESC_P + DESC_DPL_0 + DESC_S_DATA + DESC_TYPE_DATA + 0x0b
+    29                              <1> 
+    30                              <1> ;--------------   选择子属性  ---------------
+    31                              <1> RPL0  equ   00b
+    32                              <1> RPL1  equ   01b
+    33                              <1> RPL2  equ   10b
+    34                              <1> RPL3  equ   11b
+    35                              <1> TI_GDT	 equ   000b
+    36                              <1> TI_LDT	 equ   100b
+     2                                  LOADER_STACK_TOP equ LOADER_BASE_ADDR
+     3                                  section loader vstart=LOADER_BASE_ADDR
+     4 00000000 E90602                  	jmp loader_start
+     5                                  ;----------------------------------------------------------------
+     6                                  ;构建gdt及其内部的描述符
+     7 00000003 00000000                GDT_BASE:   dd	0x00000000 
+     8 00000007 00000000                			dd	0x00000000
+     9 0000000B FFFF0000                CODE_DESC:  dd	0x0000FFFF			;CODE/DATA/STACK段界限是 FFFFF。实际段界限=(描述符中段界限+1)*4k-1。得到实际段界限=0xFFFF_FFFF(4G)
+    10 0000000F 0098CF00                			dd	DESC_CODE_HIGH4		;段基址是 0
+    11                                  DATA_STACK_DESC:
+    12 00000013 FFFF0000                			dd	0x0000FFFF
+    13 00000017 0092CF00                			dd	DESC_DATA_HIGH4
+    14 0000001B 07000080                VIDEO_DESC: dd	0x80000007			;video段界限是0x7，代入公式，得到实际段界限=32k，文本模式内存地址0xb8000~0xbffff=(0x7FFF)=32k
+    15 0000001F 0B92C000                			dd	DESC_VIDEO_HIGH4	;段基址是0xb8000。注意，此时dpl=0
+    16                                  GDT_SIZE	equ	$ - GDT_BASE
+    17                                  GDT_LIMIT   equ	GDT_SIZE - 1
+    18 00000023 0000000000000000-       times 60 	dq	0					 ; 此处预留60个描述符的slot
+    18 00000023 <rep 3Ch>          
+    19                                  SELECTOR_CODE	equ	(0x0001<<3) + TI_GDT + RPL0	;(CODE_DESC - GDT_BASE)*8 + TI_GDT + RPL0
+    20                                  SELECTOR_DATA	equ (0x0002<<3) + TI_GDT + RPL0
+    21                                  SELECTOR_VIDEO	equ (0x0003<<3) + TI_GDT + RPL0
+    22                                  
+    23                                  ;gdt的指针，前2字节是gdt界限，后4字节是gdt起始地址
+    24 00000203 1F00                    gdt_ptr		dw  GDT_LIMIT 
+    25 00000205 [03000000]              			dd  GDT_BASE
+    26                                  ;----------------------------------------------------------------
+    27                                  loader_start:
+    28 00000209 B800B8                  	mov ax, 0xb800
+    29 0000020C 8ED8                    	mov ds, ax
+    30                                  	
+    31 0000020E C606A0004C              	mov byte [80*2+0x00], 'L'
+    32 00000213 C606A10007              	mov byte [80*2+0x01], 0x07
+    33 00000218 C606A2006F              	mov byte [80*2+0x02], 'o'
+    34 0000021D C606A30007              	mov byte [80*2+0x03], 0x07
+    35 00000222 C606A40061              	mov byte [80*2+0x04], 'a'
+    36 00000227 C606A50007              	mov byte [80*2+0x05], 0x07
+    37 0000022C C606A60064              	mov byte [80*2+0x06], 'd'
+    38 00000231 C606A70007              	mov byte [80*2+0x07], 0x07
+    39 00000236 C606A80065              	mov byte [80*2+0x08], 'e'
+    40 0000023B C606A90007              	mov byte [80*2+0x09], 0x07
+    41 00000240 C606AA0072              	mov byte [80*2+0x0a], 'r'
+    42 00000245 C606AB0007              	mov byte [80*2+0x0b], 0x07
+    43                                  	
+    44                                  	;-----------------  打开A20  ----------------
+    45 0000024A E492                    	in al,0x92
+    46 0000024C 0C02                    	or al,0000_0010B
+    47 0000024E E692                    	out 0x92,al
+    48                                  	;-----------------  加载GDT  ----------------
+    49 00000250 2E0F0116[0302]          	lgdt [cs:gdt_ptr]
+    50                                  	;-----------------  cr0第0位置1  ----------------
+    51 00000256 0F20C0                  	mov eax, cr0
+    52 00000259 6683C801                	or eax, 0x00000001
+    53 0000025D 0F22C0                  	mov cr0, eax
+    54                                  
+    55                                  	;刷新流水线，避免分支预测的影响,这种cpu优化策略，最怕jmp跳转，
+    56 00000260 EA[6502]0800            	jmp  SELECTOR_CODE:p_mode_start
+    57                                  
+    58                                  [bits 32]
+    59                                  p_mode_start:
+    60 00000265 66B81000                	mov ax, SELECTOR_DATA
+    61 00000269 8ED8                    	mov ds, ax
+    62 0000026B 8EC0                    	mov es, ax
+    63 0000026D 8ED0                    	mov ss, ax
+    64 0000026F BC00090000              	mov esp,LOADER_STACK_TOP
+    65 00000274 66B81800                	mov ax, SELECTOR_VIDEO
+    66 00000278 8EE8                    	mov gs, ax
+    67                                  
+    68 0000027A 65C605AE00000050        	mov byte [gs:80*2+0x0e], 'P'
+    69 00000282 65C605B00000004D        	mov byte [gs:80*2+0x10], 'M'
+    70 0000028A 65C605B20000006F        	mov byte [gs:80*2+0x12], 'o'
+    71 00000292 65C605B400000064        	mov byte [gs:80*2+0x14], 'd'
+    72 0000029A 65C605B600000065        	mov byte [gs:80*2+0x16], 'e'
+    73 000002A2 EBFE                    	jmp $
+    74                                  
