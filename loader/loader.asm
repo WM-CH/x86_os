@@ -57,6 +57,7 @@ loader_start:
 
 [bits 32]
 p_mode_start:
+	;进入保护模式后，段寄存器必须初始化，之前的值是实模式的！
 	mov ax, SELECTOR_DATA
 	mov ds, ax
 	mov es, ax
