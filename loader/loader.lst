@@ -93,18 +93,19 @@
     57                                  
     58                                  [bits 32]
     59                                  p_mode_start:
-    60 00000265 66B81000                	mov ax, SELECTOR_DATA
-    61 00000269 8ED8                    	mov ds, ax
-    62 0000026B 8EC0                    	mov es, ax
-    63 0000026D 8ED0                    	mov ss, ax
-    64 0000026F BC00090000              	mov esp,LOADER_STACK_TOP
-    65 00000274 66B81800                	mov ax, SELECTOR_VIDEO
-    66 00000278 8EE8                    	mov gs, ax
-    67                                  
-    68 0000027A 65C605AE00000050        	mov byte [gs:80*2+0x0e], 'P'
-    69 00000282 65C605B00000004D        	mov byte [gs:80*2+0x10], 'M'
-    70 0000028A 65C605B20000006F        	mov byte [gs:80*2+0x12], 'o'
-    71 00000292 65C605B400000064        	mov byte [gs:80*2+0x14], 'd'
-    72 0000029A 65C605B600000065        	mov byte [gs:80*2+0x16], 'e'
-    73 000002A2 EBFE                    	jmp $
-    74                                  
+    60                                  	;进入保护模式后，段寄存器必须初始化，之前的值是实模式的！
+    61 00000265 66B81000                	mov ax, SELECTOR_DATA
+    62 00000269 8ED8                    	mov ds, ax
+    63 0000026B 8EC0                    	mov es, ax
+    64 0000026D 8ED0                    	mov ss, ax
+    65 0000026F BC00090000              	mov esp,LOADER_STACK_TOP
+    66 00000274 66B81800                	mov ax, SELECTOR_VIDEO
+    67 00000278 8EE8                    	mov gs, ax
+    68                                  
+    69 0000027A 65C605AE00000050        	mov byte [gs:80*2+0x0e], 'P'
+    70 00000282 65C605B00000004D        	mov byte [gs:80*2+0x10], 'M'
+    71 0000028A 65C605B20000006F        	mov byte [gs:80*2+0x12], 'o'
+    72 00000292 65C605B400000064        	mov byte [gs:80*2+0x14], 'd'
+    73 0000029A 65C605B600000065        	mov byte [gs:80*2+0x16], 'e'
+    74 000002A2 EBFE                    	jmp $
+    75                                  
