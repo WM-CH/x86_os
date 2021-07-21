@@ -27,7 +27,7 @@ start:
 	mov cx , 4					;读入loader所需扇区数
 	call rd_disk_m_16
 	
-	jmp LOADER_BASE_ADDR
+	jmp LOADER_BASE_ADDR + 0x300
 
 ;--------------------------------------
 ;eax = LBA
