@@ -250,19 +250,19 @@ mem_cpy:
 
 ;-------------   创建页目录及页表   ---------------
 setup_page:
-;先把页目录占用的空间逐字节清0
-   mov ecx, 4096
-   mov esi, 0
+	;页目录清0
+	mov ecx, 4096
+	mov esi, 0
 .clear_page_dir:
-   mov byte [PAGE_DIR_TABLE_POS + esi], 0
-   inc esi
-   loop .clear_page_dir
+	mov byte [PAGE_DIR_TABLE_POS + esi], 0
+	inc esi
+	loop .clear_page_dir
 
-;开始创建页目录项(PDE)
+	;创建页目录项(PDE)
 .create_pde:				     ; 创建Page Directory Entry
-   mov eax, PAGE_DIR_TABLE_POS
-   add eax, 0x1000 			     ; 此时eax为第一个页表的位置及属性
-   mov ebx, eax				     ; 此处为ebx赋值，是为.create_pte做准备，ebx为基址。
+	mov eax, PAGE_DIR_TABLE_POS
+	add eax, 0x1000 			     ; 第一个页表的位置及属性
+	mov ebx, eax				     ; 此处为ebx赋值，是为.create_pte做准备，ebx为基址。
 
 ;   下面将页目录项0和0xc00都存为第一个页表的地址，
 ;   一个页表可表示4MB内存,这样0xc03fffff以下的地址和0x003fffff以下的地址都指向相同的页表，
@@ -300,42 +300,38 @@ setup_page:
 
 
 ;-------------------------------------------------------------------------------
-			   ;功能:读取硬盘n个扇区
-rd_disk_m_32:	   
-;-------------------------------------------------------------------------------
-							 ; eax=LBA扇区号
-							 ; ebx=将数据写入的内存地址
-							 ; ecx=读入的扇区数
-      mov esi,eax	   ; 备份eax
-      mov di,cx		   ; 备份扇区数到di
+;功能:读取硬盘n个扇区
+; eax=LBA扇区号
+; ebx=将数据写入的内存地址
+; ecx=读入的扇区数
+rd_disk_m_32:
+      mov esi,eax
+      mov di,cx
 ;读写硬盘:
 ;第1步：设置要读取的扇区数
       mov dx,0x1f2
       mov al,cl
-      out dx,al            ;读取的扇区数
+      out dx,al
 
-      mov eax,esi	   ;恢复ax
+      mov eax,esi
 
 ;第2步：将LBA地址存入0x1f3 ~ 0x1f6
 
-      ;LBA地址7~0位写入端口0x1f3
       mov dx,0x1f3                       
       out dx,al                          
 
-      ;LBA地址15~8位写入端口0x1f4
       mov cl,8
       shr eax,cl
       mov dx,0x1f4
       out dx,al
 
-      ;LBA地址23~16位写入端口0x1f5
       shr eax,cl
       mov dx,0x1f5
       out dx,al
 
       shr eax,cl
-      and al,0x0f	   ;lba第24~27位
-      or al,0xe0	   ; 设置7～4位为1110,表示lba模式
+      and al,0x0f
+      or al,0xe0
       mov dx,0x1f6
       out dx,al
 
@@ -344,22 +340,17 @@ rd_disk_m_32:
       mov al,0x20                        
       out dx,al
 
-;;;;;;; 至此,硬盘控制器便从指定的lba地址(eax)处,读出连续的cx个扇区,下面检查硬盘状态,不忙就能把这cx个扇区的数据读出来
-
 ;第4步：检测硬盘状态
-  .not_ready:		   ;测试0x1f7端口(status寄存器)的的BSY位
-      ;同一端口,写时表示写入命令字,读时表示读入硬盘状态
+  .not_ready:
       nop
       in al,dx
-      and al,0x88	   ;第4位为1表示硬盘控制器已准备好数据传输,第7位为1表示硬盘忙
+      and al,0x88
       cmp al,0x08
-      jnz .not_ready	   ;若未准备好,继续等。
+      jnz .not_ready
 
 ;第5步：从0x1f0端口读数据
-      mov ax, di	   ;以下从硬盘端口读数据用insw指令更快捷,不过尽可能多的演示命令使用,
-			   ;在此先用这种方法,在后面内容会用到insw和outsw等
-
-      mov dx, 256	   ;di为要读取的扇区数,一个扇区有512字节,每次读入一个字,共需di*512/2次,所以di*256
+      mov ax, di
+      mov dx, 256
       mul dx
       mov cx, ax	   
       mov dx, 0x1f0
