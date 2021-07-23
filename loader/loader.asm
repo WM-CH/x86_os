@@ -31,6 +31,10 @@ gdt_ptr		dw  GDT_LIMIT
 ; total_mem_bytes4字节+gdt_ptr6字节+ards_buf244字节+ards_nr2 = 256(0x100)字节
 ards_buf	times 244 db 0
 ards_nr		dw 0		      ;用于记录ards结构体数量
+
+
+
+
 ;----------------------------------------------------------------
 loader_start:
 ;-------  int 15h eax = 0000E820h ,edx = 534D4150h ('SMAP') 获取内存布局  -------
@@ -169,24 +173,24 @@ p_mode_start:
 
 	
 	sgdt [gdt_ptr]
-	;将gdt描述符中视频段描述符中的段基址+0xc0000000
-	mov ebx, [gdt_ptr + 2]  
-	or dword [ebx + 0x18 + 4], 0xc0000000
+	;将gdt描述符中，视频段描述符，其段基址+0xC0000000
+	mov ebx, [gdt_ptr + 2]					;取得GDT_BASE
+	or dword [ebx + 0x18 + 4], 0xC0000000	;8*3=24=0x18
 	
 	;将gdt的基址加上0xc0000000使其成为内核所在的高地址
-	add dword [gdt_ptr + 2], 0xc0000000
+	add dword [gdt_ptr + 2], 0xC0000000
 
-	add esp, 0xc0000000        ; 将栈指针同样映射到内核地址
+	add esp, 0xC0000000        ; 将栈指针同样映射到内核地址
 
 	
 	; 把页目录地址赋给cr3
 	mov eax, PAGE_DIR_TABLE_POS
 	mov cr3, eax
-
 	; 打开cr0的pg位(第31位)，开启分页
 	mov eax, cr0
 	or eax, 0x80000000
 	mov cr0, eax
+
 
 	;在开启分页后,用gdt新的地址重新加载
 	lgdt [gdt_ptr]
@@ -200,55 +204,57 @@ enter_kernel:
 
 
 ;-----------------   将kernel.bin中的segment拷贝到编译的地址   -----------
+;解析elf文件
 kernel_init:
-   xor eax, eax
-   xor ebx, ebx		;ebx记录程序头表地址
-   xor ecx, ecx		;cx记录程序头表中的program header数量
-   xor edx, edx		;dx 记录program header尺寸,即e_phentsize
+	xor eax, eax
+	xor ebx, ebx		;ebx记录程序头表地址
+	xor ecx, ecx		;cx记录程序头表中的program header数量
+	xor edx, edx		;dx 记录program header尺寸,即e_phentsize
 
-   mov dx, [KERNEL_BIN_BASE_ADDR + 42]	  ; 偏移文件42字节处的属性是e_phentsize,表示program header大小
-   mov ebx, [KERNEL_BIN_BASE_ADDR + 28]   ; 偏移文件开始部分28字节的地方是e_phoff,表示第1 个program header在文件中的偏移量
-					  ; 其实该值是0x34,不过还是谨慎一点，这里来读取实际值
-   add ebx, KERNEL_BIN_BASE_ADDR
-   mov cx, [KERNEL_BIN_BASE_ADDR + 44]    ; 偏移文件开始部分44字节的地方是e_phnum,表示有几个program header
+	mov dx,		[KERNEL_BIN_BASE_ADDR + 42]	  	; 偏移文件42字节处的属性是e_phentsize：		program header大小
+	mov ebx,	[KERNEL_BIN_BASE_ADDR + 28]   	; 偏移文件开始部分28字节的地方是e_phoff：	第1个program header在文件中的偏移量
+												; 其实该值是0x34,不过还是谨慎一点，这里来读取实际值
+	add ebx,	KERNEL_BIN_BASE_ADDR
+	mov cx,		[KERNEL_BIN_BASE_ADDR + 44]		; 偏移文件开始部分44字节的地方是e_phnum:	有几个program header
 .each_segment:
-   cmp byte [ebx + 0], PT_NULL		  ; 若p_type等于 PT_NULL,说明此program header未使用。
-   je .PTNULL
+	cmp byte	[ebx + 0], PT_NULL		; 若p_type等于 PT_NULL，说明此program header未使用。
+	je .PTNULL
 
-   ;为函数memcpy压入参数,参数是从右往左依然压入.函数原型类似于 memcpy(dst,src,size)
-   push dword [ebx + 16]			; program header中偏移16字节的地方是p_filesz,压入函数memcpy的第三个参数:size
-   mov eax, [ebx + 4]				; 距程序头偏移量为4字节的位置是p_offset
-   add eax, KERNEL_BIN_BASE_ADDR	; 加上kernel.bin被加载到的物理地址,eax为该段的物理地址
-   push eax							; 压入函数memcpy的第二个参数:源地址
-   push dword [ebx + 8]				; 压入函数memcpy的第一个参数:目的地址,偏移程序头8字节的位置是p_vaddr，这就是目的地址
-   call mem_cpy						; 调用mem_cpy完成段复制
-   add esp,12						; 清理栈中压入的三个参数
+	;为函数memcpy压入参数,参数是从右往左依次压入。memcpy(dst,src,size)
+	push dword	[ebx + 16]				; program header中偏移16字节的地方是p_filesz。压入函数memcpy的第三个参数:size
+	mov eax,	[ebx + 4]				; 距程序头偏移量为4字节的位置是p_offset
+	add eax,	KERNEL_BIN_BASE_ADDR	; 加上kernel.bin被加载到的物理地址，eax为该段的物理地址
+	push eax							; 压入函数memcpy的第二个参数:源地址
+	push dword	[ebx + 8]				; 压入函数memcpy的第一个参数:目的地址，程序头8字节的位置是p_vaddr = 目的地址
+	call 		mem_cpy					; 调用mem_cpy完成段复制
+	add esp,	12						; 清理栈中压入的三个参数
 .PTNULL:
-   add ebx, edx						; edx为program header大小,即e_phentsize,在此ebx指向下一个program header 
-   loop .each_segment
-   ret
+	add ebx, edx						; edx为program header大小，即e_phentsize，在此ebx指向下一个program header 
+	loop .each_segment
+	ret
 
 ;----------  逐字节拷贝 mem_cpy(dst,src,size) ------------
 ;输入:栈中三个参数(dst,src,size)
 ;输出:无
 ;---------------------------------------------------------
 mem_cpy:		      
-   cld
-   push ebp
-   mov ebp, esp
-   push ecx		   ; rep指令用到了ecx，但ecx对于外层段的循环还有用，故先入栈备份
-   mov edi, [ebp + 8]	   ; dst
-   mov esi, [ebp + 12]	   ; src
-   mov ecx, [ebp + 16]	   ; size
-   rep movsb		   ; 逐字节拷贝
-
-   ;恢复环境
-   pop ecx		
-   pop ebp
-   ret
+	cld
+	push ebp
+	mov ebp, esp
+	push ecx				; rep指令用到了ecx
+	mov edi, [ebp + 8]		; dst
+	mov esi, [ebp + 12]		; src
+	mov ecx, [ebp + 16]		; size
+	rep movsb				; 逐字节拷贝
+	;恢复环境
+	pop ecx
+	pop ebp
+	ret
 
 
 ;-------------   创建页目录及页表   ---------------
+;PageDirectoryEntry PDE 
+;PageTableEntry		PTE
 setup_page:
 	;页目录清0
 	mov ecx, 4096
@@ -259,44 +265,44 @@ setup_page:
 	loop .clear_page_dir
 
 	;创建页目录项(PDE)
-.create_pde:				     ; 创建Page Directory Entry
+.create_pde:
 	mov eax, PAGE_DIR_TABLE_POS
 	add eax, 0x1000 			     ; 第一个页表的位置及属性
-	mov ebx, eax				     ; 此处为ebx赋值，是为.create_pte做准备，ebx为基址。
+	mov ebx, eax				     ; .create_pte中，ebx为基址
 
-;   下面将页目录项0和0xc00都存为第一个页表的地址，
-;   一个页表可表示4MB内存,这样0xc03fffff以下的地址和0x003fffff以下的地址都指向相同的页表，
-;   这是为将地址映射为内核地址做准备
-   or eax, PG_US_U | PG_RW_W | PG_P	     ; 页目录项的属性RW和P位为1,US为1,表示用户属性,所有特权级别都可以访问.
-   mov [PAGE_DIR_TABLE_POS + 0x0], eax       ; 第1个目录项,在页目录表中的第1个目录项写入第一个页表的位置(0x101000)及属性(3)
-   mov [PAGE_DIR_TABLE_POS + 0xc00], eax     ; 一个页表项占用4字节,0xc00表示第768个页表占用的目录项,0xc00以上的目录项用于内核空间,
-					     ; 也就是页表的0xc0000000~0xffffffff共计1G属于内核,0x0~0xbfffffff共计3G属于用户进程.
-   sub eax, 0x1000
-   mov [PAGE_DIR_TABLE_POS + 4092], eax	     ; 使最后一个目录项指向页目录表自己的地址
+; 0xC00以上的目录项用于内核空间, 也就是页表的0xc0000000~0xffffffff共计1G属于内核,0x0~0xbfffffff共计3G属于用户进程
+; 页目录项0和0xC00(=768*4)，指向第一个页表的地址，
+; 一个页表指示4MB内存，0x003Fffff和0xC03Fffff虚拟内存区域，使用相同的页表，
+; 为内核地址做准备
+	or eax, PG_US_U | PG_RW_W | PG_P			; 页目录项的属性RW和P位为1、US为1，表示用户属性，所有特权级别都可以访问
+	mov [PAGE_DIR_TABLE_POS + 0x0], eax			; 第1个目录项，在页目录表中的第1个目录项，写入第一个页表的位置(0x101000)及属性(3)
+	mov [PAGE_DIR_TABLE_POS + 0xc00], eax		; 第768个PDE，也写入第一个页表的位置(0x101000)及属性(3)
+	sub eax, 0x1000
+	mov [PAGE_DIR_TABLE_POS + 4092], eax		; 使最后一个目录项指向页目录表自己
 
 ;下面创建页表项(PTE)
-   mov ecx, 256				     ; 1M低端内存 / 每页大小4k = 256
-   mov esi, 0
-   mov edx, PG_US_U | PG_RW_W | PG_P	     ; 属性为7,US=1,RW=1,P=1
-.create_pte:				     ; 创建Page Table Entry
-   mov [ebx+esi*4],edx			     ; 此时的ebx已经在上面通过eax赋值为0x101000,也就是第一个页表的地址 
-   add edx,4096
-   inc esi
-   loop .create_pte
+	mov ecx, 256				     	; 1M低端内存 / 每页大小4k = 256个PTE
+	mov esi, 0
+	mov edx, PG_US_U | PG_RW_W | PG_P	; 属性为7：US=1/RW=1/P=1
+.create_pte:
+	mov [ebx+esi*4],edx					; ebx=0x101000=第一个页表的地址
+	add edx,4096
+	inc esi
+	loop .create_pte
 
-;创建内核其它页表的PDE
-   mov eax, PAGE_DIR_TABLE_POS
-   add eax, 0x2000 		     ; 此时eax为第二个页表的位置
-   or eax, PG_US_U | PG_RW_W | PG_P  ; 页目录项的属性RW和P位为1,US为0
-   mov ebx, PAGE_DIR_TABLE_POS
-   mov ecx, 254			     ; 范围为第769~1022的所有目录项数量
-   mov esi, 769
+	;创建内核其它页表的PDE
+	mov eax, PAGE_DIR_TABLE_POS
+	add eax, 0x2000						; eax=第二个页表的位置(0x102000)
+	or eax, PG_US_U | PG_RW_W | PG_P	; 页目录项的属性RW和P位为1、US为0
+	mov ebx, PAGE_DIR_TABLE_POS
+	mov ecx, 254						; 范围为第769~1022的所有目录项，ecx=数量
+	mov esi, 769
 .create_kernel_pde:
-   mov [ebx+esi*4], eax
-   inc esi
-   add eax, 0x1000
-   loop .create_kernel_pde
-   ret
+	mov [ebx+esi*4], eax				;ebx索引目录项，eax索引第二个页表之后的页表
+	inc esi								;下一个目录项
+	add eax, 0x1000						;下一个页表(0x1000=4k)
+	loop .create_kernel_pde
+	ret
 
 
 ;-------------------------------------------------------------------------------
