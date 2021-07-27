@@ -1,12 +1,14 @@
 %include "boot.inc"
 section mbr vstart=0x7c00
 start:
-	mov ax, 0xb800
+	mov ax, cs		;改用这种写法初始化所有段寄存器！
 	mov ds, ax
-	mov ax, 0x7c0
 	mov es, ax
-	mov ax, 0
+	mov ss, ax
 	mov fs, ax
+	mov sp, 0x7c00
+	mov ax, 0xb800
+	mov gs, ax
 	
 	mov ax, 0x600	;清屏
 	mov bx, 0x700
@@ -14,12 +16,12 @@ start:
 	mov dx, 0x184f
 	int 0x10
 	
-	mov byte [0x00], 'M'
-	mov byte [0x01], 0x07
-	mov byte [0x02], 'B'
-	mov byte [0x03], 0x07
-	mov byte [0x04], 'R'
-	mov byte [0x05], 0x07
+	mov byte [gs:0x00], 'M'
+	mov byte [gs:0x01], 0x07
+	mov byte [gs:0x02], 'B'
+	mov byte [gs:0x03], 0x07
+	mov byte [gs:0x04], 'R'
+	mov byte [gs:0x05], 0x07
 
 	
 	mov eax, LOADER_START_SECTOR
@@ -84,7 +86,7 @@ not_ready:
 	mov dx,  0x1f0
 go_on_read:
 	in  ax,   dx
-	mov [fs:bx], ax
+	mov [bx], ax
 	add bx,   2
 	loop go_on_read
 	ret
