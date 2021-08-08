@@ -1,4 +1,6 @@
+#include "print.h"
 int main(void) {
-   while(1);
-   return 0;
+	put_char('a');
+	while(1);
+	return 0;
 }
