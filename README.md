@@ -2,17 +2,17 @@
 
 learn 《真象还原》
 
-
+&nbsp;
 
 kernel和lib/kernel目录的文件，需要在ubuntu上编译，生成bin文件。
 
 build_kernel.sh同时编译lib/kernel和kernel目录的文件，生成kenerl.bin。
 
-
+&nbsp;
 
 逻辑扇区号：mbr=0, loader=2, kenerl=9
 
-
+&nbsp;
 
 ### 编译选项
 
@@ -20,13 +20,13 @@ gcc -m32 使用64位编译器生成32位elf
 
 ld的时候加上 -m elf_i386
 
-
+&nbsp;
 
 -fno-builtin 不使用C库函数
 
 也可以-fno-builtin-function后边跟某一单个不使用的C库函数
 
-
+&nbsp;
 
 -fno-stack-protector
 
@@ -34,3 +34,19 @@ ld的时候加上 -m elf_i386
 
 此外，ld 的时候加上参数"-e main"就可以了，意思是将main函数作为程序入口，ld 的默认程序入口为_start。
 
+&nbsp;
+
+-w的意思是关闭编译时的警告，也就是编译后不显示任何warning，因为有时在编译之后编译器会显示一些例如数据转换之类的警告，这些警告是我们平时可以忽略的。
+-Wall选项意思是编译后显示所有警告。
+
+-W选项类似-Wall，会显示警告，但是只显示编译器认为会出现错误的警告。
+
+在编译一些项目的时候可以-W和-Wall选项一起使用。
+
+&nbsp;
+
+-Wstrict-prototypes 函数声明中必须有参数类型。
+
+&nbsp;
+
+-Wmissing-prototypes 选项要求函数必须有声明，否则编译时发出警告。 
