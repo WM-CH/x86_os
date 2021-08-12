@@ -50,3 +50,11 @@ ld的时候加上 -m elf_i386
 &nbsp;
 
 -Wmissing-prototypes 选项要求函数必须有声明，否则编译时发出警告。 
+
+&nbsp;
+
+-Wsystem-headers
+
+Print warning messages for constructs found in system header files. **Warnings from system headers are normally suppressed**, on the assumption that they usually do not indicate real problems and would only make the compiler output harder to read.
+
+说实话，还是没明白这个。
