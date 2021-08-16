@@ -75,6 +75,7 @@ static void* vaddr_get(enum pool_flags pf, uint32_t pg_cnt) {
 // 页表项 page table
 /* 得到虚拟地址vaddr对应的pte指针*/
 // 虚拟地址 vaddr 所在 pte 的"虚拟地址"!!!
+// *pte 代表的是 pte 页表项的内容
 uint32_t* pte_ptr(uint32_t vaddr) {
 	/* 先找到页目录表 + \
 	* 再用vaddr的pde部分做为索引，找到某一个页表 + \
@@ -88,6 +89,7 @@ uint32_t* pte_ptr(uint32_t vaddr) {
 // 页目录表项 page Directory table entry
 /* 得到虚拟地址vaddr对应的pde的指针 */
 // 虚拟地址 vaddr 所在 pde 的"虚拟地址"!!!
+// *pde 代表的是 pde 页目录项的内容
 uint32_t* pde_ptr(uint32_t vaddr) {
 	/* 0xfffff是用来访问到页目录表本身所在的地址 */
 	uint32_t* pde = (uint32_t*)((0xfffff000) + PDE_IDX(vaddr) * 4);
