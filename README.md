@@ -58,3 +58,58 @@ ld的时候加上 -m elf_i386
 Print warning messages for constructs found in system header files. **Warnings from system headers are normally suppressed**, on the assumption that they usually do not indicate real problems and would only make the compiler output harder to read.
 
 说实话，还是没明白这个。
+
+&nbsp;
+
+&nbsp;
+
+### 物理内存使用
+
+loader 0x900
+
+MBR 0x7c00
+
+内核 0x7_0000
+
+显存 0xB_8000
+
+页表 0x10_0000
+
+![页表](https://github.com/WM-CH/x86_os/raw/master/%E9%A1%B5%E8%A1%A8.png)
+
+
+
+### 虚拟内存布局
+
+|
+|
++---------0xC009A000---------位图地址
+|
++0xC009B000
+|	4个页大小的位图，管理512M内存
++0xC009C000
+|	512M是本系统最大的内存空间
++0xC009D000
+|
++---------0xC009E000---------内核主线程PCB
+|
++---------0xC009F000---------内核主线程栈顶（先自减/再入栈）
+|
+|	装载内核，约70k=0x11800
+|
++---------0xC0100000---------K_HEAP_START 跨过1M，使虚拟内存地址连续
+|
+|
+
+
+
+
+
+
+
+
+
+
+
+
+
