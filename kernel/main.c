@@ -1,38 +1,51 @@
 #include "print.h"
 #include "init.h"
-#include "memory.h"
-int main(void) {
-   put_str("I am kernel\n");
-   init_all();
-   
-   void* addr = get_kernel_pages(3);
-   put_str("\n get_kernel_page start vaddr is ");
-   put_int((uint32_t)addr);
-   put_str("\n");
+#include "thread.h"
+#include "interrupt.h"
 
-   while(1);
-   return 0;
+void k_thread_a(void*);
+void k_thread_b(void*);
+/*
+（1）上下文保护的第一部分，保存任务进入中断前的全部寄存器，目的是能让任务恢复到中断前。【kernel.S】
+（2）上下文保护的第二部分，保存 esi、 edi、 ebx 和 ebp，目的是让任务恢复执行
+在任务切换发生时剩下尚未执行的内核代码，【switch.S】
+保证顺利走到退出中断的出口，
+利用第一部分保护的寄存器环境彻底恢复任务。
+*/
+/*
+1.理解thread.c中 thread_start 中 ret，它实现了线程切换
+2.理解switch.c中 线程的切换
+*/
+int main(void) {
+	put_str("I am kernel\n");
+	init_all();
+	
+	// kernel线程优先级也是31 所以打印个数"Main"和"argA"相同，是"argB"的4倍
+	thread_start("k_thread_a", 31, k_thread_a, "argA ");
+	thread_start("k_thread_b", 8, k_thread_b, "argB ");
+
+	intr_enable();	// 打开中断,使时钟中断起作用
+	while(1) {
+		put_str("Main ");
+	};
+	return 0;
 }
 
-/*
-I am kernel
-init_all
-idt_init start
-	idt_desc_init done
-	pic_init done
-idt_init done
-timer_init start
-timer_init done
-mem_init start
-	mem_pool_init start
-		kernel_pool_bitmap_start:C009A000 kernel_pool_phy_addr_start:200000
-		user_pool_bitmap_start:C009A1E0 user_pool_phy_addr_start :1100000
-	mem_pool_init done
-mem_init done
-get_kernel_page start vaddris C0100000
-*/
+/* 在线程中运行的函数 */
+void k_thread_a(void* arg) {
+	char* para = arg;
+	while(1) {
+		put_str(para);
+	}
+}
 
-
+/* 在线程中运行的函数 */
+void k_thread_b(void* arg) {
+	char* para = arg;
+	while(1) {
+		put_str(para);
+	}
+}
 
 
 
