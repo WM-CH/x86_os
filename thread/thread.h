@@ -21,7 +21,10 @@ enum task_status {
  * 进程或线程被外部中断或软中断打断时,会按照此结构压入上下文寄存器, 
  * 结构体的寄存器，完全就是 Kernel.S 压入的寄存器
  * intr_exit中的出栈操作是此结构的逆操作
- * 此栈在线程自己的内核栈中位置固定,所在页的最顶端
+ * 
+ * 初始情况下此栈在线程自己的内核栈中位置固定，在 PCB 所在页的最顶端，
+ * 每次进入中断时就不一定了，如果进入中断时不涉及到特权级变化，它的位置就会在当前的 esp 之下，
+ * 否则处理器会从 TSS 中获得新的 esp 的值，然后该栈在新的 esp 之下
 ********************************************/
 struct intr_stack {
 	uint32_t vec_no;		// kernel.S 宏VECTOR中push %1压入的中断号【最后压入】
@@ -44,7 +47,7 @@ struct intr_stack {
 	uint32_t cs;
 	uint32_t eflags;
 	void* esp;
-	uint32_t ss;			//【第一个压入】
+	uint32_t ss;			// 因为要切换到高特权级栈，所以旧栈ss:esp要压入【第一个压入】
 };
 
 /***********  线程栈thread_stack  ***********
@@ -58,7 +61,7 @@ struct thread_stack {
 	/* ABI规定 ebp/ebx/edi/esi/esp 归主调函数所用
 	 * 被调函数执行完后，这5个寄存器不允许被改变  
 	 * 在 switch_to 中，一上来先保存这几个寄存器  */
-	uint32_t ebp;
+	uint32_t ebp;				// 【低地址处】【最后压入】
 	uint32_t ebx;
 	uint32_t edi;
 	uint32_t esi;
@@ -95,7 +98,7 @@ struct thread_stack {
 	 */
 	void (*unused_retaddr);	// unused_ret只为占位置充数，为“返回地址”保留位置
 	thread_func* function;	// 由 kernel_thread 函数调用的函数名
-	void* func_arg;			// 由 kernel_thread 函数调用 function 时的参数
+	void* func_arg;			// 由 kernel_thread 函数调用 function 时的参数【高地址处】
 };
 
 /* 进程或线程的 PCB 程序控制块 */

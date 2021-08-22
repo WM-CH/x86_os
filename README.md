@@ -105,7 +105,7 @@ MBR 0x7c00
 
 |
 
-+---------0xC009E000---------内核主线程PCB
++---------0xC009E000---------内核主线程PCB（往下使用）
 
 |
 
@@ -125,13 +125,172 @@ MBR 0x7c00
 
 
 
+### 线程切换
+
+1.理解thread.c中 thread_start 中 ret，它实现的线程切换。
+
+thread_start 给普通线程，分配一个页，作为PCB。然后调用 init_thread 和 thread_crete。
+
+- init_thread 给普通线程，填充PCB，其中将 self_kstack 赋值为PCB最顶端！
+- thread_create 给普通线程，预留出"中断栈intr_stack"空间，预留出"线程栈thread_stack"并赋值。注意 self_kstack 的位置：
+
+; PCB最顶端
+
+; intr_stack ~
+
+; thread_stack <---- self_kstack
+
+thread_stack内容如下：
+
+; fun_arg
+
+; function
+
+; unused_retaddr
+
+; eip
+
+; esi
+
+; edi
+
+; ebx
+
+; ebp 		<---- self_kstack 赋值给 esp
+
+本次演示 thread_start 中 调用内联汇编进行任务切换。
+
+ret 之前，使 thread->self_kstack 的值作为栈顶，获取了栈顶指针，pop出去4个寄存器，此时 esp指向了"线程栈thread_stack"成员eip
+
+ret使当前esp赋值给eip，调用到 kernel_thread 函数
+
+在 kernel_thread 函数中时栈的内容是：
+
+; fun_arg
+
+; function
+
+; unused_retaddr		<--- esp
+
+问：这里一直用的是0特权级的栈？
+
+答：是的，因为  thread_start 是主线程调用的。
 
 
 
+&nbsp;
 
+2.理解switch.c中 switch_to 实现的线程切换。
 
+make_main_thread 不再需要分配内存给PCB，因为预留了 0xC009E000 作为PCB
 
+栈顶是 0xC009F000
 
+只是调用 init_thread 初始化PCB，其中将 self_kstack 赋值为PCB最顶端，也就是栈顶地址 0xC009F000
 
+PCB结构从 0xC009E000 开始，最后一个成员是magic_num，
 
+栈顶从 0xC009F000 开始往低地址处压栈，检测到magic_num时，说明破坏了PCB结构。
+
+&nbsp;
+
+- 主线程执行时，发生时钟中断并切换线程。
+
+kernel.s中的 intr%1entry 保护现场，栈中保存一个"中断栈" intr_stack的内容，
+
+调用时钟中断函数 intr_timer_handler
+
+调用thread.c中schedule的调度
+
+调用switch.s中的switch_to
+
+switch_to(cur, next); 两个参数是两个线程的PCB
+
+调用switch_to时"主线程"的栈：
+
+; 前边还有很多压栈的数据，包括主线程中断之前压栈的一些返回地址，中断栈，以及intr_timer_handler、schedule和switch_to的返回地址。
+
+; next <---- esp+24
+
+; cur <---- esp+20
+
+; 返回地址 <---- esp+16
+
+在switch_to中根据ABI规定，压入"cur线程"的4个寄存器
+
+; esi <---- esp+12
+
+; edi <---- esp+8
+
+; ebx <---- esp+4
+
+; ebp <---- esp 赋值给 self_kstack
+
+最后将栈顶指针esp赋值给 => PCB的第一个成员"线程内核栈栈顶指针"self_kstack
+
+下边恢复普通线程，
+
+假设它是第一次被调度执行。
+
+从next的PCB获取到 self_kstack ，将它内容作为栈顶esp【这时 self_kstack 的位置见1里面】
+
+之后 pop 4个寄存器、调用ret将esp赋值给eip。就是调用到 kernel_thread 函数。
+
+此时主线程的中断流程并没有走完，没有退回到schedule、intr_timer_handler，也没有执行 intr_exit！！！
+
+&nbsp;
+
+问：中断栈的位置？
+
+答：初始情况下此栈在线程自己的内核栈中位置固定，在 PCB 所在页的最顶端，
+
+每次进入中断时就不一定了，如果进入中断时不涉及到特权级变化，它的位置就会在当前的 esp 之下，
+
+否则处理器会从 TSS 中获得新的 esp 的值，然后该栈在新的 esp 之下
+
+&nbsp;
+
+- 普通线程执行时，发生时钟中断并切换线程，假设切换回主线程。
+
+kernel.s中的 intr%1entry 保护现场，栈中保存一个"中断栈" intr_stack的内容，
+
+调用时钟中断函数 intr_timer_handler
+
+调用thread.c中schedule的调度
+
+调用switch.s中的switch_to
+
+switch_to(cur, next); 两个参数是两个线程的PCB
+
+调用switch_to时"线程"的栈：
+
+; 前边还有很多压栈的数据，包括一个中断栈，以及intr_timer_handler、schedule和switch_to的返回地址。
+
+; next <---- esp+24
+
+; cur <---- esp+20
+
+; 返回地址 <---- esp+16
+
+在switch_to中根据ABI规定，压入"cur线程"的4个寄存器
+
+; esi <---- esp+12
+
+; edi <---- esp+8
+
+; ebx <---- esp+4
+
+; ebp <---- esp 赋值给 self_kstack
+
+最后将栈顶指针esp赋值给 => PCB的第一个成员"线程内核栈栈顶指针"self_kstack
+
+下边恢复主线程，
+
+从next的PCB获取到 self_kstack ，将它内容作为栈顶esp
+
+之后 pop 4个寄存器、调用ret将esp赋值给eip。这次是返回到了switch_to的调用者 schedule 
+
+然后退回到 intr_timer_handler，intr_exit
+
+接着被中断前的位置继续执行了。。。
 

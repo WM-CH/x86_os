@@ -9,7 +9,7 @@
 
 #define PG_SIZE 4096
 
-struct task_struct* main_thread;    // 主线程PCB
+struct task_struct* g_main_thread;    // 主线程PCB
 struct list thread_ready_list;	    // 就绪队列
 struct list thread_all_list;	    // 所有任务队列
 static struct list_elem* g_thread_tag;// 用于临时保存队列中的线程结点
@@ -60,12 +60,12 @@ void thread_create(struct task_struct* pthread, thread_func function, void* func
 	kthread_stack->ebp = kthread_stack->ebx = kthread_stack->esi = kthread_stack->edi = 0;
 }
 
-/* 初始化线程基本信息结构体 struct task_struct*/
+/* 初始化线程PCB结构体 struct task_struct*/
 void init_thread(struct task_struct* pthread, char* name, int prio) {
-	memset(pthread, 0, sizeof(*pthread));
+	memset(pthread, 0, sizeof(*pthread));	//清空PCB
 	strcpy(pthread->name, name);
 
-	if (pthread == main_thread) {
+	if (pthread == g_main_thread) {
 		/* 由于把main函数也封装成一个线程,并且它一直是运行的,故将其直接设为TASK_RUNNING */
 		pthread->status = TASK_RUNNING;
 	} else {
@@ -88,8 +88,8 @@ struct task_struct* thread_start(char* name, int prio, thread_func function, voi
 	/* pcb都位于内核空间,包括用户进程的pcb也是在内核空间 */
 	struct task_struct* thread = get_kernel_pages(1);
 
-	init_thread(thread, name, prio);
-	thread_create(thread, function, func_arg);
+	init_thread(thread, name, prio);			//初始化线程PCB
+	thread_create(thread, function, func_arg);	//初始化线程栈结构体
 	
 	ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));	// 确保之前不在队列中
 	list_append(&thread_ready_list, &thread->general_tag);			// 加入就绪线程队列
@@ -117,16 +117,17 @@ struct task_struct* thread_start(char* name, int prio, thread_func function, voi
 
 /* 将kernel中的main函数完善为主线程 */
 static void make_main_thread(void) {
-	/* 因为main线程早已运行,咱们在loader.S中进入内核时的mov esp, 0xc009f000 已经预留了pcb, 地址为0xc009e000
-	 * 主线程不需要再为PCB申请页，也不需要再通过 thread_create 构造它的线程栈，
-	 * 只需要通过 init_thread 填充其名称和优先级。*/
-	main_thread = running_thread();
-	init_thread(main_thread, "main", 31);
+	/* 因为main线程早已运行,咱们在loader.S中进入内核时的mov esp, 0xc009f000设置了栈顶，也预留了pcb, 地址为0xc009e000
+	 * 主线程不需要再为PCB申请页，只需要通过 init_thread 填充PCB成员：名称和优先级等。
+	 * 也不需要再通过 thread_create 构造它的线程栈。
+	 */
+	g_main_thread = running_thread();	//用栈指针的高20位，当做当前线程的PCB
+	init_thread(g_main_thread, "main", 31);
 
 	/* main函数是当前线程,当前线程不在thread_ready_list中,
 	 * 所以只将其加在thread_all_list中. */
-	ASSERT(!elem_find(&thread_all_list, &main_thread->all_list_tag));
-	list_append(&thread_all_list, &main_thread->all_list_tag);
+	ASSERT(!elem_find(&thread_all_list, &g_main_thread->all_list_tag));
+	list_append(&thread_all_list, &g_main_thread->all_list_tag);
 }
 
 /*
