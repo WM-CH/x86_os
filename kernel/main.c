@@ -2,6 +2,7 @@
 #include "init.h"
 #include "thread.h"
 #include "interrupt.h"
+#include "console.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
@@ -16,6 +17,10 @@ void k_thread_b(void*);
 1.理解thread.c中 thread_start 中 ret，它实现了线程切换
 2.理解switch.c中 线程的切换
 */
+/*
+信号量、锁
+
+*/
 int main(void) {
 	put_str("I am kernel\n");
 	init_all();
@@ -26,7 +31,7 @@ int main(void) {
 
 	intr_enable();	// 打开中断,使时钟中断起作用
 	while(1) {
-		put_str("Main ");
+		console_put_str("Main ");
 	};
 	return 0;
 }
@@ -35,7 +40,7 @@ int main(void) {
 void k_thread_a(void* arg) {
 	char* para = arg;
 	while(1) {
-		put_str(para);
+		console_put_str(para);
 	}
 }
 
@@ -43,7 +48,7 @@ void k_thread_a(void* arg) {
 void k_thread_b(void* arg) {
 	char* para = arg;
 	while(1) {
-		put_str(para);
+		console_put_str(para);
 	}
 }
 

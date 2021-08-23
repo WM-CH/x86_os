@@ -4,12 +4,6 @@ learn 《真象还原》
 
 &nbsp;
 
-kernel和lib/kernel目录的文件，需要在ubuntu上编译，生成bin文件。
-
-build_kernel.sh同时编译lib/kernel和kernel目录的文件，生成kenerl.bin。
-
-&nbsp;
-
 逻辑扇区号：mbr=0, loader=2, kenerl=9
 
 &nbsp;
