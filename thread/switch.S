@@ -11,7 +11,7 @@ global switch_to
 ; ebx		<-- esp+4
 ; ebp 		<-- esp
 switch_to:
-   ;栈中此处是返回地址	       
+   ;栈中此处是返回地址
    push esi
    push edi
    push ebx

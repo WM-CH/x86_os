@@ -55,6 +55,52 @@ Print warning messages for constructs found in system header files. **Warnings f
 
 &nbsp;
 
+### 反汇编
+
+#### 反汇编main.c
+
+gcc -S -o main.s main.c
+
+#### 目标文件反汇编
+
+gcc -c -o main.o main.c
+
+objdump -s -d main.o > main.o.txt
+
+反汇编同时显示源代码
+
+gcc -g -c -o main.o main.c
+
+objdump -S -d main.o > main.o.txt
+
+显示源代码同时显示行号
+
+objdump -j .text -ld -C -S main.o > main.o.txt
+
+#### 可执行文件反汇编
+
+gcc -o main main.c
+
+objdump -s -d main > main.txt
+
+反汇编同时显示源代码
+
+gcc -g -o main main.c
+
+objdump -Sld kernel.bin > kernel.dis
+
+#### 常用参数
+
+objdump -d <file(s)>: 将代码段反汇编；
+
+objdump -S <file(s)>: 将代码段反汇编的同时，将反汇编代码与源代码交替显示，编译时需要使用-g参数，即需要调试信息；
+
+objdump -C <file(s)>: 将C++符号名逆向解析
+
+objdump -l <file(s)>: 反汇编代码中插入文件名和行号
+
+objdump -j section <file(s)>: 仅反汇编指定的section
+
 &nbsp;
 
 ### 物理内存使用
@@ -287,4 +333,28 @@ switch_to(cur, next); 两个参数是两个线程的PCB
 然后退回到 intr_timer_handler，intr_exit
 
 接着被中断前的位置继续执行了。。。
+
+
+
+### 信号量、锁
+
+假设只有两个线程。
+
+主线程获取了锁，正在打印。
+
+调度到另一个线程，（调度的时候主线程会保存一个中断栈，中断栈里面eflags的IF是打开中断的）
+
+另一个线程获取锁，获取信号量时 thread_block 里面 intr_disable 关闭了调度，
+
+主动schedule 切换到主线程
+
+恢复主线程时，他的现场中eflags的IF是打开的。所以可以继续打开时钟中断进行调度。
+
+主线程继续打印，
+
+console_acquire();
+
+put_str(str); 
+
+console_release();
 

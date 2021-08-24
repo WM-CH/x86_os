@@ -6,7 +6,7 @@ LD = ld
 LIB = -m32 -I lib/ -I lib/kernel/ -I lib/user/ -I kernel/ -I device/ -I thread/
 ASFLAGS = -f elf
 CFLAGS = -Wall $(LIB) -c -fno-builtin -fno-stack-protector -W -Wstrict-prototypes \
-         -Wmissing-prototypes -Wsystem-headers
+         -Wmissing-prototypes -Wsystem-headers -g
 LDFLAGS = -m elf_i386 -Ttext $(ENTRY_POINT) -e main -Map $(BUILD_DIR)/kernel.map
 OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
       $(BUILD_DIR)/timer.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/print.o \
@@ -96,4 +96,7 @@ clean:
 
 build: $(BUILD_DIR)/kernel.bin
 
-all: mk_dir build
+dis:
+	objdump -Sld $(BUILD_DIR)/kernel.bin > $(BUILD_DIR)/kernel.dis
+
+all: mk_dir build dis
