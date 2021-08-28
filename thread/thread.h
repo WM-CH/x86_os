@@ -7,6 +7,7 @@
 
 /* 自定义通用函数类型 */
 typedef void thread_func(void*);
+typedef int16_t pid_t;
 
 /* 进程或线程的状态 */
 enum task_status {
@@ -115,6 +116,7 @@ struct task_struct {
 	 * 把 self_kstack 的值加载到 esp 寄存器，这样便从 0 特权级栈中获取了线程上下文，从而可以加载到处理器中运行。
 	 */
 	uint32_t* self_kstack;		// 各内核线程都用自己的内核栈
+	pid_t pid;
 	enum task_status status;
 	char name[16];
 	uint8_t priority;			// 换下CPU时，将 priority 赋值给 ticks

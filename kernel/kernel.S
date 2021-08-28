@@ -35,7 +35,7 @@ intr%1entry:		; 每个中断处理程序都要压入中断向量号（第一个�
 	out 0xa0, al		; 向从片发送
 	out 0x20, al		; 向主片发送
 
-	push %1			; 不管idt_table中的目标程序是否需要参数,都一律压入中断向量号,调试时很方便
+	push %1			; 不管idt_table中的目标程序是否需要参数,都一律压入中断向量号,调试时很方便【中断向量号】
 	call [idt_table + %1*4]	; 调用idt_table中的C版本中断处理函数
 	jmp intr_exit
 
@@ -47,13 +47,13 @@ section .text
 global intr_exit
 intr_exit:	     
 	; 以下是恢复上下文环境
-	add esp, 4				; 跳过我们手动压入的中断号push %1
+	add esp, 4				; 跳过我们手动压入的【中断号】push %1
 	popad
 	pop gs
 	pop fs
 	pop es
 	pop ds
-	add esp, 4				; 跳过error_code，硬件自己压入的
+	add esp, 4				; 跳过error_code，硬件自己压入的。硬件没有压入时会手动压入。【错误码】
 	iretd
 
 ;使用宏 VECTOR 定义33个中断处理函数
@@ -108,3 +108,48 @@ VECTOR 0x2e,ZERO			;硬盘
 VECTOR 0x2f,ZERO			;保留
 ;32~255 maskable interrupt
 
+;;;;;;;;;;;;;;;;   0x80号中断   ;;;;;;;;;;;;;;;;
+[bits 32]
+extern syscall_table
+section .text
+global syscall_handler
+syscall_handler:
+	;1 保存上下文环境
+	push 0			; 压入0, 使栈中格式统一【错误码】
+	;以下保存上下文环境
+	push ds
+	push es
+	push fs
+	push gs
+	pushad			; PUSHAD指令压入32位寄存器,其入栈顺序是: EAX,ECX,EDX,EBX,ESP,EBP,ESI,EDI
+	
+	push 0x80		; 此位置压入0x80也是为了保持统一的栈格式【中断号】
+
+	;2 为系统调用子功能传入参数
+	;我们只支持 3 个参数的系统调用，故只压入了三个参数，按照C调用约定，最右边的参数先入栈
+	;这里我们不管具体系统调用中的参数是几个，一律压入 3 个参数
+	;子功能处理函数都有自己的原型声明，声明中包括参数个数及类型，编译时编译器会根据函数声明在栈中匹配出正确数量的参数。
+	;尽管我们压入了 3 个参数，但对于那些参数少于 3 个的函数也不会出错
+	push edx		; 系统调用中第3个参数
+	push ecx		; 系统调用中第2个参数
+	push ebx		; 系统调用中第1个参数
+
+	;;;此处如果用栈来传递参数的话：
+	;;;从内核栈中获取cpu自动压入的用户栈指针esp的值
+	;;;mov ebx, [esp + 4 + 48 + 4 + 12]
+	;;;为啥是12：中断发生后，处理器由低特权进入高特权级，它会把 ss3、 esp3、 eflag、 cs、 eip 依次压入栈中，每个reg长度4字节，共 20 字节。
+	;;;把参数从用户栈，压入内核栈中：
+	;;;此时ebx是用户栈指针
+	;;;push dword [ebx + 12]	; 系统调用的第3个参数
+	;;;push dword [ebx + 8]		; 系统调用的第2个参数
+	;;;push dword [ebx + 4]		; 系统调用的第1个参数
+	;;;mov edx, [ebx]			; 系统调用的子功能号
+
+	;3 调用子功能处理函数
+	call [syscall_table + eax*4]	; 函数的地址占4字节
+	add esp, 12		; 跨过上面的三个参数
+
+	;4 将call调用后的返回值，存入待当前内核栈中eax的位置（pushad压栈的eax）
+	;根据二进制编程接口 abi 约定，寄存器 eax 用来存储返回值。
+	mov [esp + 8*4], eax	
+	jmp intr_exit	; intr_exit返回,恢复上下文
