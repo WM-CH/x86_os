@@ -130,6 +130,7 @@ void process_execute(void* filename, char* name) {
    create_user_vaddr_bitmap(thread);				//【进程新增】创建用户进程，虚拟地址空间位图
    thread_create(thread, start_process, filename);	//初始化线程栈结构体 struct thread_stack
    thread->pgdir = create_page_dir();				//【进程新增】创建用户进程，页目录表
+   block_desc_init(thread->u_block_desc);
    
    enum intr_status old_status = intr_disable();
    ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));

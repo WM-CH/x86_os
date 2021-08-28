@@ -133,6 +133,7 @@ struct task_struct {
 
 	uint32_t* pgdir;						// 进程自己页目录表的虚拟地址，加载到cr3时需转成物理地址
 	struct virtual_addr userprog_vaddr;		// 用户进程的虚拟地址池，内核进程的定义在memory.c中
+	struct mem_block_desc u_block_desc[DESC_CNT];   // 用户进程内存块描述符
 	
 	/* PCB 和 0 级栈是在同一个页中，栈位于页的顶端并向下发展，
 	 * 因此担心压栈过程中会把 PCB 中的信息给覆盖，
