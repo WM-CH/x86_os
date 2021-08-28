@@ -8,7 +8,7 @@ learn 《真象还原》
 
 &nbsp;
 
-### 编译选项
+## 编译选项
 
 gcc -m32 使用64位编译器生成32位elf
 
@@ -55,13 +55,13 @@ Print warning messages for constructs found in system header files. **Warnings f
 
 &nbsp;
 
-### 反汇编
+## 反汇编
 
-#### 反汇编main.c
+### 反汇编main.c
 
 gcc -S -o main.s main.c
 
-#### 目标文件反汇编
+### 目标文件反汇编
 
 gcc -c -o main.o main.c
 
@@ -77,7 +77,7 @@ objdump -S -d main.o > main.o.txt
 
 objdump -j .text -ld -C -S main.o > main.o.txt
 
-#### 可执行文件反汇编
+### 可执行文件反汇编
 
 gcc -o main main.c
 
@@ -89,7 +89,7 @@ gcc -g -o main main.c
 
 objdump -Sld kernel.bin > kernel.dis
 
-#### 常用参数
+### 常用参数
 
 objdump -d <file(s)>: 将代码段反汇编；
 
@@ -103,7 +103,7 @@ objdump -j section <file(s)>: 仅反汇编指定的section
 
 &nbsp;
 
-### 物理内存使用
+## 物理内存使用
 
 loader 0x900
 
@@ -123,7 +123,7 @@ MBR 0x7c00
 
 &nbsp;
 
-### 虚拟内存布局
+## 虚拟内存布局
 
 |
 
@@ -165,7 +165,7 @@ MBR 0x7c00
 
 
 
-### 线程切换
+## 线程切换
 
 1.理解thread.c中 thread_start 中 ret，它实现的线程切换。
 
@@ -216,7 +216,7 @@ ret使当前esp赋值给eip，调用到 kernel_thread 函数
 
 答：是的，因为  thread_start 是主线程调用的。
 
-
+所有的线程都是用的0特权级栈，因为都属于主进程！
 
 &nbsp;
 
@@ -336,7 +336,7 @@ switch_to(cur, next); 两个参数是两个线程的PCB
 
 
 
-### 信号量、锁
+## 信号量、锁
 
 假设只有两个线程。
 
@@ -357,4 +357,129 @@ console_acquire();
 put_str(str); 
 
 console_release();
+
+&nbsp;
+
+## 用户进程
+
+回顾之前线程的流程：
+
+thread_start(...,function,...)
+
+thread = get_kernel_pages(1)
+
+init_thread(thread,...)
+
+thread_create(thread,function,...)
+
+kernel_thread(function, args)
+
+function
+
+把 function 替换为创建进程的新函数。
+
+&nbsp;
+
+1.self_kstack的位置
+
+答：是进程初始化之后，self_kstack的位置没动，见线程一节的描述。
+
+2.用户进程3特权级栈在 **USER_STACK3_VADDR=(0xc0000000 - 0x1000)**
+
+用户进程0特权级栈在 **PCB + PG_SIZE**
+
+3.update_tss_esp只用了一个全局变量g_tss，怎么区分内核进程和用户进程的？
+
+答：update_tss_esp函数只会被用户进程调用。
+
+&nbsp;
+
+readelf 选项
+
+选项 -e,headers 显示全部头信息，等价于: -h -l -S 。
+
+其中数据段的fileSize和memSize不相等，因为有BSS段。
+
+&nbsp;
+
+给用户进程创建内存位图，使用地址是：linux用户程序入口地址 0x80480000
+
+&nbsp;
+
+```c
+/* 用户进程创建过程 */
+void process_execute(void* filename, char* name) {
+   struct task_struct* thread = get_kernel_pages(1);
+   init_thread(thread, name, default_prio);			//初始化线程PCB结构体 struct task_struct
+   create_user_vaddr_bitmap(thread);				//【进程新增】创建用户进程，虚拟地址空间位图
+   thread_create(thread, start_process, filename);	//初始化线程栈结构体 struct thread_stack
+   thread->pgdir = create_page_dir();				//【进程新增】创建用户进程，页目录表
+   
+   enum intr_status old_status = intr_disable();
+   ASSERT(!elem_find(&thread_ready_list, &thread->general_tag));
+   list_append(&thread_ready_list, &thread->general_tag);
+   ASSERT(!elem_find(&thread_all_list, &thread->all_list_tag));
+   list_append(&thread_all_list, &thread->all_list_tag);
+   intr_set_status(old_status);
+}
+注意：给用户进程创建页表
+```
+
+```c
+/*用户进程执行过程*/
+schedule
+	process_activate	//【进程新增】1.激活线程或进程的页表,【更新CR3寄存器】
+						//2.用户进程，更新tss中的esp0为进程的特权级0的栈
+	switch_to
+kernel_thread(start_process, user_prog);  //kernel_thread(function, args)
+start_process(user_prog); //【进程新增】构建进程初始上下文（填充中断栈/0级栈），利用iretd填充到CPU中
+intr_exit
+user_prog
+```
+
+```c
+/*主要介绍下边的函数*/
+void start_process(void* filename_) {
+	void* function = filename_;
+	struct task_struct* cur = running_thread();
+	cur->self_kstack += sizeof(struct thread_stack);
+	struct intr_stack* proc_stack = (struct intr_stack*)cur->self_kstack;	 
+	proc_stack->edi = proc_stack->esi = proc_stack->ebp = proc_stack->esp_dummy = 0;
+	proc_stack->ebx = proc_stack->edx = proc_stack->ecx = proc_stack->eax = 0;
+	/* 在iretd返回时，如果发现未来的 CPL（也就是内核栈中 CS.RPL，或者说是返回到的用户进程的代码段CS.CPL）
+	 * 权限低于（数值上大于） CPU 中段寄存器（如 DS、 ES、 FS、 GS）中选择子指向的内存段的 DPL，
+	 * CPU 会自动将相应段寄存器的选择子置为 0 
+	 * 这里gs的选择子在iretd返回后，会被自动清零。*/
+	proc_stack->gs = 0;					// 用户态用不上,直接初始为0
+	proc_stack->ds = proc_stack->es = proc_stack->fs = SELECTOR_U_DATA;		// 用户级数据段
+	proc_stack->eip = function;			// 待执行的用户程序地址
+	proc_stack->cs = SELECTOR_U_CODE;	// 用户级代码段
+	proc_stack->eflags = (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1);
+	
+	/* 给用户进程创建 3 特权级栈，它是在谁的内存空间中申请的？是安装在谁的页表中了？
+	 * create_page_dir  为用户进程创建页目录表
+	 * process_activate 使用户进程页表生效【已经把CR3寄存器 更新为 用户进程的页表了】
+	 * start_process    为用户进程创建3特权级栈【所以申请的内存空间来自用户进程的页表】
+	 * 
+	 * USER_STACK3_VADDR=(0xc0000000 - 0x1000)
+	 */
+	proc_stack->esp = (void*)((uint32_t)get_a_page(PF_USER, USER_STACK3_VADDR) + PG_SIZE) ;
+	proc_stack->ss = SELECTOR_U_DATA;
+	
+	/* 将 esp 替换为 proc_stack
+	 * 通过 jmp intr_exit 那里的一系列 pop 指令和 iretd 指令，
+	 * 将 proc_stack 中的数据载入 CPU 的寄存器，
+	 * 从而使程序“假装”退出中断，进入特权级 3
+	 */
+	asm volatile ("movl %0, %%esp; jmp intr_exit" : : "g" (proc_stack) : "memory");
+}
+注意：给用户进程创建 3 特权级栈
+```
+
+
+
+
+
+
+
 

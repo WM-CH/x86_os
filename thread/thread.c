@@ -6,8 +6,7 @@
 #include "interrupt.h"
 #include "print.h"
 #include "memory.h"
-
-#define PG_SIZE 4096
+#include "process.h"
 
 struct task_struct* g_main_thread;    // 主线程PCB
 struct list thread_ready_list;	    // 就绪队列
@@ -60,7 +59,7 @@ void thread_create(struct task_struct* pthread, thread_func function, void* func
 	kthread_stack->ebp = kthread_stack->ebx = kthread_stack->esi = kthread_stack->edi = 0;
 }
 
-/* 初始化线程PCB结构体 struct task_struct*/
+/* 初始化线程PCB结构体 struct task_struct */
 void init_thread(struct task_struct* pthread, char* name, int prio) {
 	memset(pthread, 0, sizeof(*pthread));	//清空PCB
 	strcpy(pthread->name, name);
@@ -160,6 +159,11 @@ void schedule()
 	g_thread_tag = list_pop(&thread_ready_list);   
 	struct task_struct* next = elem2entry(struct task_struct, general_tag, g_thread_tag);
 	next->status = TASK_RUNNING;
+	
+	/* 1.激活线程或进程的页表,【更新CR3寄存器】
+	 * 2.用户进程，更新tss中的esp0为进程的特权级0的栈 */
+	process_activate(next);
+
 	switch_to(cur, next);
 }
 

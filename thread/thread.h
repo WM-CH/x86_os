@@ -2,6 +2,8 @@
 #define __THREAD_THREAD_H
 #include "stdint.h"
 #include "list.h"
+#include "bitmap.h"
+#include "memory.h"
 
 /* 自定义通用函数类型 */
 typedef void thread_func(void*);
@@ -127,13 +129,17 @@ struct task_struct {
 	/* 线程在"全部队列"中的结点 */
 	struct list_elem all_list_tag;
 
-	uint32_t* pgdir;			// 进程自己页表的虚拟地址
+	uint32_t* pgdir;						// 进程自己页目录表的虚拟地址，加载到cr3时需转成物理地址
+	struct virtual_addr userprog_vaddr;		// 用户进程的虚拟地址池，内核进程的定义在memory.c中
 	
 	/* PCB 和 0 级栈是在同一个页中，栈位于页的顶端并向下发展，
 	 * 因此担心压栈过程中会把 PCB 中的信息给覆盖，
 	 * 所以每次在线程或进程调度时，要判断是否触及到了进程信息的边界， */
 	uint32_t stack_magic;		// 用这串数字做栈的边界标记,用于检测栈的溢出
 };
+
+extern struct list thread_ready_list;
+extern struct list thread_all_list;
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
 void init_thread(struct task_struct* pthread, char* name, int prio);
