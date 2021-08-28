@@ -591,6 +591,8 @@ ap 的类型为 va_list，va_list 本质上是指针类型，是 void* 或 char*
 
 提前建立好多种不同大小的内存块的仓库（arena）
 
+![1630166866548](https://github.com/WM-CH/x86_os/raw/master/arena.png)
+
 
 
 &nbsp;
