@@ -10,12 +10,24 @@
 #include "sync.h"
 
 struct task_struct* g_main_thread;	// 主线程PCB
+struct task_struct* idle_thread;	// idle线程
 struct list thread_ready_list;	    // 就绪队列
 struct list thread_all_list;	    // 所有任务队列
 struct lock pid_lock;				// 分配pid锁
 static struct list_elem* g_thread_tag;// 用于临时保存队列中的线程结点
 
 extern void switch_to(struct task_struct* cur, struct task_struct* next);
+
+/* idle线程 */
+static void idle(void* arg UNUSED) {
+	while(1) {
+		thread_block(TASK_BLOCKED);
+		//CPU停机
+		//唯一能唤醒处理器的就是外部中断
+		//执行hlt时必须要保证目前处在开中断的情况下
+		asm volatile ("sti; hlt" : : : "memory");
+	}
+}
 
 /* 返回线程 PCB 地址。
  * 各个线程所用的 0 级栈都是在自己的 PCB 当中，
@@ -164,6 +176,11 @@ void schedule()
 		不需要将其加入队列,因为当前线程不在就绪队列中。*/
 	}
 
+	/* 如果就绪队列中没有可运行的任务,就唤醒idle */
+	if (list_empty(&thread_ready_list)) {
+		thread_unblock(idle_thread);
+	}
+	
 	/* 换上 */
 	ASSERT(!list_empty(&thread_ready_list));
 	g_thread_tag = NULL;	  // g_thread_tag清空
@@ -210,6 +227,17 @@ void thread_unblock(struct task_struct* pthread) {
 	intr_set_status(old_status);
 }
 
+/* 主动让出cpu，换其它线程运行，但状态仍是ready */
+void thread_yield(void) {
+	struct task_struct* cur = running_thread();
+	enum intr_status old_status = intr_disable();
+	ASSERT(!elem_find(&thread_ready_list, &cur->general_tag));
+	list_append(&thread_ready_list, &cur->general_tag);
+	cur->status = TASK_READY;
+	schedule();
+	intr_set_status(old_status);
+}
+
 /* 初始化线程环境 */
 void thread_init(void) {
 	put_str("thread_init start\n");
@@ -218,5 +246,7 @@ void thread_init(void) {
 	lock_init(&pid_lock);
 	/* 将当前main函数创建为线程 */
 	make_main_thread();
+	/* 创建idle线程 */
+	idle_thread = thread_start("idle", 10, idle, NULL);
 	put_str("thread_init done\n");
 }
