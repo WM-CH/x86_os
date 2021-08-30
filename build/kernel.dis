@@ -6,7 +6,7 @@ Disassembly of section .text:
 
 c0001500 <main>:
 main():
-/work/x86_os_my/kernel/main.c:36
+/work/x86_os_my/kernel/main.c:32
 void k_thread_a(void*);
 void k_thread_b(void*);
 void u_prog_a(void);
@@ -20,22 +20,22 @@ c000150a:	55                   	push   %ebp
 c000150b:	89 e5                	mov    %esp,%ebp
 c000150d:	51                   	push   %ecx
 c000150e:	83 ec 04             	sub    $0x4,%esp
-/work/x86_os_my/kernel/main.c:37
+/work/x86_os_my/kernel/main.c:33
 	put_str("I am kernel\n");
 c0001511:	83 ec 0c             	sub    $0xc,%esp
-c0001514:	68 54 65 00 c0       	push   $0xc0006554
+c0001514:	68 28 66 00 c0       	push   $0xc0006628
 c0001519:	e8 f2 0e 00 00       	call   c0002410 <put_str>
 c000151e:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:38
+/work/x86_os_my/kernel/main.c:34
 	init_all();
 c0001521:	e8 fc 02 00 00       	call   c0001822 <init_all>
-/work/x86_os_my/kernel/main.c:39 (discriminator 1)
+/work/x86_os_my/kernel/main.c:35 (discriminator 1)
 	while(1);
 c0001526:	eb fe                	jmp    c0001526 <main+0x26>
 
 c0001528 <k_thread_a>:
 k_thread_a():
-/work/x86_os_my/kernel/main.c:49
+/work/x86_os_my/kernel/main.c:45
 	while(1);
 	return 0;
 }
@@ -45,110 +45,110 @@ void k_thread_a(void* arg) {
 c0001528:	55                   	push   %ebp
 c0001529:	89 e5                	mov    %esp,%ebp
 c000152b:	83 ec 18             	sub    $0x18,%esp
-/work/x86_os_my/kernel/main.c:50
+/work/x86_os_my/kernel/main.c:46
 	void* addr1 = sys_malloc(256);
 c000152e:	83 ec 0c             	sub    $0xc,%esp
 c0001531:	68 00 01 00 00       	push   $0x100
 c0001536:	e8 68 19 00 00       	call   c0002ea3 <sys_malloc>
 c000153b:	83 c4 10             	add    $0x10,%esp
 c000153e:	89 45 f0             	mov    %eax,-0x10(%ebp)
-/work/x86_os_my/kernel/main.c:51
+/work/x86_os_my/kernel/main.c:47
 	void* addr2 = sys_malloc(255);
 c0001541:	83 ec 0c             	sub    $0xc,%esp
 c0001544:	68 ff 00 00 00       	push   $0xff
 c0001549:	e8 55 19 00 00       	call   c0002ea3 <sys_malloc>
 c000154e:	83 c4 10             	add    $0x10,%esp
 c0001551:	89 45 ec             	mov    %eax,-0x14(%ebp)
-/work/x86_os_my/kernel/main.c:52
+/work/x86_os_my/kernel/main.c:48
 	void* addr3 = sys_malloc(254);
 c0001554:	83 ec 0c             	sub    $0xc,%esp
 c0001557:	68 fe 00 00 00       	push   $0xfe
 c000155c:	e8 42 19 00 00       	call   c0002ea3 <sys_malloc>
 c0001561:	83 c4 10             	add    $0x10,%esp
 c0001564:	89 45 e8             	mov    %eax,-0x18(%ebp)
-/work/x86_os_my/kernel/main.c:53
+/work/x86_os_my/kernel/main.c:49
 	console_put_str(" thread_a malloc addr:0x");
 c0001567:	83 ec 0c             	sub    $0xc,%esp
-c000156a:	68 61 65 00 c0       	push   $0xc0006561
+c000156a:	68 35 66 00 c0       	push   $0xc0006635
 c000156f:	e8 ec 30 00 00       	call   c0004660 <console_put_str>
 c0001574:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:54
+/work/x86_os_my/kernel/main.c:50
 	console_put_int((int)addr1);
 c0001577:	8b 45 f0             	mov    -0x10(%ebp),%eax
 c000157a:	83 ec 0c             	sub    $0xc,%esp
 c000157d:	50                   	push   %eax
 c000157e:	e8 27 31 00 00       	call   c00046aa <console_put_int>
 c0001583:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:55
+/work/x86_os_my/kernel/main.c:51
 	console_put_char(',');
 c0001586:	83 ec 0c             	sub    $0xc,%esp
 c0001589:	6a 2c                	push   $0x2c
 c000158b:	e8 f1 30 00 00       	call   c0004681 <console_put_char>
 c0001590:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:56
+/work/x86_os_my/kernel/main.c:52
 	console_put_int((int)addr2);
 c0001593:	8b 45 ec             	mov    -0x14(%ebp),%eax
 c0001596:	83 ec 0c             	sub    $0xc,%esp
 c0001599:	50                   	push   %eax
 c000159a:	e8 0b 31 00 00       	call   c00046aa <console_put_int>
 c000159f:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:57
+/work/x86_os_my/kernel/main.c:53
 	console_put_char(',');
 c00015a2:	83 ec 0c             	sub    $0xc,%esp
 c00015a5:	6a 2c                	push   $0x2c
 c00015a7:	e8 d5 30 00 00       	call   c0004681 <console_put_char>
 c00015ac:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:58
+/work/x86_os_my/kernel/main.c:54
 	console_put_int((int)addr3);
 c00015af:	8b 45 e8             	mov    -0x18(%ebp),%eax
 c00015b2:	83 ec 0c             	sub    $0xc,%esp
 c00015b5:	50                   	push   %eax
 c00015b6:	e8 ef 30 00 00       	call   c00046aa <console_put_int>
 c00015bb:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:59
+/work/x86_os_my/kernel/main.c:55
 	console_put_char('\n');
 c00015be:	83 ec 0c             	sub    $0xc,%esp
 c00015c1:	6a 0a                	push   $0xa
 c00015c3:	e8 b9 30 00 00       	call   c0004681 <console_put_char>
 c00015c8:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:61
+/work/x86_os_my/kernel/main.c:57
 
 	int cpu_delay = 100000;
 c00015cb:	c7 45 f4 a0 86 01 00 	movl   $0x186a0,-0xc(%ebp)
-/work/x86_os_my/kernel/main.c:62
+/work/x86_os_my/kernel/main.c:58
 	while(cpu_delay-- > 0);
 c00015d2:	90                   	nop
-/work/x86_os_my/kernel/main.c:62 (discriminator 1)
+/work/x86_os_my/kernel/main.c:58 (discriminator 1)
 c00015d3:	8b 45 f4             	mov    -0xc(%ebp),%eax
 c00015d6:	8d 50 ff             	lea    -0x1(%eax),%edx
 c00015d9:	89 55 f4             	mov    %edx,-0xc(%ebp)
 c00015dc:	85 c0                	test   %eax,%eax
 c00015de:	7f f3                	jg     c00015d3 <k_thread_a+0xab>
-/work/x86_os_my/kernel/main.c:63
+/work/x86_os_my/kernel/main.c:59
 	sys_free(addr1);
 c00015e0:	83 ec 0c             	sub    $0xc,%esp
 c00015e3:	ff 75 f0             	pushl  -0x10(%ebp)
 c00015e6:	e8 e5 1e 00 00       	call   c00034d0 <sys_free>
 c00015eb:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:64
+/work/x86_os_my/kernel/main.c:60
 	sys_free(addr2);
 c00015ee:	83 ec 0c             	sub    $0xc,%esp
 c00015f1:	ff 75 ec             	pushl  -0x14(%ebp)
 c00015f4:	e8 d7 1e 00 00       	call   c00034d0 <sys_free>
 c00015f9:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:65
+/work/x86_os_my/kernel/main.c:61
 	sys_free(addr3);
 c00015fc:	83 ec 0c             	sub    $0xc,%esp
 c00015ff:	ff 75 e8             	pushl  -0x18(%ebp)
 c0001602:	e8 c9 1e 00 00       	call   c00034d0 <sys_free>
 c0001607:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:66 (discriminator 1)
+/work/x86_os_my/kernel/main.c:62 (discriminator 1)
 	while(1);
 c000160a:	eb fe                	jmp    c000160a <k_thread_a+0xe2>
 
 c000160c <k_thread_b>:
 k_thread_b():
-/work/x86_os_my/kernel/main.c:70
+/work/x86_os_my/kernel/main.c:66
 }
 
 /* 在线程中运行的函数 */
@@ -156,110 +156,110 @@ void k_thread_b(void* arg) {
 c000160c:	55                   	push   %ebp
 c000160d:	89 e5                	mov    %esp,%ebp
 c000160f:	83 ec 18             	sub    $0x18,%esp
-/work/x86_os_my/kernel/main.c:71
+/work/x86_os_my/kernel/main.c:67
 	void* addr1 = sys_malloc(256);
 c0001612:	83 ec 0c             	sub    $0xc,%esp
 c0001615:	68 00 01 00 00       	push   $0x100
 c000161a:	e8 84 18 00 00       	call   c0002ea3 <sys_malloc>
 c000161f:	83 c4 10             	add    $0x10,%esp
 c0001622:	89 45 f0             	mov    %eax,-0x10(%ebp)
-/work/x86_os_my/kernel/main.c:72
+/work/x86_os_my/kernel/main.c:68
 	void* addr2 = sys_malloc(255);
 c0001625:	83 ec 0c             	sub    $0xc,%esp
 c0001628:	68 ff 00 00 00       	push   $0xff
 c000162d:	e8 71 18 00 00       	call   c0002ea3 <sys_malloc>
 c0001632:	83 c4 10             	add    $0x10,%esp
 c0001635:	89 45 ec             	mov    %eax,-0x14(%ebp)
-/work/x86_os_my/kernel/main.c:73
+/work/x86_os_my/kernel/main.c:69
 	void* addr3 = sys_malloc(254);
 c0001638:	83 ec 0c             	sub    $0xc,%esp
 c000163b:	68 fe 00 00 00       	push   $0xfe
 c0001640:	e8 5e 18 00 00       	call   c0002ea3 <sys_malloc>
 c0001645:	83 c4 10             	add    $0x10,%esp
 c0001648:	89 45 e8             	mov    %eax,-0x18(%ebp)
-/work/x86_os_my/kernel/main.c:74
+/work/x86_os_my/kernel/main.c:70
 	console_put_str(" thread_b malloc addr:0x");
 c000164b:	83 ec 0c             	sub    $0xc,%esp
-c000164e:	68 7a 65 00 c0       	push   $0xc000657a
+c000164e:	68 4e 66 00 c0       	push   $0xc000664e
 c0001653:	e8 08 30 00 00       	call   c0004660 <console_put_str>
 c0001658:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:75
+/work/x86_os_my/kernel/main.c:71
 	console_put_int((int)addr1);
 c000165b:	8b 45 f0             	mov    -0x10(%ebp),%eax
 c000165e:	83 ec 0c             	sub    $0xc,%esp
 c0001661:	50                   	push   %eax
 c0001662:	e8 43 30 00 00       	call   c00046aa <console_put_int>
 c0001667:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:76
+/work/x86_os_my/kernel/main.c:72
 	console_put_char(',');
 c000166a:	83 ec 0c             	sub    $0xc,%esp
 c000166d:	6a 2c                	push   $0x2c
 c000166f:	e8 0d 30 00 00       	call   c0004681 <console_put_char>
 c0001674:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:77
+/work/x86_os_my/kernel/main.c:73
 	console_put_int((int)addr2);
 c0001677:	8b 45 ec             	mov    -0x14(%ebp),%eax
 c000167a:	83 ec 0c             	sub    $0xc,%esp
 c000167d:	50                   	push   %eax
 c000167e:	e8 27 30 00 00       	call   c00046aa <console_put_int>
 c0001683:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:78
+/work/x86_os_my/kernel/main.c:74
 	console_put_char(',');
 c0001686:	83 ec 0c             	sub    $0xc,%esp
 c0001689:	6a 2c                	push   $0x2c
 c000168b:	e8 f1 2f 00 00       	call   c0004681 <console_put_char>
 c0001690:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:79
+/work/x86_os_my/kernel/main.c:75
 	console_put_int((int)addr3);
 c0001693:	8b 45 e8             	mov    -0x18(%ebp),%eax
 c0001696:	83 ec 0c             	sub    $0xc,%esp
 c0001699:	50                   	push   %eax
 c000169a:	e8 0b 30 00 00       	call   c00046aa <console_put_int>
 c000169f:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:80
+/work/x86_os_my/kernel/main.c:76
 	console_put_char('\n');
 c00016a2:	83 ec 0c             	sub    $0xc,%esp
 c00016a5:	6a 0a                	push   $0xa
 c00016a7:	e8 d5 2f 00 00       	call   c0004681 <console_put_char>
 c00016ac:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:82
+/work/x86_os_my/kernel/main.c:78
 
 	int cpu_delay = 100000;
 c00016af:	c7 45 f4 a0 86 01 00 	movl   $0x186a0,-0xc(%ebp)
-/work/x86_os_my/kernel/main.c:83
+/work/x86_os_my/kernel/main.c:79
 	while(cpu_delay-- > 0);
 c00016b6:	90                   	nop
-/work/x86_os_my/kernel/main.c:83 (discriminator 1)
+/work/x86_os_my/kernel/main.c:79 (discriminator 1)
 c00016b7:	8b 45 f4             	mov    -0xc(%ebp),%eax
 c00016ba:	8d 50 ff             	lea    -0x1(%eax),%edx
 c00016bd:	89 55 f4             	mov    %edx,-0xc(%ebp)
 c00016c0:	85 c0                	test   %eax,%eax
 c00016c2:	7f f3                	jg     c00016b7 <k_thread_b+0xab>
-/work/x86_os_my/kernel/main.c:84
+/work/x86_os_my/kernel/main.c:80
 	sys_free(addr1);
 c00016c4:	83 ec 0c             	sub    $0xc,%esp
 c00016c7:	ff 75 f0             	pushl  -0x10(%ebp)
 c00016ca:	e8 01 1e 00 00       	call   c00034d0 <sys_free>
 c00016cf:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:85
+/work/x86_os_my/kernel/main.c:81
 	sys_free(addr2);
 c00016d2:	83 ec 0c             	sub    $0xc,%esp
 c00016d5:	ff 75 ec             	pushl  -0x14(%ebp)
 c00016d8:	e8 f3 1d 00 00       	call   c00034d0 <sys_free>
 c00016dd:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:86
+/work/x86_os_my/kernel/main.c:82
 	sys_free(addr3);
 c00016e0:	83 ec 0c             	sub    $0xc,%esp
 c00016e3:	ff 75 e8             	pushl  -0x18(%ebp)
 c00016e6:	e8 e5 1d 00 00       	call   c00034d0 <sys_free>
 c00016eb:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:87 (discriminator 1)
+/work/x86_os_my/kernel/main.c:83 (discriminator 1)
 	while(1);
 c00016ee:	eb fe                	jmp    c00016ee <k_thread_b+0xe2>
 
 c00016f0 <u_prog_a>:
 u_prog_a():
-/work/x86_os_my/kernel/main.c:91
+/work/x86_os_my/kernel/main.c:87
 }
 
 /* 测试用户进程 */
@@ -267,28 +267,28 @@ void u_prog_a(void) {
 c00016f0:	55                   	push   %ebp
 c00016f1:	89 e5                	mov    %esp,%ebp
 c00016f3:	83 ec 18             	sub    $0x18,%esp
-/work/x86_os_my/kernel/main.c:92
+/work/x86_os_my/kernel/main.c:88
 	void* addr1 = malloc(256);
 c00016f6:	83 ec 0c             	sub    $0xc,%esp
 c00016f9:	68 00 01 00 00       	push   $0x100
 c00016fe:	e8 f6 3d 00 00       	call   c00054f9 <malloc>
 c0001703:	83 c4 10             	add    $0x10,%esp
 c0001706:	89 45 f0             	mov    %eax,-0x10(%ebp)
-/work/x86_os_my/kernel/main.c:93
+/work/x86_os_my/kernel/main.c:89
 	void* addr2 = malloc(255);
 c0001709:	83 ec 0c             	sub    $0xc,%esp
 c000170c:	68 ff 00 00 00       	push   $0xff
 c0001711:	e8 e3 3d 00 00       	call   c00054f9 <malloc>
 c0001716:	83 c4 10             	add    $0x10,%esp
 c0001719:	89 45 ec             	mov    %eax,-0x14(%ebp)
-/work/x86_os_my/kernel/main.c:94
+/work/x86_os_my/kernel/main.c:90
 	void* addr3 = malloc(254);
 c000171c:	83 ec 0c             	sub    $0xc,%esp
 c000171f:	68 fe 00 00 00       	push   $0xfe
 c0001724:	e8 d0 3d 00 00       	call   c00054f9 <malloc>
 c0001729:	83 c4 10             	add    $0x10,%esp
 c000172c:	89 45 e8             	mov    %eax,-0x18(%ebp)
-/work/x86_os_my/kernel/main.c:95
+/work/x86_os_my/kernel/main.c:91
 	printf(" prog_a malloc addr:0x%x,0x%x,0x%x\n", (int)addr1, (int)addr2, (int)addr3);
 c000172f:	8b 4d e8             	mov    -0x18(%ebp),%ecx
 c0001732:	8b 55 ec             	mov    -0x14(%ebp),%edx
@@ -296,47 +296,47 @@ c0001735:	8b 45 f0             	mov    -0x10(%ebp),%eax
 c0001738:	51                   	push   %ecx
 c0001739:	52                   	push   %edx
 c000173a:	50                   	push   %eax
-c000173b:	68 94 65 00 c0       	push   $0xc0006594
+c000173b:	68 68 66 00 c0       	push   $0xc0006668
 c0001740:	e8 a3 40 00 00       	call   c00057e8 <printf>
 c0001745:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:97
+/work/x86_os_my/kernel/main.c:93
 
 	int cpu_delay = 100000;
 c0001748:	c7 45 f4 a0 86 01 00 	movl   $0x186a0,-0xc(%ebp)
-/work/x86_os_my/kernel/main.c:98
+/work/x86_os_my/kernel/main.c:94
 	while(cpu_delay-- > 0);
 c000174f:	90                   	nop
-/work/x86_os_my/kernel/main.c:98 (discriminator 1)
+/work/x86_os_my/kernel/main.c:94 (discriminator 1)
 c0001750:	8b 45 f4             	mov    -0xc(%ebp),%eax
 c0001753:	8d 50 ff             	lea    -0x1(%eax),%edx
 c0001756:	89 55 f4             	mov    %edx,-0xc(%ebp)
 c0001759:	85 c0                	test   %eax,%eax
 c000175b:	7f f3                	jg     c0001750 <u_prog_a+0x60>
-/work/x86_os_my/kernel/main.c:99
+/work/x86_os_my/kernel/main.c:95
 	free(addr1);
 c000175d:	83 ec 0c             	sub    $0xc,%esp
 c0001760:	ff 75 f0             	pushl  -0x10(%ebp)
 c0001763:	e8 b0 3d 00 00       	call   c0005518 <free>
 c0001768:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:100
+/work/x86_os_my/kernel/main.c:96
 	free(addr2);
 c000176b:	83 ec 0c             	sub    $0xc,%esp
 c000176e:	ff 75 ec             	pushl  -0x14(%ebp)
 c0001771:	e8 a2 3d 00 00       	call   c0005518 <free>
 c0001776:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:101
+/work/x86_os_my/kernel/main.c:97
 	free(addr3);
 c0001779:	83 ec 0c             	sub    $0xc,%esp
 c000177c:	ff 75 e8             	pushl  -0x18(%ebp)
 c000177f:	e8 94 3d 00 00       	call   c0005518 <free>
 c0001784:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:102 (discriminator 1)
+/work/x86_os_my/kernel/main.c:98 (discriminator 1)
 	while(1);
 c0001787:	eb fe                	jmp    c0001787 <u_prog_a+0x97>
 
 c0001789 <u_prog_b>:
 u_prog_b():
-/work/x86_os_my/kernel/main.c:106
+/work/x86_os_my/kernel/main.c:102
 }
 
 /* 测试用户进程 */
@@ -344,28 +344,28 @@ void u_prog_b(void) {
 c0001789:	55                   	push   %ebp
 c000178a:	89 e5                	mov    %esp,%ebp
 c000178c:	83 ec 18             	sub    $0x18,%esp
-/work/x86_os_my/kernel/main.c:107
+/work/x86_os_my/kernel/main.c:103
 	void* addr1 = malloc(256);
 c000178f:	83 ec 0c             	sub    $0xc,%esp
 c0001792:	68 00 01 00 00       	push   $0x100
 c0001797:	e8 5d 3d 00 00       	call   c00054f9 <malloc>
 c000179c:	83 c4 10             	add    $0x10,%esp
 c000179f:	89 45 f0             	mov    %eax,-0x10(%ebp)
-/work/x86_os_my/kernel/main.c:108
+/work/x86_os_my/kernel/main.c:104
 	void* addr2 = malloc(255);
 c00017a2:	83 ec 0c             	sub    $0xc,%esp
 c00017a5:	68 ff 00 00 00       	push   $0xff
 c00017aa:	e8 4a 3d 00 00       	call   c00054f9 <malloc>
 c00017af:	83 c4 10             	add    $0x10,%esp
 c00017b2:	89 45 ec             	mov    %eax,-0x14(%ebp)
-/work/x86_os_my/kernel/main.c:109
+/work/x86_os_my/kernel/main.c:105
 	void* addr3 = malloc(254);
 c00017b5:	83 ec 0c             	sub    $0xc,%esp
 c00017b8:	68 fe 00 00 00       	push   $0xfe
 c00017bd:	e8 37 3d 00 00       	call   c00054f9 <malloc>
 c00017c2:	83 c4 10             	add    $0x10,%esp
 c00017c5:	89 45 e8             	mov    %eax,-0x18(%ebp)
-/work/x86_os_my/kernel/main.c:110
+/work/x86_os_my/kernel/main.c:106
 	printf(" prog_b malloc addr:0x%x,0x%x,0x%x\n", (int)addr1, (int)addr2, (int)addr3);
 c00017c8:	8b 4d e8             	mov    -0x18(%ebp),%ecx
 c00017cb:	8b 55 ec             	mov    -0x14(%ebp),%edx
@@ -373,41 +373,41 @@ c00017ce:	8b 45 f0             	mov    -0x10(%ebp),%eax
 c00017d1:	51                   	push   %ecx
 c00017d2:	52                   	push   %edx
 c00017d3:	50                   	push   %eax
-c00017d4:	68 b8 65 00 c0       	push   $0xc00065b8
+c00017d4:	68 8c 66 00 c0       	push   $0xc000668c
 c00017d9:	e8 0a 40 00 00       	call   c00057e8 <printf>
 c00017de:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:112
+/work/x86_os_my/kernel/main.c:108
 
 	int cpu_delay = 100000;
 c00017e1:	c7 45 f4 a0 86 01 00 	movl   $0x186a0,-0xc(%ebp)
-/work/x86_os_my/kernel/main.c:113
+/work/x86_os_my/kernel/main.c:109
 	while(cpu_delay-- > 0);
 c00017e8:	90                   	nop
-/work/x86_os_my/kernel/main.c:113 (discriminator 1)
+/work/x86_os_my/kernel/main.c:109 (discriminator 1)
 c00017e9:	8b 45 f4             	mov    -0xc(%ebp),%eax
 c00017ec:	8d 50 ff             	lea    -0x1(%eax),%edx
 c00017ef:	89 55 f4             	mov    %edx,-0xc(%ebp)
 c00017f2:	85 c0                	test   %eax,%eax
 c00017f4:	7f f3                	jg     c00017e9 <u_prog_b+0x60>
-/work/x86_os_my/kernel/main.c:114
+/work/x86_os_my/kernel/main.c:110
 	free(addr1);
 c00017f6:	83 ec 0c             	sub    $0xc,%esp
 c00017f9:	ff 75 f0             	pushl  -0x10(%ebp)
 c00017fc:	e8 17 3d 00 00       	call   c0005518 <free>
 c0001801:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:115
+/work/x86_os_my/kernel/main.c:111
 	free(addr2);
 c0001804:	83 ec 0c             	sub    $0xc,%esp
 c0001807:	ff 75 ec             	pushl  -0x14(%ebp)
 c000180a:	e8 09 3d 00 00       	call   c0005518 <free>
 c000180f:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:116
+/work/x86_os_my/kernel/main.c:112
 	free(addr3);
 c0001812:	83 ec 0c             	sub    $0xc,%esp
 c0001815:	ff 75 e8             	pushl  -0x18(%ebp)
 c0001818:	e8 fb 3c 00 00       	call   c0005518 <free>
 c000181d:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/kernel/main.c:117 (discriminator 1)
+/work/x86_os_my/kernel/main.c:113 (discriminator 1)
 	while(1);
 c0001820:	eb fe                	jmp    c0001820 <u_prog_b+0x97>
 
@@ -426,7 +426,7 @@ c0001825:	83 ec 08             	sub    $0x8,%esp
 /work/x86_os_my/kernel/init.c:15
 	put_str("init_all\n");
 c0001828:	83 ec 0c             	sub    $0xc,%esp
-c000182b:	68 dc 65 00 c0       	push   $0xc00065dc
+c000182b:	68 b0 66 00 c0       	push   $0xc00066b0
 c0001830:	e8 db 0b 00 00       	call   c0002410 <put_str>
 c0001835:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/init.c:16
@@ -579,7 +579,7 @@ c000191c:	83 c4 08             	add    $0x8,%esp
 
 	put_str("   pic_init done\n");
 c000191f:	83 ec 0c             	sub    $0xc,%esp
-c0001922:	68 e8 65 00 c0       	push   $0xc00065e8
+c0001922:	68 bc 66 00 c0       	push   $0xc00066bc
 c0001927:	e8 e4 0a 00 00       	call   c0002410 <put_str>
 c000192c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:61
@@ -688,7 +688,7 @@ c00019d8:	83 c4 0c             	add    $0xc,%esp
 /work/x86_os_my/kernel/interrupt.c:82
 	put_str("   idt_desc_init done\n");
 c00019db:	83 ec 0c             	sub    $0xc,%esp
-c00019de:	68 fa 65 00 c0       	push   $0xc00065fa
+c00019de:	68 ce 66 00 c0       	push   $0xc00066ce
 c00019e3:	e8 28 0a 00 00       	call   c0002410 <put_str>
 c00019e8:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:83
@@ -763,7 +763,7 @@ c0001a48:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:101
 	put_str("!!!!!!!      excetion message begin  !!!!!!!!\n");
 c0001a4b:	83 ec 0c             	sub    $0xc,%esp
-c0001a4e:	68 14 66 00 c0       	push   $0xc0006614
+c0001a4e:	68 e8 66 00 c0       	push   $0xc00066e8
 c0001a53:	e8 b8 09 00 00       	call   c0002410 <put_str>
 c0001a58:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:102
@@ -794,7 +794,7 @@ c0001a8f:	89 45 f0             	mov    %eax,-0x10(%ebp)
 /work/x86_os_my/kernel/interrupt.c:107
 		put_str("\npage fault addr is ");
 c0001a92:	83 ec 0c             	sub    $0xc,%esp
-c0001a95:	68 43 66 00 c0       	push   $0xc0006643
+c0001a95:	68 17 67 00 c0       	push   $0xc0006717
 c0001a9a:	e8 71 09 00 00       	call   c0002410 <put_str>
 c0001a9f:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:108
@@ -808,7 +808,7 @@ c0001aae:	83 c4 10             	add    $0x10,%esp
 	}
 	put_str("\n!!!!!!!      excetion message end    !!!!!!!!\n");
 c0001ab1:	83 ec 0c             	sub    $0xc,%esp
-c0001ab4:	68 58 66 00 c0       	push   $0xc0006658
+c0001ab4:	68 2c 67 00 c0       	push   $0xc000672c
 c0001ab9:	e8 52 09 00 00       	call   c0002410 <put_str>
 c0001abe:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:113 (discriminator 1)
@@ -858,8 +858,8 @@ c0001adf:	ee 19 00 c0
 /work/x86_os_my/kernel/interrupt.c:123 (discriminator 3)
 		intr_name[i] = "unknown";					// 先统一赋值为unknown 
 c0001ae3:	8b 45 fc             	mov    -0x4(%ebp),%eax
-c0001ae6:	c7 04 85 20 96 00 c0 	movl   $0xc0006688,-0x3fff69e0(,%eax,4)
-c0001aed:	88 66 00 c0 
+c0001ae6:	c7 04 85 20 96 00 c0 	movl   $0xc000675c,-0x3fff69e0(,%eax,4)
+c0001aed:	5c 67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:119 (discriminator 3)
 }
 
@@ -878,81 +878,81 @@ c0001afc:	7e d7                	jle    c0001ad5 <exception_init+0xf>
 		intr_name[i] = "unknown";					// 先统一赋值为unknown 
 	}
 	intr_name[0] = "#DE Divide Error";
-c0001afe:	c7 05 20 96 00 c0 90 	movl   $0xc0006690,0xc0009620
-c0001b05:	66 00 c0 
+c0001afe:	c7 05 20 96 00 c0 64 	movl   $0xc0006764,0xc0009620
+c0001b05:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:126
 	intr_name[1] = "#DB Debug Exception";
-c0001b08:	c7 05 24 96 00 c0 a1 	movl   $0xc00066a1,0xc0009624
-c0001b0f:	66 00 c0 
+c0001b08:	c7 05 24 96 00 c0 75 	movl   $0xc0006775,0xc0009624
+c0001b0f:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:127
 	intr_name[2] = "NMI Interrupt";
-c0001b12:	c7 05 28 96 00 c0 b5 	movl   $0xc00066b5,0xc0009628
-c0001b19:	66 00 c0 
+c0001b12:	c7 05 28 96 00 c0 89 	movl   $0xc0006789,0xc0009628
+c0001b19:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:128
 	intr_name[3] = "#BP Breakpoint Exception";
-c0001b1c:	c7 05 2c 96 00 c0 c3 	movl   $0xc00066c3,0xc000962c
-c0001b23:	66 00 c0 
+c0001b1c:	c7 05 2c 96 00 c0 97 	movl   $0xc0006797,0xc000962c
+c0001b23:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:129
 	intr_name[4] = "#OF Overflow Exception";
-c0001b26:	c7 05 30 96 00 c0 dc 	movl   $0xc00066dc,0xc0009630
-c0001b2d:	66 00 c0 
+c0001b26:	c7 05 30 96 00 c0 b0 	movl   $0xc00067b0,0xc0009630
+c0001b2d:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:130
 	intr_name[5] = "#BR BOUND Range Exceeded Exception";
-c0001b30:	c7 05 34 96 00 c0 f4 	movl   $0xc00066f4,0xc0009634
-c0001b37:	66 00 c0 
+c0001b30:	c7 05 34 96 00 c0 c8 	movl   $0xc00067c8,0xc0009634
+c0001b37:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:131
 	intr_name[6] = "#UD Invalid Opcode Exception";
-c0001b3a:	c7 05 38 96 00 c0 17 	movl   $0xc0006717,0xc0009638
+c0001b3a:	c7 05 38 96 00 c0 eb 	movl   $0xc00067eb,0xc0009638
 c0001b41:	67 00 c0 
 /work/x86_os_my/kernel/interrupt.c:132
 	intr_name[7] = "#NM Device Not Available Exception";
-c0001b44:	c7 05 3c 96 00 c0 34 	movl   $0xc0006734,0xc000963c
-c0001b4b:	67 00 c0 
+c0001b44:	c7 05 3c 96 00 c0 08 	movl   $0xc0006808,0xc000963c
+c0001b4b:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:133
 	intr_name[8] = "#DF Double Fault Exception";
-c0001b4e:	c7 05 40 96 00 c0 57 	movl   $0xc0006757,0xc0009640
-c0001b55:	67 00 c0 
+c0001b4e:	c7 05 40 96 00 c0 2b 	movl   $0xc000682b,0xc0009640
+c0001b55:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:134
 	intr_name[9] = "Coprocessor Segment Overrun";
-c0001b58:	c7 05 44 96 00 c0 72 	movl   $0xc0006772,0xc0009644
-c0001b5f:	67 00 c0 
+c0001b58:	c7 05 44 96 00 c0 46 	movl   $0xc0006846,0xc0009644
+c0001b5f:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:135
 	intr_name[10] = "#TS Invalid TSS Exception";
-c0001b62:	c7 05 48 96 00 c0 8e 	movl   $0xc000678e,0xc0009648
-c0001b69:	67 00 c0 
+c0001b62:	c7 05 48 96 00 c0 62 	movl   $0xc0006862,0xc0009648
+c0001b69:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:136
 	intr_name[11] = "#NP Segment Not Present";
-c0001b6c:	c7 05 4c 96 00 c0 a8 	movl   $0xc00067a8,0xc000964c
-c0001b73:	67 00 c0 
+c0001b6c:	c7 05 4c 96 00 c0 7c 	movl   $0xc000687c,0xc000964c
+c0001b73:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:137
 	intr_name[12] = "#SS Stack Fault Exception";
-c0001b76:	c7 05 50 96 00 c0 c0 	movl   $0xc00067c0,0xc0009650
-c0001b7d:	67 00 c0 
+c0001b76:	c7 05 50 96 00 c0 94 	movl   $0xc0006894,0xc0009650
+c0001b7d:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:138
 	intr_name[13] = "#GP General Protection Exception";
-c0001b80:	c7 05 54 96 00 c0 dc 	movl   $0xc00067dc,0xc0009654
-c0001b87:	67 00 c0 
+c0001b80:	c7 05 54 96 00 c0 b0 	movl   $0xc00068b0,0xc0009654
+c0001b87:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:139
 	intr_name[14] = "#PF Page-Fault Exception";
-c0001b8a:	c7 05 58 96 00 c0 fd 	movl   $0xc00067fd,0xc0009658
-c0001b91:	67 00 c0 
+c0001b8a:	c7 05 58 96 00 c0 d1 	movl   $0xc00068d1,0xc0009658
+c0001b91:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:141
 	// intr_name[15] 第15项是intel保留项，未使用
 	intr_name[16] = "#MF x87 FPU Floating-Point Error";
-c0001b94:	c7 05 60 96 00 c0 18 	movl   $0xc0006818,0xc0009660
+c0001b94:	c7 05 60 96 00 c0 ec 	movl   $0xc00068ec,0xc0009660
 c0001b9b:	68 00 c0 
 /work/x86_os_my/kernel/interrupt.c:142
 	intr_name[17] = "#AC Alignment Check Exception";
-c0001b9e:	c7 05 64 96 00 c0 39 	movl   $0xc0006839,0xc0009664
-c0001ba5:	68 00 c0 
+c0001b9e:	c7 05 64 96 00 c0 0d 	movl   $0xc000690d,0xc0009664
+c0001ba5:	69 00 c0 
 /work/x86_os_my/kernel/interrupt.c:143
 	intr_name[18] = "#MC Machine-Check Exception";
-c0001ba8:	c7 05 68 96 00 c0 57 	movl   $0xc0006857,0xc0009668
-c0001baf:	68 00 c0 
+c0001ba8:	c7 05 68 96 00 c0 2b 	movl   $0xc000692b,0xc0009668
+c0001baf:	69 00 c0 
 /work/x86_os_my/kernel/interrupt.c:144
 	intr_name[19] = "#XF SIMD Floating-Point Exception";
-c0001bb2:	c7 05 6c 96 00 c0 74 	movl   $0xc0006874,0xc000966c
-c0001bb9:	68 00 c0 
+c0001bb2:	c7 05 6c 96 00 c0 48 	movl   $0xc0006948,0xc000966c
+c0001bb9:	69 00 c0 
 /work/x86_os_my/kernel/interrupt.c:145
 }
 c0001bbc:	90                   	nop
@@ -1127,7 +1127,7 @@ c0001c75:	83 ec 10             	sub    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:194
 	put_str("idt_init start\n");
 c0001c78:	83 ec 0c             	sub    $0xc,%esp
-c0001c7b:	68 96 68 00 c0       	push   $0xc0006896
+c0001c7b:	68 6a 69 00 c0       	push   $0xc000696a
 c0001c80:	e8 8b 07 00 00       	call   c0002410 <put_str>
 c0001c85:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:195
@@ -1162,7 +1162,7 @@ c0001cbf:	0f 01 5d f0          	lidtl  -0x10(%ebp)
 /work/x86_os_my/kernel/interrupt.c:203
 	put_str("idt_init done\n");
 c0001cc3:	83 ec 0c             	sub    $0xc,%esp
-c0001cc6:	68 a6 68 00 c0       	push   $0xc00068a6
+c0001cc6:	68 7a 69 00 c0       	push   $0xc000697a
 c0001ccb:	e8 40 07 00 00       	call   c0002410 <put_str>
 c0001cd0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/interrupt.c:204
@@ -1294,10 +1294,10 @@ c0001d86:	8b 80 ec 00 00 00    	mov    0xec(%eax),%eax
 c0001d8c:	3d 16 09 87 19       	cmp    $0x19870916,%eax
 c0001d91:	74 19                	je     c0001dac <intr_timer_handler+0x37>
 /work/x86_os_my/device/timer.c:40 (discriminator 1)
-c0001d93:	68 b8 68 00 c0       	push   $0xc00068b8
-c0001d98:	68 20 69 00 c0       	push   $0xc0006920
+c0001d93:	68 8c 69 00 c0       	push   $0xc000698c
+c0001d98:	68 f4 69 00 c0       	push   $0xc00069f4
 c0001d9d:	6a 28                	push   $0x28
-c0001d9f:	68 de 68 00 c0       	push   $0xc00068de
+c0001d9f:	68 b2 69 00 c0       	push   $0xc00069b2
 c0001da4:	e8 d9 07 00 00       	call   c0002582 <panic_spin>
 c0001da9:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/timer.c:42
@@ -1410,10 +1410,10 @@ c0001e2a:	89 45 f4             	mov    %eax,-0xc(%ebp)
 c0001e2d:	83 7d f4 00          	cmpl   $0x0,-0xc(%ebp)
 c0001e31:	75 19                	jne    c0001e4c <mtime_sleep+0x3a>
 /work/x86_os_my/device/timer.c:64 (discriminator 1)
-c0001e33:	68 ed 68 00 c0       	push   $0xc00068ed
-c0001e38:	68 34 69 00 c0       	push   $0xc0006934
+c0001e33:	68 c1 69 00 c0       	push   $0xc00069c1
+c0001e38:	68 08 6a 00 c0       	push   $0xc0006a08
 c0001e3d:	6a 40                	push   $0x40
-c0001e3f:	68 de 68 00 c0       	push   $0xc00068de
+c0001e3f:	68 b2 69 00 c0       	push   $0xc00069b2
 c0001e44:	e8 39 07 00 00       	call   c0002582 <panic_spin>
 c0001e49:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/timer.c:65
@@ -1440,7 +1440,7 @@ c0001e60:	83 ec 08             	sub    $0x8,%esp
 /work/x86_os_my/device/timer.c:70
 	put_str("timer_init start\n");
 c0001e63:	83 ec 0c             	sub    $0xc,%esp
-c0001e66:	68 fd 68 00 c0       	push   $0xc00068fd
+c0001e66:	68 d1 69 00 c0       	push   $0xc00069d1
 c0001e6b:	e8 a0 05 00 00       	call   c0002410 <put_str>
 c0001e70:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/timer.c:72
@@ -1464,7 +1464,7 @@ c0001e9a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/timer.c:74
 	put_str("timer_init done\n");
 c0001e9d:	83 ec 0c             	sub    $0xc,%esp
-c0001ea0:	68 0f 69 00 c0       	push   $0xc000690f
+c0001ea0:	68 e3 69 00 c0       	push   $0xc00069e3
 c0001ea5:	e8 66 05 00 00       	call   c0002410 <put_str>
 c0001eaa:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/timer.c:75
@@ -2451,13 +2451,13 @@ c0002588:	e8 5b f6 ff ff       	call   c0001be8 <intr_disable>
 /work/x86_os_my/kernel/debug.c:12
    put_str("\n\n\n!!!!! error !!!!!\n");
 c000258d:	83 ec 0c             	sub    $0xc,%esp
-c0002590:	68 40 69 00 c0       	push   $0xc0006940
+c0002590:	68 14 6a 00 c0       	push   $0xc0006a14
 c0002595:	e8 76 fe ff ff       	call   c0002410 <put_str>
 c000259a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/debug.c:13
    put_str("filename:");put_str(filename);put_str("\n");
 c000259d:	83 ec 0c             	sub    $0xc,%esp
-c00025a0:	68 56 69 00 c0       	push   $0xc0006956
+c00025a0:	68 2a 6a 00 c0       	push   $0xc0006a2a
 c00025a5:	e8 66 fe ff ff       	call   c0002410 <put_str>
 c00025aa:	83 c4 10             	add    $0x10,%esp
 c00025ad:	83 ec 0c             	sub    $0xc,%esp
@@ -2465,13 +2465,13 @@ c00025b0:	ff 75 08             	pushl  0x8(%ebp)
 c00025b3:	e8 58 fe ff ff       	call   c0002410 <put_str>
 c00025b8:	83 c4 10             	add    $0x10,%esp
 c00025bb:	83 ec 0c             	sub    $0xc,%esp
-c00025be:	68 60 69 00 c0       	push   $0xc0006960
+c00025be:	68 34 6a 00 c0       	push   $0xc0006a34
 c00025c3:	e8 48 fe ff ff       	call   c0002410 <put_str>
 c00025c8:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/debug.c:14
    put_str("line:0x");put_int(line);put_str("\n");
 c00025cb:	83 ec 0c             	sub    $0xc,%esp
-c00025ce:	68 62 69 00 c0       	push   $0xc0006962
+c00025ce:	68 36 6a 00 c0       	push   $0xc0006a36
 c00025d3:	e8 38 fe ff ff       	call   c0002410 <put_str>
 c00025d8:	83 c4 10             	add    $0x10,%esp
 c00025db:	8b 45 0c             	mov    0xc(%ebp),%eax
@@ -2480,13 +2480,13 @@ c00025e1:	50                   	push   %eax
 c00025e2:	e8 14 ff ff ff       	call   c00024fb <put_int>
 c00025e7:	83 c4 10             	add    $0x10,%esp
 c00025ea:	83 ec 0c             	sub    $0xc,%esp
-c00025ed:	68 60 69 00 c0       	push   $0xc0006960
+c00025ed:	68 34 6a 00 c0       	push   $0xc0006a34
 c00025f2:	e8 19 fe ff ff       	call   c0002410 <put_str>
 c00025f7:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/debug.c:15
    put_str("function:");put_str((char*)func);put_str("\n");
 c00025fa:	83 ec 0c             	sub    $0xc,%esp
-c00025fd:	68 6a 69 00 c0       	push   $0xc000696a
+c00025fd:	68 3e 6a 00 c0       	push   $0xc0006a3e
 c0002602:	e8 09 fe ff ff       	call   c0002410 <put_str>
 c0002607:	83 c4 10             	add    $0x10,%esp
 c000260a:	83 ec 0c             	sub    $0xc,%esp
@@ -2494,13 +2494,13 @@ c000260d:	ff 75 10             	pushl  0x10(%ebp)
 c0002610:	e8 fb fd ff ff       	call   c0002410 <put_str>
 c0002615:	83 c4 10             	add    $0x10,%esp
 c0002618:	83 ec 0c             	sub    $0xc,%esp
-c000261b:	68 60 69 00 c0       	push   $0xc0006960
+c000261b:	68 34 6a 00 c0       	push   $0xc0006a34
 c0002620:	e8 eb fd ff ff       	call   c0002410 <put_str>
 c0002625:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/debug.c:16
    put_str("condition:");put_str((char*)condition);put_str("\n");
 c0002628:	83 ec 0c             	sub    $0xc,%esp
-c000262b:	68 74 69 00 c0       	push   $0xc0006974
+c000262b:	68 48 6a 00 c0       	push   $0xc0006a48
 c0002630:	e8 db fd ff ff       	call   c0002410 <put_str>
 c0002635:	83 c4 10             	add    $0x10,%esp
 c0002638:	83 ec 0c             	sub    $0xc,%esp
@@ -2508,7 +2508,7 @@ c000263b:	ff 75 14             	pushl  0x14(%ebp)
 c000263e:	e8 cd fd ff ff       	call   c0002410 <put_str>
 c0002643:	83 c4 10             	add    $0x10,%esp
 c0002646:	83 ec 0c             	sub    $0xc,%esp
-c0002649:	68 60 69 00 c0       	push   $0xc0006960
+c0002649:	68 34 6a 00 c0       	push   $0xc0006a34
 c000264e:	e8 bd fd ff ff       	call   c0002410 <put_str>
 c0002653:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/debug.c:17 (discriminator 1)
@@ -2639,10 +2639,10 @@ c00026ed:	8b 00                	mov    (%eax),%eax
 c00026ef:	3b 45 f4             	cmp    -0xc(%ebp),%eax
 c00026f2:	77 19                	ja     c000270d <bitmap_scan+0x52>
 /work/x86_os_my/lib/kernel/bitmap.c:39 (discriminator 1)
-c00026f4:	68 80 69 00 c0       	push   $0xc0006980
-c00026f9:	68 d4 69 00 c0       	push   $0xc00069d4
+c00026f4:	68 54 6a 00 c0       	push   $0xc0006a54
+c00026f9:	68 a8 6a 00 c0       	push   $0xc0006aa8
 c00026fe:	6a 27                	push   $0x27
-c0002700:	68 a0 69 00 c0       	push   $0xc00069a0
+c0002700:	68 74 6a 00 c0       	push   $0xc0006a74
 c0002705:	e8 78 fe ff ff       	call   c0002582 <panic_spin>
 c000270a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/kernel/bitmap.c:40
@@ -2818,10 +2818,10 @@ c0002802:	74 1f                	je     c0002823 <bitmap_set+0x33>
 c0002804:	80 7d e4 01          	cmpb   $0x1,-0x1c(%ebp)
 c0002808:	74 19                	je     c0002823 <bitmap_set+0x33>
 /work/x86_os_my/lib/kernel/bitmap.c:80 (discriminator 2)
-c000280a:	68 b4 69 00 c0       	push   $0xc00069b4
-c000280f:	68 e0 69 00 c0       	push   $0xc00069e0
+c000280a:	68 88 6a 00 c0       	push   $0xc0006a88
+c000280f:	68 b4 6a 00 c0       	push   $0xc0006ab4
 c0002814:	6a 50                	push   $0x50
-c0002816:	68 a0 69 00 c0       	push   $0xc00069a0
+c0002816:	68 74 6a 00 c0       	push   $0xc0006a74
 c000281b:	e8 62 fd ff ff       	call   c0002582 <panic_spin>
 c0002820:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/kernel/bitmap.c:81
@@ -3046,10 +3046,10 @@ c000298f:	8b 45 f4             	mov    -0xc(%ebp),%eax
 c0002992:	3d ff ef ff bf       	cmp    $0xbfffefff,%eax
 c0002997:	76 19                	jbe    c00029b2 <vaddr_get+0x111>
 /work/x86_os_my/kernel/memory.c:92 (discriminator 1)
-c0002999:	68 ec 69 00 c0       	push   $0xc00069ec
-c000299e:	68 54 6d 00 c0       	push   $0xc0006d54
+c0002999:	68 c0 6a 00 c0       	push   $0xc0006ac0
+c000299e:	68 28 6e 00 c0       	push   $0xc0006e28
 c00029a3:	6a 5c                	push   $0x5c
-c00029a5:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c00029a5:	68 ef 6a 00 c0       	push   $0xc0006aef
 c00029aa:	e8 d3 fb ff ff       	call   c0002582 <panic_spin>
 c00029af:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:95
@@ -3248,10 +3248,10 @@ c0002a96:	83 e0 01             	and    $0x1,%eax
 c0002a99:	85 c0                	test   %eax,%eax
 c0002a9b:	74 1c                	je     c0002ab9 <page_table_add+0x62>
 /work/x86_os_my/kernel/memory.c:150 (discriminator 1)
-c0002a9d:	68 2b 6a 00 c0       	push   $0xc0006a2b
-c0002aa2:	68 60 6d 00 c0       	push   $0xc0006d60
+c0002a9d:	68 ff 6a 00 c0       	push   $0xc0006aff
+c0002aa2:	68 34 6e 00 c0       	push   $0xc0006e34
 c0002aa7:	68 96 00 00 00       	push   $0x96
-c0002aac:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002aac:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002ab1:	e8 cc fa ff ff       	call   c0002582 <panic_spin>
 c0002ab6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:152
@@ -3284,10 +3284,10 @@ c0002ad2:	e9 8e 00 00 00       	jmp    c0002b65 <page_table_add+0x10e>
 			*pte = (page_phyaddr | PG_US_U | PG_RW_W | PG_P_1);		// 物理地址 | US=1,RW=1,P=1
 		} else {						// 不会执行到这，因为上面的ASSERT
 			PANIC("pte repeat");
-c0002ad7:	68 40 6a 00 c0       	push   $0xc0006a40
-c0002adc:	68 60 6d 00 c0       	push   $0xc0006d60
+c0002ad7:	68 14 6b 00 c0       	push   $0xc0006b14
+c0002adc:	68 34 6e 00 c0       	push   $0xc0006e34
 c0002ae1:	68 9b 00 00 00       	push   $0x9b
-c0002ae6:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002ae6:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002aeb:	e8 92 fa ff ff       	call   c0002582 <panic_spin>
 c0002af0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:173
@@ -3341,10 +3341,10 @@ c0002b35:	83 e0 01             	and    $0x1,%eax
 c0002b38:	85 c0                	test   %eax,%eax
 c0002b3a:	74 1c                	je     c0002b58 <page_table_add+0x101>
 /work/x86_os_my/kernel/memory.c:170 (discriminator 1)
-c0002b3c:	68 2b 6a 00 c0       	push   $0xc0006a2b
-c0002b41:	68 60 6d 00 c0       	push   $0xc0006d60
+c0002b3c:	68 ff 6a 00 c0       	push   $0xc0006aff
+c0002b41:	68 34 6e 00 c0       	push   $0xc0006e34
 c0002b46:	68 aa 00 00 00       	push   $0xaa
-c0002b4b:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002b4b:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002b50:	e8 2d fa ff ff       	call   c0002582 <panic_spin>
 c0002b55:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:171
@@ -3378,10 +3378,10 @@ c0002b72:	74 09                	je     c0002b7d <malloc_page+0x15>
 c0002b74:	81 7d 0c ff 0e 00 00 	cmpl   $0xeff,0xc(%ebp)
 c0002b7b:	76 1c                	jbe    c0002b99 <malloc_page+0x31>
 /work/x86_os_my/kernel/memory.c:177 (discriminator 3)
-c0002b7d:	68 4b 6a 00 c0       	push   $0xc0006a4b
-c0002b82:	68 70 6d 00 c0       	push   $0xc0006d70
+c0002b7d:	68 1f 6b 00 c0       	push   $0xc0006b1f
+c0002b82:	68 44 6e 00 c0       	push   $0xc0006e44
 c0002b87:	68 b1 00 00 00       	push   $0xb1
-c0002b8c:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002b8c:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002b91:	e8 ec f9 ff ff       	call   c0002582 <panic_spin>
 c0002b96:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:183
@@ -3652,10 +3652,10 @@ c0002d40:	89 45 ec             	mov    %eax,-0x14(%ebp)
 c0002d43:	83 7d ec 00          	cmpl   $0x0,-0x14(%ebp)
 c0002d47:	7f 1c                	jg     c0002d65 <get_a_page+0x85>
 /work/x86_os_my/kernel/memory.c:238 (discriminator 1)
-c0002d49:	68 67 6a 00 c0       	push   $0xc0006a67
-c0002d4e:	68 7c 6d 00 c0       	push   $0xc0006d7c
+c0002d49:	68 3b 6b 00 c0       	push   $0xc0006b3b
+c0002d4e:	68 50 6e 00 c0       	push   $0xc0006e50
 c0002d53:	68 ee 00 00 00       	push   $0xee
-c0002d58:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002d58:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002d5d:	e8 20 f8 ff ff       	call   c0002582 <panic_spin>
 c0002d62:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:239
@@ -3694,10 +3694,10 @@ c0002d9e:	89 45 ec             	mov    %eax,-0x14(%ebp)
 c0002da1:	83 7d ec 00          	cmpl   $0x0,-0x14(%ebp)
 c0002da5:	7f 1c                	jg     c0002dc3 <get_a_page+0xe3>
 /work/x86_os_my/kernel/memory.c:244 (discriminator 1)
-c0002da7:	68 67 6a 00 c0       	push   $0xc0006a67
-c0002dac:	68 7c 6d 00 c0       	push   $0xc0006d7c
+c0002da7:	68 3b 6b 00 c0       	push   $0xc0006b3b
+c0002dac:	68 50 6e 00 c0       	push   $0xc0006e50
 c0002db1:	68 f4 00 00 00       	push   $0xf4
-c0002db6:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002db6:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002dbb:	e8 c2 f7 ff ff       	call   c0002582 <panic_spin>
 c0002dc0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:245
@@ -3714,10 +3714,10 @@ c0002dd9:	eb 1c                	jmp    c0002df7 <get_a_page+0x117>
 
 	} else {
 		PANIC("get_a_page:not allow kernel alloc userspace or user alloc kernelspace by get_a_page");
-c0002ddb:	68 74 6a 00 c0       	push   $0xc0006a74
-c0002de0:	68 7c 6d 00 c0       	push   $0xc0006d7c
+c0002ddb:	68 48 6b 00 c0       	push   $0xc0006b48
+c0002de0:	68 50 6e 00 c0       	push   $0xc0006e50
 c0002de5:	68 f8 00 00 00       	push   $0xf8
-c0002dea:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0002dea:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0002def:	e8 8e f7 ff ff       	call   c0002582 <panic_spin>
 c0002df4:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:251
@@ -4171,10 +4171,10 @@ c00030e7:	83 c4 10             	add    $0x10,%esp
 c00030ea:	85 c0                	test   %eax,%eax
 c00030ec:	74 1c                	je     c000310a <sys_malloc+0x267>
 /work/x86_os_my/kernel/memory.c:385 (discriminator 1)
-c00030ee:	68 c8 6a 00 c0       	push   $0xc0006ac8
-c00030f3:	68 88 6d 00 c0       	push   $0xc0006d88
+c00030ee:	68 9c 6b 00 c0       	push   $0xc0006b9c
+c00030f3:	68 5c 6e 00 c0       	push   $0xc0006e5c
 c00030f8:	68 81 01 00 00       	push   $0x181
-c00030fd:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c00030fd:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0003102:	e8 7b f4 ff ff       	call   c0002582 <panic_spin>
 c0003107:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:386 (discriminator 2)
@@ -4526,10 +4526,10 @@ c000332b:	25 ff 0f 00 00       	and    $0xfff,%eax
 c0003330:	85 c0                	test   %eax,%eax
 c0003332:	74 1c                	je     c0003350 <mfree_page+0x41>
 /work/x86_os_my/kernel/memory.c:452 (discriminator 3)
-c0003334:	68 f8 6a 00 c0       	push   $0xc0006af8
-c0003339:	68 94 6d 00 c0       	push   $0xc0006d94
+c0003334:	68 cc 6b 00 c0       	push   $0xc0006bcc
+c0003339:	68 68 6e 00 c0       	push   $0xc0006e68
 c000333e:	68 c4 01 00 00       	push   $0x1c4
-c0003343:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0003343:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0003348:	e8 35 f2 ff ff       	call   c0002582 <panic_spin>
 c000334d:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:453
@@ -4551,10 +4551,10 @@ c000336b:	75 09                	jne    c0003376 <mfree_page+0x67>
 c000336d:	81 7d ec ff 1f 10 00 	cmpl   $0x101fff,-0x14(%ebp)
 c0003374:	77 1c                	ja     c0003392 <mfree_page+0x83>
 /work/x86_os_my/kernel/memory.c:456 (discriminator 3)
-c0003376:	68 1c 6b 00 c0       	push   $0xc0006b1c
-c000337b:	68 94 6d 00 c0       	push   $0xc0006d94
+c0003376:	68 f0 6b 00 c0       	push   $0xc0006bf0
+c000337b:	68 68 6e 00 c0       	push   $0xc0006e68
 c0003380:	68 c8 01 00 00       	push   $0x1c8
-c0003385:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0003385:	68 ef 6a 00 c0       	push   $0xc0006aef
 c000338a:	e8 f3 f1 ff ff       	call   c0002582 <panic_spin>
 c000338f:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:460
@@ -4594,10 +4594,10 @@ c00033cd:	a1 68 9a 00 c0       	mov    0xc0009a68,%eax
 c00033d2:	3b 45 ec             	cmp    -0x14(%ebp),%eax
 c00033d5:	76 1c                	jbe    c00033f3 <mfree_page+0xe4>
 /work/x86_os_my/kernel/memory.c:467 (discriminator 3)
-c00033d7:	68 54 6b 00 c0       	push   $0xc0006b54
-c00033dc:	68 94 6d 00 c0       	push   $0xc0006d94
+c00033d7:	68 28 6c 00 c0       	push   $0xc0006c28
+c00033dc:	68 68 6e 00 c0       	push   $0xc0006e68
 c00033e1:	68 d3 01 00 00       	push   $0x1d3
-c00033e6:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c00033e6:	68 ef 6a 00 c0       	push   $0xc0006aef
 c00033eb:	e8 92 f1 ff ff       	call   c0002582 <panic_spin>
 c00033f0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:470
@@ -4689,10 +4689,10 @@ c000346b:	a1 68 9a 00 c0       	mov    0xc0009a68,%eax
 c0003470:	3b 45 ec             	cmp    -0x14(%ebp),%eax
 c0003473:	77 1c                	ja     c0003491 <mfree_page+0x182>
 /work/x86_os_my/kernel/memory.c:488 (discriminator 5)
-c0003475:	68 9c 6b 00 c0       	push   $0xc0006b9c
-c000347a:	68 94 6d 00 c0       	push   $0xc0006d94
+c0003475:	68 70 6c 00 c0       	push   $0xc0006c70
+c000347a:	68 68 6e 00 c0       	push   $0xc0006e68
 c000347f:	68 e9 01 00 00       	push   $0x1e9
-c0003484:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0003484:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0003489:	e8 f4 f0 ff ff       	call   c0002582 <panic_spin>
 c000348e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:492
@@ -4760,10 +4760,10 @@ c00034d3:	83 ec 28             	sub    $0x28,%esp
 c00034d6:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c00034da:	75 1c                	jne    c00034f8 <sys_free+0x28>
 /work/x86_os_my/kernel/memory.c:506 (discriminator 1)
-c00034dc:	68 10 6c 00 c0       	push   $0xc0006c10
-c00034e1:	68 a0 6d 00 c0       	push   $0xc0006da0
+c00034dc:	68 e4 6c 00 c0       	push   $0xc0006ce4
+c00034e1:	68 74 6e 00 c0       	push   $0xc0006e74
 c00034e6:	68 fa 01 00 00       	push   $0x1fa
-c00034eb:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c00034eb:	68 ef 6a 00 c0       	push   $0xc0006aef
 c00034f0:	e8 8d f0 ff ff       	call   c0002582 <panic_spin>
 c00034f5:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:507
@@ -4786,10 +4786,10 @@ c000350e:	8b 45 08             	mov    0x8(%ebp),%eax
 c0003511:	3d ff ff 0f c0       	cmp    $0xc00fffff,%eax
 c0003516:	77 1c                	ja     c0003534 <sys_free+0x64>
 /work/x86_os_my/kernel/memory.c:513 (discriminator 1)
-c0003518:	68 1c 6c 00 c0       	push   $0xc0006c1c
-c000351d:	68 a0 6d 00 c0       	push   $0xc0006da0
+c0003518:	68 f0 6c 00 c0       	push   $0xc0006cf0
+c000351d:	68 74 6e 00 c0       	push   $0xc0006e74
 c0003522:	68 01 02 00 00       	push   $0x201
-c0003527:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0003527:	68 ef 6a 00 c0       	push   $0xc0006aef
 c000352c:	e8 51 f0 ff ff       	call   c0002582 <panic_spin>
 c0003531:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:514
@@ -4839,10 +4839,10 @@ c0003588:	8b 40 08             	mov    0x8(%eax),%eax
 c000358b:	83 f8 01             	cmp    $0x1,%eax
 c000358e:	74 1c                	je     c00035ac <sys_free+0xdc>
 /work/x86_os_my/kernel/memory.c:524 (discriminator 2)
-c0003590:	68 3c 6c 00 c0       	push   $0xc0006c3c
-c0003595:	68 a0 6d 00 c0       	push   $0xc0006da0
+c0003590:	68 10 6d 00 c0       	push   $0xc0006d10
+c0003595:	68 74 6e 00 c0       	push   $0xc0006e74
 c000359a:	68 0c 02 00 00       	push   $0x20c
-c000359f:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c000359f:	68 ef 6a 00 c0       	push   $0xc0006aef
 c00035a4:	e8 d9 ef ff ff       	call   c0002582 <panic_spin>
 c00035a9:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:525
@@ -4924,10 +4924,10 @@ c000364c:	83 c4 10             	add    $0x10,%esp
 c000364f:	85 c0                	test   %eax,%eax
 c0003651:	75 1c                	jne    c000366f <sys_free+0x19f>
 /work/x86_os_my/kernel/memory.c:537 (discriminator 1)
-c0003653:	68 5c 6c 00 c0       	push   $0xc0006c5c
-c0003658:	68 a0 6d 00 c0       	push   $0xc0006da0
+c0003653:	68 30 6d 00 c0       	push   $0xc0006d30
+c0003658:	68 74 6e 00 c0       	push   $0xc0006e74
 c000365d:	68 19 02 00 00       	push   $0x219
-c0003662:	68 1b 6a 00 c0       	push   $0xc0006a1b
+c0003662:	68 ef 6a 00 c0       	push   $0xc0006aef
 c0003667:	e8 16 ef ff ff       	call   c0002582 <panic_spin>
 c000366c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:538 (discriminator 2)
@@ -4992,7 +4992,7 @@ c00036ba:	83 ec 38             	sub    $0x38,%esp
 /work/x86_os_my/kernel/memory.c:549
 	put_str("   mem_pool_init start\n");
 c00036bd:	83 ec 0c             	sub    $0xc,%esp
-c00036c0:	68 8a 6c 00 c0       	push   $0xc0006c8a
+c00036c0:	68 5e 6d 00 c0       	push   $0xc0006d5e
 c00036c5:	e8 46 ed ff ff       	call   c0002410 <put_str>
 c00036ca:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:550
@@ -5102,7 +5102,7 @@ c0003786:	a3 64 9a 00 c0       	mov    %eax,0xc0009a64
 	/******************** 输出内存池信息 **********************/
 	put_str("      kernel_pool_bitmap_start:");put_int((int)kernel_pool.pool_bitmap.bits);
 c000378b:	83 ec 0c             	sub    $0xc,%esp
-c000378e:	68 a4 6c 00 c0       	push   $0xc0006ca4
+c000378e:	68 78 6d 00 c0       	push   $0xc0006d78
 c0003793:	e8 78 ec ff ff       	call   c0002410 <put_str>
 c0003798:	83 c4 10             	add    $0x10,%esp
 c000379b:	a1 64 9b 00 c0       	mov    0xc0009b64,%eax
@@ -5113,7 +5113,7 @@ c00037a9:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:589
 	put_str(" kernel_pool_phy_addr_start:");put_int(kernel_pool.phy_addr_start);
 c00037ac:	83 ec 0c             	sub    $0xc,%esp
-c00037af:	68 c4 6c 00 c0       	push   $0xc0006cc4
+c00037af:	68 98 6d 00 c0       	push   $0xc0006d98
 c00037b4:	e8 57 ec ff ff       	call   c0002410 <put_str>
 c00037b9:	83 c4 10             	add    $0x10,%esp
 c00037bc:	a1 68 9b 00 c0       	mov    0xc0009b68,%eax
@@ -5124,13 +5124,13 @@ c00037ca:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:590
 	put_str("\n");
 c00037cd:	83 ec 0c             	sub    $0xc,%esp
-c00037d0:	68 e1 6c 00 c0       	push   $0xc0006ce1
+c00037d0:	68 b5 6d 00 c0       	push   $0xc0006db5
 c00037d5:	e8 36 ec ff ff       	call   c0002410 <put_str>
 c00037da:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:591
 	put_str("      user_pool_bitmap_start:");put_int((int)user_pool.pool_bitmap.bits);
 c00037dd:	83 ec 0c             	sub    $0xc,%esp
-c00037e0:	68 e3 6c 00 c0       	push   $0xc0006ce3
+c00037e0:	68 b7 6d 00 c0       	push   $0xc0006db7
 c00037e5:	e8 26 ec ff ff       	call   c0002410 <put_str>
 c00037ea:	83 c4 10             	add    $0x10,%esp
 c00037ed:	a1 64 9a 00 c0       	mov    0xc0009a64,%eax
@@ -5141,7 +5141,7 @@ c00037fb:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:592
 	put_str(" user_pool_phy_addr_start:");put_int(user_pool.phy_addr_start);
 c00037fe:	83 ec 0c             	sub    $0xc,%esp
-c0003801:	68 01 6d 00 c0       	push   $0xc0006d01
+c0003801:	68 d5 6d 00 c0       	push   $0xc0006dd5
 c0003806:	e8 05 ec ff ff       	call   c0002410 <put_str>
 c000380b:	83 c4 10             	add    $0x10,%esp
 c000380e:	a1 68 9a 00 c0       	mov    0xc0009a68,%eax
@@ -5152,7 +5152,7 @@ c000381c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:593
 	put_str("\n");
 c000381f:	83 ec 0c             	sub    $0xc,%esp
-c0003822:	68 e1 6c 00 c0       	push   $0xc0006ce1
+c0003822:	68 b5 6d 00 c0       	push   $0xc0006db5
 c0003827:	e8 e4 eb ff ff       	call   c0002410 <put_str>
 c000382c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:596
@@ -5211,7 +5211,7 @@ c00038a0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:610
 	put_str("   mem_pool_init done\n");
 c00038a3:	83 ec 0c             	sub    $0xc,%esp
-c00038a6:	68 1c 6d 00 c0       	push   $0xc0006d1c
+c00038a6:	68 f0 6d 00 c0       	push   $0xc0006df0
 c00038ab:	e8 60 eb ff ff       	call   c0002410 <put_str>
 c00038b0:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:611
@@ -5323,7 +5323,7 @@ c000394c:	83 ec 18             	sub    $0x18,%esp
 /work/x86_os_my/kernel/memory.c:633
 	put_str("mem_init start\n");
 c000394f:	83 ec 0c             	sub    $0xc,%esp
-c0003952:	68 33 6d 00 c0       	push   $0xc0006d33
+c0003952:	68 07 6e 00 c0       	push   $0xc0006e07
 c0003957:	e8 b4 ea ff ff       	call   c0002410 <put_str>
 c000395c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:634
@@ -5346,7 +5346,7 @@ c0003984:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:637
 	put_str("mem_init done\n");
 c0003987:	83 ec 0c             	sub    $0xc,%esp
-c000398a:	68 43 6d 00 c0       	push   $0xc0006d43
+c000398a:	68 17 6e 00 c0       	push   $0xc0006e17
 c000398f:	e8 7c ea ff ff       	call   c0002410 <put_str>
 c0003994:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/kernel/memory.c:638
@@ -5374,10 +5374,10 @@ c00039a3:	88 45 e4             	mov    %al,-0x1c(%ebp)
 c00039a6:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c00039aa:	75 19                	jne    c00039c5 <memset+0x2b>
 /work/x86_os_my/lib/string.c:7 (discriminator 1)
-c00039ac:	68 ac 6d 00 c0       	push   $0xc0006dac
-c00039b1:	68 20 6e 00 c0       	push   $0xc0006e20
+c00039ac:	68 80 6e 00 c0       	push   $0xc0006e80
+c00039b1:	68 f4 6e 00 c0       	push   $0xc0006ef4
 c00039b6:	6a 07                	push   $0x7
-c00039b8:	68 b9 6d 00 c0       	push   $0xc0006db9
+c00039b8:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c00039bd:	e8 c0 eb ff ff       	call   c0002582 <panic_spin>
 c00039c2:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:8
@@ -5430,10 +5430,10 @@ c00039f6:	74 06                	je     c00039fe <memcpy+0x12>
 c00039f8:	83 7d 0c 00          	cmpl   $0x0,0xc(%ebp)
 c00039fc:	75 19                	jne    c0003a17 <memcpy+0x2b>
 /work/x86_os_my/lib/string.c:15 (discriminator 3)
-c00039fe:	68 c6 6d 00 c0       	push   $0xc0006dc6
-c0003a03:	68 28 6e 00 c0       	push   $0xc0006e28
+c00039fe:	68 9a 6e 00 c0       	push   $0xc0006e9a
+c0003a03:	68 fc 6e 00 c0       	push   $0xc0006efc
 c0003a08:	6a 0f                	push   $0xf
-c0003a0a:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003a0a:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003a0f:	e8 6e eb ff ff       	call   c0002582 <panic_spin>
 c0003a14:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:16
@@ -5501,10 +5501,10 @@ c0003a62:	75 57                	jne    c0003abb <memcmp+0x6f>
 c0003a64:	83 7d f0 00          	cmpl   $0x0,-0x10(%ebp)
 c0003a68:	75 51                	jne    c0003abb <memcmp+0x6f>
 /work/x86_os_my/lib/string.c:26 (discriminator 2)
-c0003a6a:	68 e3 6d 00 c0       	push   $0xc0006de3
-c0003a6f:	68 30 6e 00 c0       	push   $0xc0006e30
+c0003a6a:	68 b7 6e 00 c0       	push   $0xc0006eb7
+c0003a6f:	68 04 6f 00 c0       	push   $0xc0006f04
 c0003a74:	6a 1a                	push   $0x1a
-c0003a76:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003a76:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003a7b:	e8 02 eb ff ff       	call   c0002582 <panic_spin>
 c0003a80:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:27 (discriminator 2)
@@ -5581,10 +5581,10 @@ c0003ad9:	74 06                	je     c0003ae1 <strcpy+0x12>
 c0003adb:	83 7d 0c 00          	cmpl   $0x0,0xc(%ebp)
 c0003adf:	75 19                	jne    c0003afa <strcpy+0x2b>
 /work/x86_os_my/lib/string.c:39 (discriminator 3)
-c0003ae1:	68 c6 6d 00 c0       	push   $0xc0006dc6
-c0003ae6:	68 38 6e 00 c0       	push   $0xc0006e38
+c0003ae1:	68 9a 6e 00 c0       	push   $0xc0006e9a
+c0003ae6:	68 0c 6f 00 c0       	push   $0xc0006f0c
 c0003aeb:	6a 27                	push   $0x27
-c0003aed:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003aed:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003af2:	e8 8b ea ff ff       	call   c0002582 <panic_spin>
 c0003af7:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:40
@@ -5628,10 +5628,10 @@ c0003b27:	83 ec 18             	sub    $0x18,%esp
 c0003b2a:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c0003b2e:	75 19                	jne    c0003b49 <strlen+0x25>
 /work/x86_os_my/lib/string.c:47 (discriminator 1)
-c0003b30:	68 fa 6d 00 c0       	push   $0xc0006dfa
-c0003b35:	68 40 6e 00 c0       	push   $0xc0006e40
+c0003b30:	68 ce 6e 00 c0       	push   $0xc0006ece
+c0003b35:	68 14 6f 00 c0       	push   $0xc0006f14
 c0003b3a:	6a 2f                	push   $0x2f
-c0003b3c:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003b3c:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003b41:	e8 3c ea ff ff       	call   c0002582 <panic_spin>
 c0003b46:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:48
@@ -5677,10 +5677,10 @@ c0003b79:	74 06                	je     c0003b81 <strcmp+0x12>
 c0003b7b:	83 7d 0c 00          	cmpl   $0x0,0xc(%ebp)
 c0003b7f:	75 19                	jne    c0003b9a <strcmp+0x2b>
 /work/x86_os_my/lib/string.c:55 (discriminator 3)
-c0003b81:	68 06 6e 00 c0       	push   $0xc0006e06
-c0003b86:	68 48 6e 00 c0       	push   $0xc0006e48
+c0003b81:	68 da 6e 00 c0       	push   $0xc0006eda
+c0003b86:	68 1c 6f 00 c0       	push   $0xc0006f1c
 c0003b8b:	6a 37                	push   $0x37
-c0003b8d:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003b8d:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003b92:	e8 eb e9 ff ff       	call   c0002582 <panic_spin>
 c0003b97:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:56 (discriminator 1)
@@ -5754,10 +5754,10 @@ c0003bf1:	88 45 f4             	mov    %al,-0xc(%ebp)
 c0003bf4:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c0003bf8:	75 35                	jne    c0003c2f <strchr+0x47>
 /work/x86_os_my/lib/string.c:67 (discriminator 1)
-c0003bfa:	68 fa 6d 00 c0       	push   $0xc0006dfa
-c0003bff:	68 50 6e 00 c0       	push   $0xc0006e50
+c0003bfa:	68 ce 6e 00 c0       	push   $0xc0006ece
+c0003bff:	68 24 6f 00 c0       	push   $0xc0006f24
 c0003c04:	6a 43                	push   $0x43
-c0003c06:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003c06:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003c0b:	e8 72 e9 ff ff       	call   c0002582 <panic_spin>
 c0003c10:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:68 (discriminator 1)
@@ -5819,10 +5819,10 @@ c0003c49:	88 45 e4             	mov    %al,-0x1c(%ebp)
 c0003c4c:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c0003c50:	75 19                	jne    c0003c6b <strrchr+0x2b>
 /work/x86_os_my/lib/string.c:79 (discriminator 1)
-c0003c52:	68 fa 6d 00 c0       	push   $0xc0006dfa
-c0003c57:	68 58 6e 00 c0       	push   $0xc0006e58
+c0003c52:	68 ce 6e 00 c0       	push   $0xc0006ece
+c0003c57:	68 2c 6f 00 c0       	push   $0xc0006f2c
 c0003c5c:	6a 4f                	push   $0x4f
-c0003c5e:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003c5e:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003c63:	e8 1a e9 ff ff       	call   c0002582 <panic_spin>
 c0003c68:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:80
@@ -5889,10 +5889,10 @@ c0003ca8:	74 06                	je     c0003cb0 <strcat+0x12>
 c0003caa:	83 7d 0c 00          	cmpl   $0x0,0xc(%ebp)
 c0003cae:	75 19                	jne    c0003cc9 <strcat+0x2b>
 /work/x86_os_my/lib/string.c:93 (discriminator 3)
-c0003cb0:	68 c6 6d 00 c0       	push   $0xc0006dc6
-c0003cb5:	68 60 6e 00 c0       	push   $0xc0006e60
+c0003cb0:	68 9a 6e 00 c0       	push   $0xc0006e9a
+c0003cb5:	68 34 6f 00 c0       	push   $0xc0006f34
 c0003cba:	6a 5d                	push   $0x5d
-c0003cbc:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003cbc:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003cc1:	e8 bc e8 ff ff       	call   c0002582 <panic_spin>
 c0003cc6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:94
@@ -5951,10 +5951,10 @@ c0003d11:	88 45 e4             	mov    %al,-0x1c(%ebp)
 c0003d14:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c0003d18:	75 19                	jne    c0003d33 <strchrs+0x2b>
 /work/x86_os_my/lib/string.c:103 (discriminator 1)
-c0003d1a:	68 fa 6d 00 c0       	push   $0xc0006dfa
-c0003d1f:	68 68 6e 00 c0       	push   $0xc0006e68
+c0003d1a:	68 ce 6e 00 c0       	push   $0xc0006ece
+c0003d1f:	68 3c 6f 00 c0       	push   $0xc0006f3c
 c0003d24:	6a 67                	push   $0x67
-c0003d26:	68 b9 6d 00 c0       	push   $0xc0006db9
+c0003d26:	68 8d 6e 00 c0       	push   $0xc0006e8d
 c0003d2b:	e8 52 e8 ff ff       	call   c0002582 <panic_spin>
 c0003d30:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/string.c:104
@@ -6340,10 +6340,10 @@ c0003f61:	83 c4 10             	add    $0x10,%esp
 c0003f64:	85 c0                	test   %eax,%eax
 c0003f66:	74 19                	je     c0003f81 <thread_start+0x72>
 /work/x86_os_my/thread/thread.c:117 (discriminator 1)
-c0003f68:	68 70 6e 00 c0       	push   $0xc0006e70
-c0003f6d:	68 f4 70 00 c0       	push   $0xc00070f4
+c0003f68:	68 44 6f 00 c0       	push   $0xc0006f44
+c0003f6d:	68 c8 71 00 c0       	push   $0xc00071c8
 c0003f72:	6a 75                	push   $0x75
-c0003f74:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c0003f74:	68 79 6f 00 c0       	push   $0xc0006f79
 c0003f79:	e8 04 e6 ff ff       	call   c0002582 <panic_spin>
 c0003f7e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:118
@@ -6368,10 +6368,10 @@ c0003fac:	83 c4 10             	add    $0x10,%esp
 c0003faf:	85 c0                	test   %eax,%eax
 c0003fb1:	74 19                	je     c0003fcc <thread_start+0xbd>
 /work/x86_os_my/thread/thread.c:120 (discriminator 1)
-c0003fb3:	68 b8 6e 00 c0       	push   $0xc0006eb8
-c0003fb8:	68 f4 70 00 c0       	push   $0xc00070f4
+c0003fb3:	68 8c 6f 00 c0       	push   $0xc0006f8c
+c0003fb8:	68 c8 71 00 c0       	push   $0xc00071c8
 c0003fbd:	6a 78                	push   $0x78
-c0003fbf:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c0003fbf:	68 79 6f 00 c0       	push   $0xc0006f79
 c0003fc4:	e8 b9 e5 ff ff       	call   c0002582 <panic_spin>
 c0003fc9:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:121
@@ -6419,7 +6419,7 @@ c0003ff3:	a3 b0 9b 00 c0       	mov    %eax,0xc0009bb0
 c0003ff8:	a1 b0 9b 00 c0       	mov    0xc0009bb0,%eax
 c0003ffd:	83 ec 04             	sub    $0x4,%esp
 c0004000:	6a 1f                	push   $0x1f
-c0004002:	68 ec 6e 00 c0       	push   $0xc0006eec
+c0004002:	68 c0 6f 00 c0       	push   $0xc0006fc0
 c0004007:	50                   	push   %eax
 c0004008:	e8 5b fe ff ff       	call   c0003e68 <init_thread>
 c000400d:	83 c4 10             	add    $0x10,%esp
@@ -6438,10 +6438,10 @@ c0004026:	83 c4 10             	add    $0x10,%esp
 c0004029:	85 c0                	test   %eax,%eax
 c000402b:	74 1c                	je     c0004049 <make_main_thread+0x61>
 /work/x86_os_my/thread/thread.c:152 (discriminator 1)
-c000402d:	68 f4 6e 00 c0       	push   $0xc0006ef4
-c0004032:	68 04 71 00 c0       	push   $0xc0007104
+c000402d:	68 c8 6f 00 c0       	push   $0xc0006fc8
+c0004032:	68 d8 71 00 c0       	push   $0xc00071d8
 c0004037:	68 98 00 00 00       	push   $0x98
-c000403c:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c000403c:	68 79 6f 00 c0       	push   $0xc0006f79
 c0004041:	e8 3c e5 ff ff       	call   c0002582 <panic_spin>
 c0004046:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:153
@@ -6477,10 +6477,10 @@ c000406b:	e8 bf db ff ff       	call   c0001c2f <intr_get_status>
 c0004070:	85 c0                	test   %eax,%eax
 c0004072:	74 1c                	je     c0004090 <schedule+0x2b>
 /work/x86_os_my/thread/thread.c:165 (discriminator 1)
-c0004074:	68 2f 6f 00 c0       	push   $0xc0006f2f
-c0004079:	68 18 71 00 c0       	push   $0xc0007118
+c0004074:	68 03 70 00 c0       	push   $0xc0007003
+c0004079:	68 ec 71 00 c0       	push   $0xc00071ec
 c000407e:	68 a5 00 00 00       	push   $0xa5
-c0004083:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c0004083:	68 79 6f 00 c0       	push   $0xc0006f79
 c0004088:	e8 f5 e4 ff ff       	call   c0002582 <panic_spin>
 c000408d:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:168
@@ -6507,10 +6507,10 @@ c00040b6:	83 c4 10             	add    $0x10,%esp
 c00040b9:	85 c0                	test   %eax,%eax
 c00040bb:	74 1c                	je     c00040d9 <schedule+0x74>
 /work/x86_os_my/thread/thread.c:170 (discriminator 1)
-c00040bd:	68 50 6f 00 c0       	push   $0xc0006f50
-c00040c2:	68 18 71 00 c0       	push   $0xc0007118
+c00040bd:	68 24 70 00 c0       	push   $0xc0007024
+c00040c2:	68 ec 71 00 c0       	push   $0xc00071ec
 c00040c7:	68 aa 00 00 00       	push   $0xaa
-c00040cc:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c00040cc:	68 79 6f 00 c0       	push   $0xc0006f79
 c00040d1:	e8 ac e4 ff ff       	call   c0002582 <panic_spin>
 c00040d6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:171
@@ -6564,10 +6564,10 @@ c0004139:	83 c4 10             	add    $0x10,%esp
 c000413c:	85 c0                	test   %eax,%eax
 c000413e:	74 1c                	je     c000415c <schedule+0xf7>
 /work/x86_os_my/thread/thread.c:185 (discriminator 1)
-c0004140:	68 84 6f 00 c0       	push   $0xc0006f84
-c0004145:	68 18 71 00 c0       	push   $0xc0007118
+c0004140:	68 58 70 00 c0       	push   $0xc0007058
+c0004145:	68 ec 71 00 c0       	push   $0xc00071ec
 c000414a:	68 b9 00 00 00       	push   $0xb9
-c000414f:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c000414f:	68 79 6f 00 c0       	push   $0xc0006f79
 c0004154:	e8 29 e4 ff ff       	call   c0002582 <panic_spin>
 c0004159:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:186
@@ -6635,10 +6635,10 @@ c00041c2:	74 22                	je     c00041e6 <thread_block+0x34>
 c00041c4:	83 7d 08 04          	cmpl   $0x4,0x8(%ebp)
 c00041c8:	74 1c                	je     c00041e6 <thread_block+0x34>
 /work/x86_os_my/thread/thread.c:202 (discriminator 3)
-c00041ca:	68 a4 6f 00 c0       	push   $0xc0006fa4
-c00041cf:	68 24 71 00 c0       	push   $0xc0007124
+c00041ca:	68 78 70 00 c0       	push   $0xc0007078
+c00041cf:	68 f8 71 00 c0       	push   $0xc00071f8
 c00041d4:	68 ca 00 00 00       	push   $0xca
-c00041d9:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c00041d9:	68 79 6f 00 c0       	push   $0xc0006f79
 c00041de:	e8 9f e3 ff ff       	call   c0002582 <panic_spin>
 c00041e3:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:203
@@ -6702,10 +6702,10 @@ c000423c:	8b 40 08             	mov    0x8(%eax),%eax
 c000423f:	83 f8 04             	cmp    $0x4,%eax
 c0004242:	74 1c                	je     c0004260 <thread_unblock+0x4b>
 /work/x86_os_my/thread/thread.c:216 (discriminator 3)
-c0004244:	68 f4 6f 00 c0       	push   $0xc0006ff4
-c0004249:	68 34 71 00 c0       	push   $0xc0007134
+c0004244:	68 c8 70 00 c0       	push   $0xc00070c8
+c0004249:	68 08 72 00 c0       	push   $0xc0007208
 c000424e:	68 d8 00 00 00       	push   $0xd8
-c0004253:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c0004253:	68 79 6f 00 c0       	push   $0xc0006f79
 c0004258:	e8 25 e3 ff ff       	call   c0002582 <panic_spin>
 c000425d:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:218
@@ -6727,10 +6727,10 @@ c0004283:	83 c4 10             	add    $0x10,%esp
 c0004286:	85 c0                	test   %eax,%eax
 c0004288:	74 1c                	je     c00042a6 <thread_unblock+0x91>
 /work/x86_os_my/thread/thread.c:219 (discriminator 1)
-c000428a:	68 64 70 00 c0       	push   $0xc0007064
-c000428f:	68 34 71 00 c0       	push   $0xc0007134
+c000428a:	68 38 71 00 c0       	push   $0xc0007138
+c000428f:	68 08 72 00 c0       	push   $0xc0007208
 c0004294:	68 db 00 00 00       	push   $0xdb
-c0004299:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c0004299:	68 79 6f 00 c0       	push   $0xc0006f79
 c000429e:	e8 df e2 ff ff       	call   c0002582 <panic_spin>
 c00042a3:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:220
@@ -6746,10 +6746,10 @@ c00042bd:	85 c0                	test   %eax,%eax
 c00042bf:	74 1c                	je     c00042dd <thread_unblock+0xc8>
 /work/x86_os_my/thread/thread.c:221
 			PANIC("thread_unblock: blocked thread in ready_list\n");
-c00042c1:	68 9c 70 00 c0       	push   $0xc000709c
-c00042c6:	68 34 71 00 c0       	push   $0xc0007134
+c00042c1:	68 70 71 00 c0       	push   $0xc0007170
+c00042c6:	68 08 72 00 c0       	push   $0xc0007208
 c00042cb:	68 dd 00 00 00       	push   $0xdd
-c00042d0:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c00042d0:	68 79 6f 00 c0       	push   $0xc0006f79
 c00042d5:	e8 a8 e2 ff ff       	call   c0002582 <panic_spin>
 c00042da:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:223
@@ -6809,10 +6809,10 @@ c0004339:	83 c4 10             	add    $0x10,%esp
 c000433c:	85 c0                	test   %eax,%eax
 c000433e:	74 1c                	je     c000435c <thread_yield+0x4d>
 /work/x86_os_my/thread/thread.c:234 (discriminator 1)
-c0004340:	68 50 6f 00 c0       	push   $0xc0006f50
-c0004345:	68 44 71 00 c0       	push   $0xc0007144
+c0004340:	68 24 70 00 c0       	push   $0xc0007024
+c0004345:	68 18 72 00 c0       	push   $0xc0007218
 c000434a:	68 ea 00 00 00       	push   $0xea
-c000434f:	68 a5 6e 00 c0       	push   $0xc0006ea5
+c000434f:	68 79 6f 00 c0       	push   $0xc0006f79
 c0004354:	e8 29 e2 ff ff       	call   c0002582 <panic_spin>
 c0004359:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:235
@@ -6855,7 +6855,7 @@ c0004396:	83 ec 08             	sub    $0x8,%esp
 /work/x86_os_my/thread/thread.c:243
 	put_str("thread_init start\n");
 c0004399:	83 ec 0c             	sub    $0xc,%esp
-c000439c:	68 ca 70 00 c0       	push   $0xc00070ca
+c000439c:	68 9e 71 00 c0       	push   $0xc000719e
 c00043a1:	e8 6a e0 ff ff       	call   c0002410 <put_str>
 c00043a6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:244
@@ -6886,14 +6886,14 @@ c00043d9:	e8 0a fc ff ff       	call   c0003fe8 <make_main_thread>
 c00043de:	6a 00                	push   $0x0
 c00043e0:	68 6a 3d 00 c0       	push   $0xc0003d6a
 c00043e5:	6a 0a                	push   $0xa
-c00043e7:	68 dd 70 00 c0       	push   $0xc00070dd
+c00043e7:	68 b1 71 00 c0       	push   $0xc00071b1
 c00043ec:	e8 1e fb ff ff       	call   c0003f0f <thread_start>
 c00043f1:	83 c4 10             	add    $0x10,%esp
 c00043f4:	a3 ac 9b 00 c0       	mov    %eax,0xc0009bac
 /work/x86_os_my/thread/thread.c:251
 	put_str("thread_init done\n");
 c00043f9:	83 ec 0c             	sub    $0xc,%esp
-c00043fc:	68 e2 70 00 c0       	push   $0xc00070e2
+c00043fc:	68 b6 71 00 c0       	push   $0xc00071b6
 c0004401:	e8 0a e0 ff ff       	call   c0002410 <put_str>
 c0004406:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/thread.c:252
@@ -7580,10 +7580,10 @@ c0004750:	83 c4 10             	add    $0x10,%esp
 c0004753:	85 c0                	test   %eax,%eax
 c0004755:	74 19                	je     c0004770 <sema_down+0x4b>
 /work/x86_os_my/thread/sync.c:26 (discriminator 1)
-c0004757:	68 54 71 00 c0       	push   $0xc0007154
-c000475c:	68 58 72 00 c0       	push   $0xc0007258
+c0004757:	68 28 72 00 c0       	push   $0xc0007228
+c000475c:	68 2c 73 00 c0       	push   $0xc000732c
 c0004761:	6a 1a                	push   $0x1a
-c0004763:	68 90 71 00 c0       	push   $0xc0007190
+c0004763:	68 64 72 00 c0       	push   $0xc0007264
 c0004768:	e8 15 de ff ff       	call   c0002582 <panic_spin>
 c000476d:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:28
@@ -7602,10 +7602,10 @@ c000478b:	85 c0                	test   %eax,%eax
 c000478d:	74 19                	je     c00047a8 <sema_down+0x83>
 /work/x86_os_my/thread/sync.c:29
 			PANIC("sema_down: thread blocked has been in waiters_list\n");
-c000478f:	68 a0 71 00 c0       	push   $0xc00071a0
-c0004794:	68 58 72 00 c0       	push   $0xc0007258
+c000478f:	68 74 72 00 c0       	push   $0xc0007274
+c0004794:	68 2c 73 00 c0       	push   $0xc000732c
 c0004799:	6a 1d                	push   $0x1d
-c000479b:	68 90 71 00 c0       	push   $0xc0007190
+c000479b:	68 64 72 00 c0       	push   $0xc0007264
 c00047a0:	e8 dd dd ff ff       	call   c0002582 <panic_spin>
 c00047a5:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:32
@@ -7657,10 +7657,10 @@ c00047ef:	0f b6 00             	movzbl (%eax),%eax
 c00047f2:	84 c0                	test   %al,%al
 c00047f4:	74 19                	je     c000480f <sema_down+0xea>
 /work/x86_os_my/thread/sync.c:37 (discriminator 1)
-c00047f6:	68 d4 71 00 c0       	push   $0xc00071d4
-c00047fb:	68 58 72 00 c0       	push   $0xc0007258
+c00047f6:	68 a8 72 00 c0       	push   $0xc00072a8
+c00047fb:	68 2c 73 00 c0       	push   $0xc000732c
 c0004800:	6a 25                	push   $0x25
-c0004802:	68 90 71 00 c0       	push   $0xc0007190
+c0004802:	68 64 72 00 c0       	push   $0xc0007264
 c0004807:	e8 76 dd ff ff       	call   c0002582 <panic_spin>
 c000480c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:40
@@ -7699,10 +7699,10 @@ c0004831:	0f b6 00             	movzbl (%eax),%eax
 c0004834:	84 c0                	test   %al,%al
 c0004836:	74 19                	je     c0004851 <sema_up+0x31>
 /work/x86_os_my/thread/sync.c:48 (discriminator 1)
-c0004838:	68 d4 71 00 c0       	push   $0xc00071d4
-c000483d:	68 64 72 00 c0       	push   $0xc0007264
+c0004838:	68 a8 72 00 c0       	push   $0xc00072a8
+c000483d:	68 38 73 00 c0       	push   $0xc0007338
 c0004842:	6a 30                	push   $0x30
-c0004844:	68 90 71 00 c0       	push   $0xc0007190
+c0004844:	68 64 72 00 c0       	push   $0xc0007264
 c0004849:	e8 34 dd ff ff       	call   c0002582 <panic_spin>
 c000484e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:49
@@ -7746,10 +7746,10 @@ c000489e:	0f b6 00             	movzbl (%eax),%eax
 c00048a1:	3c 01                	cmp    $0x1,%al
 c00048a3:	74 19                	je     c00048be <sema_up+0x9e>
 /work/x86_os_my/thread/sync.c:54 (discriminator 1)
-c00048a5:	68 e6 71 00 c0       	push   $0xc00071e6
-c00048aa:	68 64 72 00 c0       	push   $0xc0007264
+c00048a5:	68 ba 72 00 c0       	push   $0xc00072ba
+c00048aa:	68 38 73 00 c0       	push   $0xc0007338
 c00048af:	6a 36                	push   $0x36
-c00048b1:	68 90 71 00 c0       	push   $0xc0007190
+c00048b1:	68 64 72 00 c0       	push   $0xc0007264
 c00048b6:	e8 c7 dc ff ff       	call   c0002582 <panic_spin>
 c00048bb:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:57
@@ -7805,10 +7805,10 @@ c0004905:	8b 40 18             	mov    0x18(%eax),%eax
 c0004908:	85 c0                	test   %eax,%eax
 c000490a:	74 19                	je     c0004925 <lock_acquire+0x56>
 /work/x86_os_my/thread/sync.c:66 (discriminator 1)
-c000490c:	68 f8 71 00 c0       	push   $0xc00071f8
-c0004911:	68 6c 72 00 c0       	push   $0xc000726c
+c000490c:	68 cc 72 00 c0       	push   $0xc00072cc
+c0004911:	68 40 73 00 c0       	push   $0xc0007340
 c0004916:	6a 42                	push   $0x42
-c0004918:	68 90 71 00 c0       	push   $0xc0007190
+c0004918:	68 64 72 00 c0       	push   $0xc0007264
 c000491d:	e8 60 dc ff ff       	call   c0002582 <panic_spin>
 c0004922:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:67
@@ -7859,10 +7859,10 @@ c0004952:	e8 2a f4 ff ff       	call   c0003d81 <running_thread>
 c0004957:	39 c3                	cmp    %eax,%ebx
 c0004959:	74 19                	je     c0004974 <lock_release+0x2e>
 /work/x86_os_my/thread/sync.c:75 (discriminator 1)
-c000495b:	68 18 72 00 c0       	push   $0xc0007218
-c0004960:	68 7c 72 00 c0       	push   $0xc000727c
+c000495b:	68 ec 72 00 c0       	push   $0xc00072ec
+c0004960:	68 50 73 00 c0       	push   $0xc0007350
 c0004965:	6a 4b                	push   $0x4b
-c0004967:	68 90 71 00 c0       	push   $0xc0007190
+c0004967:	68 64 72 00 c0       	push   $0xc0007264
 c000496c:	e8 11 dc ff ff       	call   c0002582 <panic_spin>
 c0004971:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:76
@@ -7889,10 +7889,10 @@ c0004993:	8b 40 18             	mov    0x18(%eax),%eax
 c0004996:	83 f8 01             	cmp    $0x1,%eax
 c0004999:	74 19                	je     c00049b4 <lock_release+0x6e>
 /work/x86_os_my/thread/sync.c:80 (discriminator 1)
-c000499b:	68 3a 72 00 c0       	push   $0xc000723a
-c00049a0:	68 7c 72 00 c0       	push   $0xc000727c
+c000499b:	68 0e 73 00 c0       	push   $0xc000730e
+c00049a0:	68 50 73 00 c0       	push   $0xc0007350
 c00049a5:	6a 50                	push   $0x50
-c00049a7:	68 90 71 00 c0       	push   $0xc0007190
+c00049a7:	68 64 72 00 c0       	push   $0xc0007264
 c00049ac:	e8 d1 db ff ff       	call   c0002582 <panic_spin>
 c00049b1:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/thread/sync.c:82
@@ -8323,7 +8323,7 @@ c0004c76:	eb 18                	jmp    c0004c90 <intr_keyboard_handler+0x295>
    } else {
       put_str("unknown key\n");
 c0004c78:	83 ec 0c             	sub    $0xc,%esp
-c0004c7b:	68 89 72 00 c0       	push   $0xc0007289
+c0004c7b:	68 5d 73 00 c0       	push   $0xc000735d
 c0004c80:	e8 8b d7 ff ff       	call   c0002410 <put_str>
 c0004c85:	83 c4 10             	add    $0x10,%esp
 c0004c88:	eb 07                	jmp    c0004c91 <intr_keyboard_handler+0x296>
@@ -8375,7 +8375,7 @@ c0004c96:	83 ec 08             	sub    $0x8,%esp
 /work/x86_os_my/device/keyboard.c:232
    put_str("keyboard init start\n");
 c0004c99:	83 ec 0c             	sub    $0xc,%esp
-c0004c9c:	68 96 72 00 c0       	push   $0xc0007296
+c0004c9c:	68 6a 73 00 c0       	push   $0xc000736a
 c0004ca1:	e8 6a d7 ff ff       	call   c0002410 <put_str>
 c0004ca6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/keyboard.c:233
@@ -8394,7 +8394,7 @@ c0004cc8:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/keyboard.c:235
    put_str("keyboard init done\n");
 c0004ccb:	83 ec 0c             	sub    $0xc,%esp
-c0004cce:	68 ab 72 00 c0       	push   $0xc00072ab
+c0004cce:	68 7f 73 00 c0       	push   $0xc000737f
 c0004cd3:	e8 38 d7 ff ff       	call   c0002410 <put_str>
 c0004cd8:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/keyboard.c:236
@@ -8483,10 +8483,10 @@ c0004d44:	e8 e6 ce ff ff       	call   c0001c2f <intr_get_status>
 c0004d49:	85 c0                	test   %eax,%eax
 c0004d4b:	74 19                	je     c0004d66 <ioq_full+0x28>
 /work/x86_os_my/device/ioqueue.c:20 (discriminator 1)
-c0004d4d:	68 c0 72 00 c0       	push   $0xc00072c0
-c0004d52:	68 24 73 00 c0       	push   $0xc0007324
+c0004d4d:	68 94 73 00 c0       	push   $0xc0007394
+c0004d52:	68 f8 73 00 c0       	push   $0xc00073f8
 c0004d57:	6a 14                	push   $0x14
-c0004d59:	68 de 72 00 c0       	push   $0xc00072de
+c0004d59:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004d5e:	e8 1f d8 ff ff       	call   c0002582 <panic_spin>
 c0004d63:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:21
@@ -8523,10 +8523,10 @@ c0004d90:	e8 9a ce ff ff       	call   c0001c2f <intr_get_status>
 c0004d95:	85 c0                	test   %eax,%eax
 c0004d97:	74 19                	je     c0004db2 <ioq_empty+0x28>
 /work/x86_os_my/device/ioqueue.c:26 (discriminator 1)
-c0004d99:	68 c0 72 00 c0       	push   $0xc00072c0
-c0004d9e:	68 30 73 00 c0       	push   $0xc0007330
+c0004d99:	68 94 73 00 c0       	push   $0xc0007394
+c0004d9e:	68 04 74 00 c0       	push   $0xc0007404
 c0004da3:	6a 1a                	push   $0x1a
-c0004da5:	68 de 72 00 c0       	push   $0xc00072de
+c0004da5:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004daa:	e8 d3 d7 ff ff       	call   c0002582 <panic_spin>
 c0004daf:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:27
@@ -8562,10 +8562,10 @@ c0004dd5:	75 06                	jne    c0004ddd <ioq_wait+0x15>
 c0004dd7:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c0004ddb:	75 19                	jne    c0004df6 <ioq_wait+0x2e>
 /work/x86_os_my/device/ioqueue.c:32 (discriminator 3)
-c0004ddd:	68 f0 72 00 c0       	push   $0xc00072f0
-c0004de2:	68 3c 73 00 c0       	push   $0xc000733c
+c0004ddd:	68 c4 73 00 c0       	push   $0xc00073c4
+c0004de2:	68 10 74 00 c0       	push   $0xc0007410
 c0004de7:	6a 20                	push   $0x20
-c0004de9:	68 de 72 00 c0       	push   $0xc00072de
+c0004de9:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004dee:	e8 8f d7 ff ff       	call   c0002582 <panic_spin>
 c0004df3:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:33
@@ -8602,10 +8602,10 @@ c0004e1b:	8b 00                	mov    (%eax),%eax
 c0004e1d:	85 c0                	test   %eax,%eax
 c0004e1f:	75 19                	jne    c0004e3a <wakeup+0x28>
 /work/x86_os_my/device/ioqueue.c:39 (discriminator 1)
-c0004e21:	68 12 73 00 c0       	push   $0xc0007312
-c0004e26:	68 48 73 00 c0       	push   $0xc0007348
+c0004e21:	68 e6 73 00 c0       	push   $0xc00073e6
+c0004e26:	68 1c 74 00 c0       	push   $0xc000741c
 c0004e2b:	6a 27                	push   $0x27
-c0004e2d:	68 de 72 00 c0       	push   $0xc00072de
+c0004e2d:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004e32:	e8 4b d7 ff ff       	call   c0002582 <panic_spin>
 c0004e37:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:40
@@ -8641,10 +8641,10 @@ c0004e5d:	e8 cd cd ff ff       	call   c0001c2f <intr_get_status>
 c0004e62:	85 c0                	test   %eax,%eax
 c0004e64:	74 4b                	je     c0004eb1 <ioq_getchar+0x5a>
 /work/x86_os_my/device/ioqueue.c:46 (discriminator 1)
-c0004e66:	68 c0 72 00 c0       	push   $0xc00072c0
-c0004e6b:	68 50 73 00 c0       	push   $0xc0007350
+c0004e66:	68 94 73 00 c0       	push   $0xc0007394
+c0004e6b:	68 24 74 00 c0       	push   $0xc0007424
 c0004e70:	6a 2e                	push   $0x2e
-c0004e72:	68 de 72 00 c0       	push   $0xc00072de
+c0004e72:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004e77:	e8 06 d7 ff ff       	call   c0002582 <panic_spin>
 c0004e7c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:51 (discriminator 1)
@@ -8754,10 +8754,10 @@ c0004f1c:	e8 0e cd ff ff       	call   c0001c2f <intr_get_status>
 c0004f21:	85 c0                	test   %eax,%eax
 c0004f23:	74 4b                	je     c0004f70 <ioq_putchar+0x60>
 /work/x86_os_my/device/ioqueue.c:69 (discriminator 1)
-c0004f25:	68 c0 72 00 c0       	push   $0xc00072c0
-c0004f2a:	68 5c 73 00 c0       	push   $0xc000735c
+c0004f25:	68 94 73 00 c0       	push   $0xc0007394
+c0004f2a:	68 30 74 00 c0       	push   $0xc0007430
 c0004f2f:	6a 45                	push   $0x45
-c0004f31:	68 de 72 00 c0       	push   $0xc00072de
+c0004f31:	68 b2 73 00 c0       	push   $0xc00073b2
 c0004f36:	e8 47 d6 ff ff       	call   c0002582 <panic_spin>
 c0004f3b:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ioqueue.c:74 (discriminator 1)
@@ -8947,7 +8947,7 @@ c0005052:	83 ec 24             	sub    $0x24,%esp
 /work/x86_os_my/userprog/tss.c:62
 	put_str("tss_init start\n");
 c0005055:	83 ec 0c             	sub    $0xc,%esp
-c0005058:	68 68 73 00 c0       	push   $0xc0007368
+c0005058:	68 3c 74 00 c0       	push   $0xc000743c
 c000505d:	e8 ae d3 ff ff       	call   c0002410 <put_str>
 c0005062:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/tss.c:63
@@ -9044,7 +9044,7 @@ c000513f:	0f 00 d8             	ltr    %ax
 /work/x86_os_my/userprog/tss.c:86
 	put_str("tss_init and ltr done\n");
 c0005142:	83 ec 0c             	sub    $0xc,%esp
-c0005145:	68 78 73 00 c0       	push   $0xc0007378
+c0005145:	68 4c 74 00 c0       	push   $0xc000744c
 c000514a:	e8 c1 d2 ff ff       	call   c0002410 <put_str>
 c000514f:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/tss.c:87
@@ -9249,10 +9249,10 @@ c0005295:	83 ec 08             	sub    $0x8,%esp
 c0005298:	83 7d 08 00          	cmpl   $0x0,0x8(%ebp)
 c000529c:	75 19                	jne    c00052b7 <process_activate+0x25>
 /work/x86_os_my/userprog/process.c:74 (discriminator 1)
-c000529e:	68 90 73 00 c0       	push   $0xc0007390
-c00052a3:	68 4c 74 00 c0       	push   $0xc000744c
+c000529e:	68 64 74 00 c0       	push   $0xc0007464
+c00052a3:	68 20 75 00 c0       	push   $0xc0007520
 c00052a8:	6a 4a                	push   $0x4a
-c00052aa:	68 a1 73 00 c0       	push   $0xc00073a1
+c00052aa:	68 75 74 00 c0       	push   $0xc0007475
 c00052af:	e8 ce d2 ff ff       	call   c0002582 <panic_spin>
 c00052b4:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/process.c:77
@@ -9314,7 +9314,7 @@ c00052fa:	75 17                	jne    c0005313 <create_page_dir+0x33>
 /work/x86_os_my/userprog/process.c:99
 		console_put_str("create_page_dir: get_kernel_page failed!");
 c00052fc:	83 ec 0c             	sub    $0xc,%esp
-c00052ff:	68 b4 73 00 c0       	push   $0xc00073b4
+c00052ff:	68 88 74 00 c0       	push   $0xc0007488
 c0005304:	e8 57 f3 ff ff       	call   c0004660 <console_put_str>
 c0005309:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/process.c:100
@@ -9476,10 +9476,10 @@ c000542c:	83 c4 10             	add    $0x10,%esp
 c000542f:	85 c0                	test   %eax,%eax
 c0005431:	74 1c                	je     c000544f <process_execute+0xab>
 /work/x86_os_my/userprog/process.c:136 (discriminator 1)
-c0005433:	68 e0 73 00 c0       	push   $0xc00073e0
-c0005438:	68 60 74 00 c0       	push   $0xc0007460
+c0005433:	68 b4 74 00 c0       	push   $0xc00074b4
+c0005438:	68 34 75 00 c0       	push   $0xc0007534
 c000543d:	68 88 00 00 00       	push   $0x88
-c0005442:	68 a1 73 00 c0       	push   $0xc00073a1
+c0005442:	68 75 74 00 c0       	push   $0xc0007475
 c0005447:	e8 36 d1 ff ff       	call   c0002582 <panic_spin>
 c000544c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/process.c:137
@@ -9503,10 +9503,10 @@ c000547a:	83 c4 10             	add    $0x10,%esp
 c000547d:	85 c0                	test   %eax,%eax
 c000547f:	74 1c                	je     c000549d <process_execute+0xf9>
 /work/x86_os_my/userprog/process.c:138 (discriminator 1)
-c0005481:	68 18 74 00 c0       	push   $0xc0007418
-c0005486:	68 60 74 00 c0       	push   $0xc0007460
+c0005481:	68 ec 74 00 c0       	push   $0xc00074ec
+c0005486:	68 34 75 00 c0       	push   $0xc0007534
 c000548b:	68 8a 00 00 00       	push   $0x8a
-c0005490:	68 a1 73 00 c0       	push   $0xc00073a1
+c0005490:	68 75 74 00 c0       	push   $0xc0007475
 c0005495:	e8 e8 d0 ff ff       	call   c0002582 <panic_spin>
 c000549a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/process.c:139
@@ -9688,7 +9688,7 @@ c000556e:	83 ec 08             	sub    $0x8,%esp
 /work/x86_os_my/userprog/syscall-init.c:27
 	put_str("syscall_init start\n");
 c0005571:	83 ec 0c             	sub    $0xc,%esp
-c0005574:	68 70 74 00 c0       	push   $0xc0007470
+c0005574:	68 44 75 00 c0       	push   $0xc0007544
 c0005579:	e8 92 ce ff ff       	call   c0002410 <put_str>
 c000557e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/syscall-init.c:28
@@ -9710,7 +9710,7 @@ c00055a6:	34 00 c0
 /work/x86_os_my/userprog/syscall-init.c:32
 	put_str("syscall_init done\n");
 c00055a9:	83 ec 0c             	sub    $0xc,%esp
-c00055ac:	68 84 74 00 c0       	push   $0xc0007484
+c00055ac:	68 58 75 00 c0       	push   $0xc0007558
 c00055b1:	e8 5a ce ff ff       	call   c0002410 <put_str>
 c00055b6:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/userprog/syscall-init.c:33
@@ -10302,10 +10302,10 @@ c000592c:	88 45 e4             	mov    %al,-0x1c(%ebp)
 c000592f:	81 7d 0c ff 7f 02 00 	cmpl   $0x27fff,0xc(%ebp)
 c0005936:	76 19                	jbe    c0005951 <select_sector+0x2e>
 /work/x86_os_my/device/ide.c:88 (discriminator 1)
-c0005938:	68 98 74 00 c0       	push   $0xc0007498
-c000593d:	68 14 76 00 c0       	push   $0xc0007614
+c0005938:	68 6c 75 00 c0       	push   $0xc000756c
+c000593d:	68 04 77 00 c0       	push   $0xc0007704
 c0005942:	6a 58                	push   $0x58
-c0005944:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005944:	68 7b 75 00 c0       	push   $0xc000757b
 c0005949:	e8 34 cc ff ff       	call   c0002582 <panic_spin>
 c000594e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:89
@@ -10620,10 +10620,10 @@ c0005b55:	83 ec 58             	sub    $0x58,%esp
 c0005b58:	81 7d 0c ff 7f 02 00 	cmpl   $0x27fff,0xc(%ebp)
 c0005b5f:	76 1c                	jbe    c0005b7d <ide_read+0x2b>
 /work/x86_os_my/device/ide.c:151 (discriminator 1)
-c0005b61:	68 98 74 00 c0       	push   $0xc0007498
-c0005b66:	68 24 76 00 c0       	push   $0xc0007624
+c0005b61:	68 6c 75 00 c0       	push   $0xc000756c
+c0005b66:	68 14 77 00 c0       	push   $0xc0007714
 c0005b6b:	68 97 00 00 00       	push   $0x97
-c0005b70:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005b70:	68 7b 75 00 c0       	push   $0xc000757b
 c0005b75:	e8 08 ca ff ff       	call   c0002582 <panic_spin>
 c0005b7a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:152
@@ -10631,10 +10631,10 @@ c0005b7a:	83 c4 10             	add    $0x10,%esp
 c0005b7d:	83 7d 14 00          	cmpl   $0x0,0x14(%ebp)
 c0005b81:	75 1c                	jne    c0005b9f <ide_read+0x4d>
 /work/x86_os_my/device/ide.c:152 (discriminator 1)
-c0005b83:	68 b4 74 00 c0       	push   $0xc00074b4
-c0005b88:	68 24 76 00 c0       	push   $0xc0007624
+c0005b83:	68 88 75 00 c0       	push   $0xc0007588
+c0005b88:	68 14 77 00 c0       	push   $0xc0007714
 c0005b8d:	68 98 00 00 00       	push   $0x98
-c0005b92:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005b92:	68 7b 75 00 c0       	push   $0xc000757b
 c0005b97:	e8 e6 c9 ff ff       	call   c0002582 <panic_spin>
 c0005b9c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:153
@@ -10736,7 +10736,7 @@ c0005c44:	75 33                	jne    c0005c79 <ide_read+0x127>
 c0005c46:	8b 45 08             	mov    0x8(%ebp),%eax
 c0005c49:	ff 75 0c             	pushl  0xc(%ebp)
 c0005c4c:	50                   	push   %eax
-c0005c4d:	68 c0 74 00 c0       	push   $0xc00074c0
+c0005c4d:	68 94 75 00 c0       	push   $0xc0007594
 c0005c52:	8d 45 b0             	lea    -0x50(%ebp),%eax
 c0005c55:	50                   	push   %eax
 c0005c56:	e8 5d fb ff ff       	call   c00057b8 <sprintf>
@@ -10745,9 +10745,9 @@ c0005c5b:	83 c4 10             	add    $0x10,%esp
 			PANIC(error);
 c0005c5e:	8d 45 b0             	lea    -0x50(%ebp),%eax
 c0005c61:	50                   	push   %eax
-c0005c62:	68 24 76 00 c0       	push   $0xc0007624
+c0005c62:	68 14 77 00 c0       	push   $0xc0007714
 c0005c67:	68 b8 00 00 00       	push   $0xb8
-c0005c6c:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005c6c:	68 7b 75 00 c0       	push   $0xc000757b
 c0005c71:	e8 0c c9 ff ff       	call   c0002582 <panic_spin>
 c0005c76:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:188
@@ -10816,10 +10816,10 @@ c0005cc9:	83 ec 58             	sub    $0x58,%esp
 c0005ccc:	81 7d 0c ff 7f 02 00 	cmpl   $0x27fff,0xc(%ebp)
 c0005cd3:	76 1c                	jbe    c0005cf1 <ide_write+0x2b>
 /work/x86_os_my/device/ide.c:196 (discriminator 1)
-c0005cd5:	68 98 74 00 c0       	push   $0xc0007498
-c0005cda:	68 30 76 00 c0       	push   $0xc0007630
+c0005cd5:	68 6c 75 00 c0       	push   $0xc000756c
+c0005cda:	68 20 77 00 c0       	push   $0xc0007720
 c0005cdf:	68 c4 00 00 00       	push   $0xc4
-c0005ce4:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005ce4:	68 7b 75 00 c0       	push   $0xc000757b
 c0005ce9:	e8 94 c8 ff ff       	call   c0002582 <panic_spin>
 c0005cee:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:197
@@ -10827,10 +10827,10 @@ c0005cee:	83 c4 10             	add    $0x10,%esp
 c0005cf1:	83 7d 14 00          	cmpl   $0x0,0x14(%ebp)
 c0005cf5:	75 1c                	jne    c0005d13 <ide_write+0x4d>
 /work/x86_os_my/device/ide.c:197 (discriminator 1)
-c0005cf7:	68 b4 74 00 c0       	push   $0xc00074b4
-c0005cfc:	68 30 76 00 c0       	push   $0xc0007630
+c0005cf7:	68 88 75 00 c0       	push   $0xc0007588
+c0005cfc:	68 20 77 00 c0       	push   $0xc0007720
 c0005d01:	68 c5 00 00 00       	push   $0xc5
-c0005d06:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005d06:	68 7b 75 00 c0       	push   $0xc000757b
 c0005d0b:	e8 72 c8 ff ff       	call   c0002582 <panic_spin>
 c0005d10:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:198
@@ -10917,7 +10917,7 @@ c0005da3:	75 33                	jne    c0005dd8 <ide_write+0x112>
 c0005da5:	8b 45 08             	mov    0x8(%ebp),%eax
 c0005da8:	ff 75 0c             	pushl  0xc(%ebp)
 c0005dab:	50                   	push   %eax
-c0005dac:	68 e0 74 00 c0       	push   $0xc00074e0
+c0005dac:	68 b4 75 00 c0       	push   $0xc00075b4
 c0005db1:	8d 45 b0             	lea    -0x50(%ebp),%eax
 c0005db4:	50                   	push   %eax
 c0005db5:	e8 fe f9 ff ff       	call   c00057b8 <sprintf>
@@ -10926,9 +10926,9 @@ c0005dba:	83 c4 10             	add    $0x10,%esp
 			PANIC(error);
 c0005dbd:	8d 45 b0             	lea    -0x50(%ebp),%eax
 c0005dc0:	50                   	push   %eax
-c0005dc1:	68 30 76 00 c0       	push   $0xc0007630
+c0005dc1:	68 20 77 00 c0       	push   $0xc0007720
 c0005dc6:	68 de 00 00 00       	push   $0xde
-c0005dcb:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005dcb:	68 7b 75 00 c0       	push   $0xc000757b
 c0005dd0:	e8 ad c7 ff ff       	call   c0002582 <panic_spin>
 c0005dd5:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:226
@@ -11109,7 +11109,7 @@ c0005ee2:	75 39                	jne    c0005f1d <identify_disk+0x88>
 c0005ee4:	8b 45 08             	mov    0x8(%ebp),%eax
 c0005ee7:	83 ec 04             	sub    $0x4,%esp
 c0005eea:	50                   	push   %eax
-c0005eeb:	68 01 75 00 c0       	push   $0xc0007501
+c0005eeb:	68 d5 75 00 c0       	push   $0xc00075d5
 c0005ef0:	8d 85 70 fd ff ff    	lea    -0x290(%ebp),%eax
 c0005ef6:	50                   	push   %eax
 c0005ef7:	e8 bc f8 ff ff       	call   c00057b8 <sprintf>
@@ -11118,9 +11118,9 @@ c0005efc:	83 c4 10             	add    $0x10,%esp
 		PANIC(error);
 c0005eff:	8d 85 70 fd ff ff    	lea    -0x290(%ebp),%eax
 c0005f05:	50                   	push   %eax
-c0005f06:	68 3c 76 00 c0       	push   $0xc000763c
+c0005f06:	68 2c 77 00 c0       	push   $0xc000772c
 c0005f0b:	68 05 01 00 00       	push   $0x105
-c0005f10:	68 a7 74 00 c0       	push   $0xc00074a7
+c0005f10:	68 7b 75 00 c0       	push   $0xc000757b
 c0005f15:	e8 68 c6 ff ff       	call   c0002582 <panic_spin>
 c0005f1a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:263
@@ -11161,8 +11161,8 @@ c0005f6b:	83 ec 04             	sub    $0x4,%esp
 c0005f6e:	8d 95 b0 fd ff ff    	lea    -0x250(%ebp),%edx
 c0005f74:	52                   	push   %edx
 c0005f75:	50                   	push   %eax
-c0005f76:	68 1c 75 00 c0       	push   $0xc000751c
-c0005f7b:	e8 75 05 00 00       	call   c00064f5 <printk>
+c0005f76:	68 f0 75 00 c0       	push   $0xc00075f0
+c0005f7b:	e8 4b 06 00 00       	call   c00065cb <printk>
 c0005f80:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:269
 	memset(buf, 0, sizeof(buf));
@@ -11191,8 +11191,8 @@ c0005fba:	83 c4 10             	add    $0x10,%esp
 c0005fbd:	83 ec 08             	sub    $0x8,%esp
 c0005fc0:	8d 85 b0 fd ff ff    	lea    -0x250(%ebp),%eax
 c0005fc6:	50                   	push   %eax
-c0005fc7:	68 3b 75 00 c0       	push   $0xc000753b
-c0005fcc:	e8 24 05 00 00       	call   c00064f5 <printk>
+c0005fc7:	68 0f 76 00 c0       	push   $0xc000760f
+c0005fcc:	e8 fa 05 00 00       	call   c00065cb <printk>
 c0005fd1:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:272
 	uint32_t sectors = *(uint32_t*)&id_info[60 * 2];
@@ -11204,8 +11204,8 @@ c0005fdf:	89 45 f0             	mov    %eax,-0x10(%ebp)
 	printk("      SECTORS: %d\n", sectors);
 c0005fe2:	83 ec 08             	sub    $0x8,%esp
 c0005fe5:	ff 75 f0             	pushl  -0x10(%ebp)
-c0005fe8:	68 4d 75 00 c0       	push   $0xc000754d
-c0005fed:	e8 03 05 00 00       	call   c00064f5 <printk>
+c0005fe8:	68 21 76 00 c0       	push   $0xc0007621
+c0005fed:	e8 d9 05 00 00       	call   c00065cb <printk>
 c0005ff2:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:274
 	printk("      CAPACITY: %dMB\n", sectors * 512 / 1024 / 1024);
@@ -11214,8 +11214,8 @@ c0005ff8:	c1 e0 09             	shl    $0x9,%eax
 c0005ffb:	c1 e8 14             	shr    $0x14,%eax
 c0005ffe:	83 ec 08             	sub    $0x8,%esp
 c0006001:	50                   	push   %eax
-c0006002:	68 60 75 00 c0       	push   $0xc0007560
-c0006007:	e8 e9 04 00 00       	call   c00064f5 <printk>
+c0006002:	68 34 76 00 c0       	push   $0xc0007634
+c0006007:	e8 bf 05 00 00       	call   c00065cb <printk>
 c000600c:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:275
 }
@@ -11376,7 +11376,7 @@ c000616c:	01 da                	add    %ebx,%edx
 c000616e:	83 c2 04             	add    $0x4,%edx
 c0006171:	51                   	push   %ecx
 c0006172:	50                   	push   %eax
-c0006173:	68 76 75 00 c0       	push   $0xc0007576
+c0006173:	68 4a 76 00 c0       	push   $0xc000764a
 c0006178:	52                   	push   %edx
 c0006179:	e8 3a f6 ff ff       	call   c00057b8 <sprintf>
 c000617e:	83 c4 10             	add    $0x10,%esp
@@ -11391,10 +11391,10 @@ c0006190:	0f b6 05 10 96 00 c0 	movzbl 0xc0009610,%eax
 c0006197:	3c 03                	cmp    $0x3,%al
 c0006199:	0f 86 03 01 00 00    	jbe    c00062a2 <partition_scan+0x290>
 /work/x86_os_my/device/ide.c:303 (discriminator 1)
-c000619f:	68 7b 75 00 c0       	push   $0xc000757b
-c00061a4:	68 4c 76 00 c0       	push   $0xc000764c
+c000619f:	68 4f 76 00 c0       	push   $0xc000764f
+c00061a4:	68 3c 77 00 c0       	push   $0xc000773c
 c00061a9:	68 2f 01 00 00       	push   $0x12f
-c00061ae:	68 a7 74 00 c0       	push   $0xc00074a7
+c00061ae:	68 7b 75 00 c0       	push   $0xc000757b
 c00061b3:	e8 ca c3 ff ff       	call   c0002582 <panic_spin>
 c00061b8:	83 c4 10             	add    $0x10,%esp
 c00061bb:	e9 e2 00 00 00       	jmp    c00062a2 <partition_scan+0x290>
@@ -11462,7 +11462,7 @@ c0006273:	01 da                	add    %ebx,%edx
 c0006275:	83 c2 04             	add    $0x4,%edx
 c0006278:	51                   	push   %ecx
 c0006279:	50                   	push   %eax
-c000627a:	68 76 75 00 c0       	push   $0xc0007576
+c000627a:	68 4a 76 00 c0       	push   $0xc000764a
 c000627f:	52                   	push   %edx
 c0006280:	e8 33 f5 ff ff       	call   c00057b8 <sprintf>
 c0006285:	83 c4 10             	add    $0x10,%esp
@@ -11550,8 +11550,8 @@ c00062eb:	83 c1 14             	add    $0x14,%ecx
 c00062ee:	52                   	push   %edx
 c00062ef:	50                   	push   %eax
 c00062f0:	51                   	push   %ecx
-c00062f1:	68 84 75 00 c0       	push   $0xc0007584
-c00062f6:	e8 fa 01 00 00       	call   c00064f5 <printk>
+c00062f1:	68 58 76 00 c0       	push   $0xc0007658
+c00062f6:	e8 d0 02 00 00       	call   c00065cb <printk>
 c00062fb:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:327
 
@@ -11583,10 +11583,10 @@ c0006315:	74 22                	je     c0006339 <intr_hd_handler+0x34>
 c0006317:	80 7d e4 2f          	cmpb   $0x2f,-0x1c(%ebp)
 c000631b:	74 1c                	je     c0006339 <intr_hd_handler+0x34>
 /work/x86_os_my/device/ide.c:332 (discriminator 2)
-c000631d:	68 a8 75 00 c0       	push   $0xc00075a8
-c0006322:	68 5c 76 00 c0       	push   $0xc000765c
+c000631d:	68 7c 76 00 c0       	push   $0xc000767c
+c0006322:	68 4c 77 00 c0       	push   $0xc000774c
 c0006327:	68 4c 01 00 00       	push   $0x14c
-c000632c:	68 a7 74 00 c0       	push   $0xc00074a7
+c000632c:	68 7b 75 00 c0       	push   $0xc000757b
 c0006331:	e8 4c c2 ff ff       	call   c0002582 <panic_spin>
 c0006336:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:333
@@ -11607,10 +11607,10 @@ c0006358:	0f b6 40 0a          	movzbl 0xa(%eax),%eax
 c000635c:	3a 45 e4             	cmp    -0x1c(%ebp),%al
 c000635f:	74 1c                	je     c000637d <intr_hd_handler+0x78>
 /work/x86_os_my/device/ide.c:335 (discriminator 1)
-c0006361:	68 c9 75 00 c0       	push   $0xc00075c9
-c0006366:	68 5c 76 00 c0       	push   $0xc000765c
+c0006361:	68 9d 76 00 c0       	push   $0xc000769d
+c0006366:	68 4c 77 00 c0       	push   $0xc000774c
 c000636b:	68 4f 01 00 00       	push   $0x14f
-c0006370:	68 a7 74 00 c0       	push   $0xc00074a7
+c0006370:	68 7b 75 00 c0       	push   $0xc000757b
 c0006375:	e8 08 c2 ff ff       	call   c0002582 <panic_spin>
 c000637a:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:338
@@ -11664,163 +11664,266 @@ c00063c2:	83 ec 18             	sub    $0x18,%esp
 /work/x86_os_my/device/ide.c:349
 	printk("ide_init start\n");
 c00063c5:	83 ec 0c             	sub    $0xc,%esp
-c00063c8:	68 e3 75 00 c0       	push   $0xc00075e3
-c00063cd:	e8 23 01 00 00       	call   c00064f5 <printk>
+c00063c8:	68 b7 76 00 c0       	push   $0xc00076b7
+c00063cd:	e8 f9 01 00 00       	call   c00065cb <printk>
 c00063d2:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:350
 	uint8_t hd_cnt = *((uint8_t*)(0x475));	// 获取硬盘的数量
 c00063d5:	b8 75 04 00 00       	mov    $0x475,%eax
 c00063da:	0f b6 00             	movzbl (%eax),%eax
-c00063dd:	88 45 f6             	mov    %al,-0xa(%ebp)
+c00063dd:	88 45 f5             	mov    %al,-0xb(%ebp)
 /work/x86_os_my/device/ide.c:351
 	ASSERT(hd_cnt > 0);
-c00063e0:	80 7d f6 00          	cmpb   $0x0,-0xa(%ebp)
+c00063e0:	80 7d f5 00          	cmpb   $0x0,-0xb(%ebp)
 c00063e4:	75 1c                	jne    c0006402 <ide_init+0x43>
 /work/x86_os_my/device/ide.c:351 (discriminator 1)
-c00063e6:	68 f3 75 00 c0       	push   $0xc00075f3
-c00063eb:	68 6c 76 00 c0       	push   $0xc000766c
+c00063e6:	68 c7 76 00 c0       	push   $0xc00076c7
+c00063eb:	68 5c 77 00 c0       	push   $0xc000775c
 c00063f0:	68 5f 01 00 00       	push   $0x15f
-c00063f5:	68 a7 74 00 c0       	push   $0xc00074a7
+c00063f5:	68 7b 75 00 c0       	push   $0xc000757b
 c00063fa:	e8 83 c1 ff ff       	call   c0002582 <panic_spin>
 c00063ff:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:352
+	list_init(&partition_list);
+c0006402:	83 ec 0c             	sub    $0xc,%esp
+c0006405:	68 c0 a9 00 c0       	push   $0xc000a9c0
+c000640a:	e8 fd df ff ff       	call   c000440c <list_init>
+c000640f:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:353
 	channel_cnt = DIV_ROUND_UP(hd_cnt, 2);	// 一个ide通道上有两个硬盘,根据硬盘数量反推有几个ide通道
-c0006402:	0f b6 45 f6          	movzbl -0xa(%ebp),%eax
-c0006406:	83 c0 01             	add    $0x1,%eax
-c0006409:	89 c2                	mov    %eax,%edx
-c000640b:	c1 ea 1f             	shr    $0x1f,%edx
-c000640e:	01 d0                	add    %edx,%eax
-c0006410:	d1 f8                	sar    %eax
-c0006412:	a2 e0 9c 00 c0       	mov    %al,0xc0009ce0
-/work/x86_os_my/device/ide.c:354
+c0006412:	0f b6 45 f5          	movzbl -0xb(%ebp),%eax
+c0006416:	83 c0 01             	add    $0x1,%eax
+c0006419:	89 c2                	mov    %eax,%edx
+c000641b:	c1 ea 1f             	shr    $0x1f,%edx
+c000641e:	01 d0                	add    %edx,%eax
+c0006420:	d1 f8                	sar    %eax
+c0006422:	a2 e0 9c 00 c0       	mov    %al,0xc0009ce0
+/work/x86_os_my/device/ide.c:355
 	struct ide_channel* channel;
-	uint8_t channel_no = 0;
-c0006417:	c6 45 f7 00          	movb   $0x0,-0x9(%ebp)
-/work/x86_os_my/device/ide.c:357
+	uint8_t channel_no = 0, dev_no = 0;
+c0006427:	c6 45 f7 00          	movb   $0x0,-0x9(%ebp)
+c000642b:	c6 45 f6 00          	movb   $0x0,-0xa(%ebp)
+/work/x86_os_my/device/ide.c:358
 
 	/* 处理每个通道上的硬盘 */
 	while (channel_no < channel_cnt) {
-c000641b:	e9 b2 00 00 00       	jmp    c00064d2 <ide_init+0x113>
-/work/x86_os_my/device/ide.c:358
-		channel = &channels[channel_no];
-c0006420:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
-c0006424:	69 c0 60 06 00 00    	imul   $0x660,%eax,%eax
-c000642a:	05 00 9d 00 c0       	add    $0xc0009d00,%eax
-c000642f:	89 45 f0             	mov    %eax,-0x10(%ebp)
+c000642f:	e9 4d 01 00 00       	jmp    c0006581 <ide_init+0x1c2>
 /work/x86_os_my/device/ide.c:359
+		channel = &channels[channel_no];
+c0006434:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
+c0006438:	69 c0 60 06 00 00    	imul   $0x660,%eax,%eax
+c000643e:	05 00 9d 00 c0       	add    $0xc0009d00,%eax
+c0006443:	89 45 f0             	mov    %eax,-0x10(%ebp)
+/work/x86_os_my/device/ide.c:360
 		sprintf(channel->name, "ide%d", channel_no);
-c0006432:	0f b6 55 f7          	movzbl -0x9(%ebp),%edx
-c0006436:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c0006439:	83 ec 04             	sub    $0x4,%esp
-c000643c:	52                   	push   %edx
-c000643d:	68 fe 75 00 c0       	push   $0xc00075fe
-c0006442:	50                   	push   %eax
-c0006443:	e8 70 f3 ff ff       	call   c00057b8 <sprintf>
-c0006448:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/device/ide.c:362
+c0006446:	0f b6 55 f7          	movzbl -0x9(%ebp),%edx
+c000644a:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c000644d:	83 ec 04             	sub    $0x4,%esp
+c0006450:	52                   	push   %edx
+c0006451:	68 d2 76 00 c0       	push   $0xc00076d2
+c0006456:	50                   	push   %eax
+c0006457:	e8 5c f3 ff ff       	call   c00057b8 <sprintf>
+c000645c:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:363
 
 		/* 为每个ide通道初始化端口基址及中断向量 */
 		switch (channel_no) {
-c000644b:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
-c000644f:	85 c0                	test   %eax,%eax
-c0006451:	74 07                	je     c000645a <ide_init+0x9b>
-c0006453:	83 f8 01             	cmp    $0x1,%eax
-c0006456:	74 14                	je     c000646c <ide_init+0xad>
-c0006458:	eb 23                	jmp    c000647d <ide_init+0xbe>
-/work/x86_os_my/device/ide.c:364
+c000645f:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
+c0006463:	85 c0                	test   %eax,%eax
+c0006465:	74 07                	je     c000646e <ide_init+0xaf>
+c0006467:	83 f8 01             	cmp    $0x1,%eax
+c000646a:	74 14                	je     c0006480 <ide_init+0xc1>
+c000646c:	eb 23                	jmp    c0006491 <ide_init+0xd2>
+/work/x86_os_my/device/ide.c:365
 			case 0:
 			channel->port_base	 = 0x1f0;	// ide0通道的起始端口号是0x1f0
-c000645a:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c000645d:	66 c7 40 08 f0 01    	movw   $0x1f0,0x8(%eax)
-/work/x86_os_my/device/ide.c:365
-			channel->irq_no	 = 0x20 + 14;	// 从片8259a上倒数第二的中断引脚,温盘,也就是ide0通道的的中断向量号
-c0006463:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c0006466:	c6 40 0a 2e          	movb   $0x2e,0xa(%eax)
+c000646e:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c0006471:	66 c7 40 08 f0 01    	movw   $0x1f0,0x8(%eax)
 /work/x86_os_my/device/ide.c:366
+			channel->irq_no	 = 0x20 + 14;	// 从片8259a上倒数第二的中断引脚,温盘,也就是ide0通道的的中断向量号
+c0006477:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c000647a:	c6 40 0a 2e          	movb   $0x2e,0xa(%eax)
+/work/x86_os_my/device/ide.c:367
 			break;
-c000646a:	eb 11                	jmp    c000647d <ide_init+0xbe>
-/work/x86_os_my/device/ide.c:369
+c000647e:	eb 11                	jmp    c0006491 <ide_init+0xd2>
+/work/x86_os_my/device/ide.c:370
 			
 			case 1:
 			channel->port_base	 = 0x170;	// ide1通道的起始端口号是0x170
-c000646c:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c000646f:	66 c7 40 08 70 01    	movw   $0x170,0x8(%eax)
-/work/x86_os_my/device/ide.c:370
-			channel->irq_no	 = 0x20 + 15;	// 从8259A上的最后一个中断引脚,我们用来响应ide1通道上的硬盘中断
-c0006475:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c0006478:	c6 40 0a 2f          	movb   $0x2f,0xa(%eax)
+c0006480:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c0006483:	66 c7 40 08 70 01    	movw   $0x170,0x8(%eax)
 /work/x86_os_my/device/ide.c:371
+			channel->irq_no	 = 0x20 + 15;	// 从8259A上的最后一个中断引脚,我们用来响应ide1通道上的硬盘中断
+c0006489:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c000648c:	c6 40 0a 2f          	movb   $0x2f,0xa(%eax)
+/work/x86_os_my/device/ide.c:372
 			break;
-c000647c:	90                   	nop
-/work/x86_os_my/device/ide.c:374
+c0006490:	90                   	nop
+/work/x86_os_my/device/ide.c:375
 		}
 
 		channel->expecting_intr = false;	// 未向硬盘写入指令时不期待硬盘的中断
-c000647d:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c0006480:	c7 40 28 00 00 00 00 	movl   $0x0,0x28(%eax)
-/work/x86_os_my/device/ide.c:375
+c0006491:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c0006494:	c7 40 28 00 00 00 00 	movl   $0x0,0x28(%eax)
+/work/x86_os_my/device/ide.c:376
 		lock_init(&channel->lock);
-c0006487:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c000648a:	83 c0 0c             	add    $0xc,%eax
-c000648d:	83 ec 0c             	sub    $0xc,%esp
-c0006490:	50                   	push   %eax
-c0006491:	e8 5f e2 ff ff       	call   c00046f5 <lock_init>
-c0006496:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/device/ide.c:379
+c000649b:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c000649e:	83 c0 0c             	add    $0xc,%eax
+c00064a1:	83 ec 0c             	sub    $0xc,%esp
+c00064a4:	50                   	push   %eax
+c00064a5:	e8 4b e2 ff ff       	call   c00046f5 <lock_init>
+c00064aa:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:380
 
 		/* 初始化为0,目的是向硬盘控制器请求数据后,硬盘驱动sema_down此信号量会阻塞线程,
 		直到硬盘完成后通过发中断,由中断处理程序将此信号量sema_up,唤醒线程. */
 		sema_init(&channel->disk_done, 0);
-c0006499:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c000649c:	83 c0 2c             	add    $0x2c,%eax
-c000649f:	83 ec 08             	sub    $0x8,%esp
-c00064a2:	6a 00                	push   $0x0
-c00064a4:	50                   	push   %eax
-c00064a5:	e8 21 e2 ff ff       	call   c00046cb <sema_init>
-c00064aa:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/device/ide.c:380
-		register_handler(channel->irq_no, intr_hd_handler);
 c00064ad:	8b 45 f0             	mov    -0x10(%ebp),%eax
-c00064b0:	0f b6 40 0a          	movzbl 0xa(%eax),%eax
-c00064b4:	0f b6 c0             	movzbl %al,%eax
-c00064b7:	83 ec 08             	sub    $0x8,%esp
-c00064ba:	68 05 63 00 c0       	push   $0xc0006305
-c00064bf:	50                   	push   %eax
-c00064c0:	e8 8e b7 ff ff       	call   c0001c53 <register_handler>
-c00064c5:	83 c4 10             	add    $0x10,%esp
+c00064b0:	83 c0 2c             	add    $0x2c,%eax
+c00064b3:	83 ec 08             	sub    $0x8,%esp
+c00064b6:	6a 00                	push   $0x0
+c00064b8:	50                   	push   %eax
+c00064b9:	e8 0d e2 ff ff       	call   c00046cb <sema_init>
+c00064be:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/device/ide.c:381
-		channel_no++;	// 下一个channel
-c00064c8:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
-c00064cc:	83 c0 01             	add    $0x1,%eax
-c00064cf:	88 45 f7             	mov    %al,-0x9(%ebp)
-/work/x86_os_my/device/ide.c:357
-	channel_cnt = DIV_ROUND_UP(hd_cnt, 2);	// 一个ide通道上有两个硬盘,根据硬盘数量反推有几个ide通道
-	struct ide_channel* channel;
-	uint8_t channel_no = 0;
+		register_handler(channel->irq_no, intr_hd_handler);
+c00064c1:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c00064c4:	0f b6 40 0a          	movzbl 0xa(%eax),%eax
+c00064c8:	0f b6 c0             	movzbl %al,%eax
+c00064cb:	83 ec 08             	sub    $0x8,%esp
+c00064ce:	68 05 63 00 c0       	push   $0xc0006305
+c00064d3:	50                   	push   %eax
+c00064d4:	e8 7a b7 ff ff       	call   c0001c53 <register_handler>
+c00064d9:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:384
 
-	/* 处理每个通道上的硬盘 */
-	while (channel_no < channel_cnt) {
-c00064d2:	0f b6 05 e0 9c 00 c0 	movzbl 0xc0009ce0,%eax
-c00064d9:	38 45 f7             	cmp    %al,-0x9(%ebp)
-c00064dc:	0f 82 3e ff ff ff    	jb     c0006420 <ide_init+0x61>
-/work/x86_os_my/device/ide.c:383
+		/* 分别获取两个硬盘的参数及分区信息 */
+		while (dev_no < 2) {
+c00064dc:	e9 88 00 00 00       	jmp    c0006569 <ide_init+0x1aa>
+/work/x86_os_my/device/ide.c:385
+			struct disk* hd = &channel->devices[dev_no];
+c00064e1:	0f b6 45 f6          	movzbl -0xa(%ebp),%eax
+c00064e5:	69 c0 10 03 00 00    	imul   $0x310,%eax,%eax
+c00064eb:	8d 50 40             	lea    0x40(%eax),%edx
+c00064ee:	8b 45 f0             	mov    -0x10(%ebp),%eax
+c00064f1:	01 d0                	add    %edx,%eax
+c00064f3:	89 45 ec             	mov    %eax,-0x14(%ebp)
+/work/x86_os_my/device/ide.c:386
+			hd->my_channel = channel;
+c00064f6:	8b 45 ec             	mov    -0x14(%ebp),%eax
+c00064f9:	8b 55 f0             	mov    -0x10(%ebp),%edx
+c00064fc:	89 50 08             	mov    %edx,0x8(%eax)
+/work/x86_os_my/device/ide.c:387
+			hd->dev_no = dev_no;
+c00064ff:	8b 45 ec             	mov    -0x14(%ebp),%eax
+c0006502:	0f b6 55 f6          	movzbl -0xa(%ebp),%edx
+c0006506:	88 50 0c             	mov    %dl,0xc(%eax)
+/work/x86_os_my/device/ide.c:388
+			sprintf(hd->name, "sd%c", 'a' + channel_no * 2 + dev_no);
+c0006509:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
+c000650d:	01 c0                	add    %eax,%eax
+c000650f:	8d 50 61             	lea    0x61(%eax),%edx
+c0006512:	0f b6 45 f6          	movzbl -0xa(%ebp),%eax
+c0006516:	01 c2                	add    %eax,%edx
+c0006518:	8b 45 ec             	mov    -0x14(%ebp),%eax
+c000651b:	83 ec 04             	sub    $0x4,%esp
+c000651e:	52                   	push   %edx
+c000651f:	68 d8 76 00 c0       	push   $0xc00076d8
+c0006524:	50                   	push   %eax
+c0006525:	e8 8e f2 ff ff       	call   c00057b8 <sprintf>
+c000652a:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:389
+			identify_disk(hd);		// 获取硬盘参数
+c000652d:	83 ec 0c             	sub    $0xc,%esp
+c0006530:	ff 75 ec             	pushl  -0x14(%ebp)
+c0006533:	e8 5d f9 ff ff       	call   c0005e95 <identify_disk>
+c0006538:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:390
+			if (dev_no != 0) {		// 内核本身的裸硬盘(hd60M.img)不处理
+c000653b:	80 7d f6 00          	cmpb   $0x0,-0xa(%ebp)
+c000653f:	74 10                	je     c0006551 <ide_init+0x192>
+/work/x86_os_my/device/ide.c:391
+				partition_scan(hd, 0);	// 扫描该硬盘上的分区
+c0006541:	83 ec 08             	sub    $0x8,%esp
+c0006544:	6a 00                	push   $0x0
+c0006546:	ff 75 ec             	pushl  -0x14(%ebp)
+c0006549:	e8 c4 fa ff ff       	call   c0006012 <partition_scan>
+c000654e:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:393
+			}
+			p_no = 0, l_no = 0;
+c0006551:	c6 05 10 96 00 c0 00 	movb   $0x0,0xc0009610
+c0006558:	c6 05 11 96 00 c0 00 	movb   $0x0,0xc0009611
+/work/x86_os_my/device/ide.c:394
+			dev_no++;
+c000655f:	0f b6 45 f6          	movzbl -0xa(%ebp),%eax
+c0006563:	83 c0 01             	add    $0x1,%eax
+c0006566:	88 45 f6             	mov    %al,-0xa(%ebp)
+/work/x86_os_my/device/ide.c:384
 		直到硬盘完成后通过发中断,由中断处理程序将此信号量sema_up,唤醒线程. */
 		sema_init(&channel->disk_done, 0);
 		register_handler(channel->irq_no, intr_hd_handler);
+
+		/* 分别获取两个硬盘的参数及分区信息 */
+		while (dev_no < 2) {
+c0006569:	80 7d f6 01          	cmpb   $0x1,-0xa(%ebp)
+c000656d:	0f 86 6e ff ff ff    	jbe    c00064e1 <ide_init+0x122>
+/work/x86_os_my/device/ide.c:396
+				partition_scan(hd, 0);	// 扫描该硬盘上的分区
+			}
+			p_no = 0, l_no = 0;
+			dev_no++;
+		}
+		dev_no = 0;		// 将硬盘驱动器号置0,为下一个channel的两个硬盘初始化。
+c0006573:	c6 45 f6 00          	movb   $0x0,-0xa(%ebp)
+/work/x86_os_my/device/ide.c:397
+		channel_no++;	// 下一个channel
+c0006577:	0f b6 45 f7          	movzbl -0x9(%ebp),%eax
+c000657b:	83 c0 01             	add    $0x1,%eax
+c000657e:	88 45 f7             	mov    %al,-0x9(%ebp)
+/work/x86_os_my/device/ide.c:358
+	channel_cnt = DIV_ROUND_UP(hd_cnt, 2);	// 一个ide通道上有两个硬盘,根据硬盘数量反推有几个ide通道
+	struct ide_channel* channel;
+	uint8_t channel_no = 0, dev_no = 0;
+
+	/* 处理每个通道上的硬盘 */
+	while (channel_no < channel_cnt) {
+c0006581:	0f b6 05 e0 9c 00 c0 	movzbl 0xc0009ce0,%eax
+c0006588:	38 45 f7             	cmp    %al,-0x9(%ebp)
+c000658b:	0f 82 a3 fe ff ff    	jb     c0006434 <ide_init+0x75>
+/work/x86_os_my/device/ide.c:400
+		}
+		dev_no = 0;		// 将硬盘驱动器号置0,为下一个channel的两个硬盘初始化。
 		channel_no++;	// 下一个channel
 	}
-	printk("ide_init done\n");
-c00064e2:	83 ec 0c             	sub    $0xc,%esp
-c00064e5:	68 04 76 00 c0       	push   $0xc0007604
-c00064ea:	e8 06 00 00 00       	call   c00064f5 <printk>
-c00064ef:	83 c4 10             	add    $0x10,%esp
-/work/x86_os_my/device/ide.c:384
-}
-c00064f2:	90                   	nop
-c00064f3:	c9                   	leave  
-c00064f4:	c3                   	ret    
 
-c00064f5 <printk>:
+	printk("\n   all partition info\n");
+c0006591:	83 ec 0c             	sub    $0xc,%esp
+c0006594:	68 dd 76 00 c0       	push   $0xc00076dd
+c0006599:	e8 2d 00 00 00       	call   c00065cb <printk>
+c000659e:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:402
+	/* 打印所有分区信息 */
+	list_traversal(&partition_list, partition_info, (int)NULL);
+c00065a1:	83 ec 04             	sub    $0x4,%esp
+c00065a4:	6a 00                	push   $0x0
+c00065a6:	68 ce 62 00 c0       	push   $0xc00062ce
+c00065ab:	68 c0 a9 00 c0       	push   $0xc000a9c0
+c00065b0:	e8 9d df ff ff       	call   c0004552 <list_traversal>
+c00065b5:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:403
+	printk("ide_init done\n");
+c00065b8:	83 ec 0c             	sub    $0xc,%esp
+c00065bb:	68 f5 76 00 c0       	push   $0xc00076f5
+c00065c0:	e8 06 00 00 00       	call   c00065cb <printk>
+c00065c5:	83 c4 10             	add    $0x10,%esp
+/work/x86_os_my/device/ide.c:404
+}
+c00065c8:	90                   	nop
+c00065c9:	c9                   	leave  
+c00065ca:	c3                   	ret    
+
+c00065cb <printk>:
 printk():
 /work/x86_os_my/lib/kernel/stdio-kernel.c:11
 
@@ -11829,45 +11932,45 @@ printk():
 
 /* 供内核使用的格式化输出函数 */
 void printk(const char* format, ...) {
-c00064f5:	55                   	push   %ebp
-c00064f6:	89 e5                	mov    %esp,%ebp
-c00064f8:	57                   	push   %edi
-c00064f9:	81 ec 14 04 00 00    	sub    $0x414,%esp
+c00065cb:	55                   	push   %ebp
+c00065cc:	89 e5                	mov    %esp,%ebp
+c00065ce:	57                   	push   %edi
+c00065cf:	81 ec 14 04 00 00    	sub    $0x414,%esp
 /work/x86_os_my/lib/kernel/stdio-kernel.c:13
 	va_list args;
 	va_start(args, format);
-c00064ff:	8d 45 08             	lea    0x8(%ebp),%eax
-c0006502:	89 45 f4             	mov    %eax,-0xc(%ebp)
+c00065d5:	8d 45 08             	lea    0x8(%ebp),%eax
+c00065d8:	89 45 f4             	mov    %eax,-0xc(%ebp)
 /work/x86_os_my/lib/kernel/stdio-kernel.c:14
 	char buf[1024] = {0};
-c0006505:	8d 95 f4 fb ff ff    	lea    -0x40c(%ebp),%edx
-c000650b:	b8 00 00 00 00       	mov    $0x0,%eax
-c0006510:	b9 00 01 00 00       	mov    $0x100,%ecx
-c0006515:	89 d7                	mov    %edx,%edi
-c0006517:	f3 ab                	rep stos %eax,%es:(%edi)
+c00065db:	8d 95 f4 fb ff ff    	lea    -0x40c(%ebp),%edx
+c00065e1:	b8 00 00 00 00       	mov    $0x0,%eax
+c00065e6:	b9 00 01 00 00       	mov    $0x100,%ecx
+c00065eb:	89 d7                	mov    %edx,%edi
+c00065ed:	f3 ab                	rep stos %eax,%es:(%edi)
 /work/x86_os_my/lib/kernel/stdio-kernel.c:15
 	vsprintf(buf, format, args);
-c0006519:	8b 45 08             	mov    0x8(%ebp),%eax
-c000651c:	83 ec 04             	sub    $0x4,%esp
-c000651f:	ff 75 f4             	pushl  -0xc(%ebp)
-c0006522:	50                   	push   %eax
-c0006523:	8d 85 f4 fb ff ff    	lea    -0x40c(%ebp),%eax
-c0006529:	50                   	push   %eax
-c000652a:	e8 0c f1 ff ff       	call   c000563b <vsprintf>
-c000652f:	83 c4 10             	add    $0x10,%esp
+c00065ef:	8b 45 08             	mov    0x8(%ebp),%eax
+c00065f2:	83 ec 04             	sub    $0x4,%esp
+c00065f5:	ff 75 f4             	pushl  -0xc(%ebp)
+c00065f8:	50                   	push   %eax
+c00065f9:	8d 85 f4 fb ff ff    	lea    -0x40c(%ebp),%eax
+c00065ff:	50                   	push   %eax
+c0006600:	e8 36 f0 ff ff       	call   c000563b <vsprintf>
+c0006605:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/kernel/stdio-kernel.c:16
 	va_end(args);
-c0006532:	c7 45 f4 00 00 00 00 	movl   $0x0,-0xc(%ebp)
+c0006608:	c7 45 f4 00 00 00 00 	movl   $0x0,-0xc(%ebp)
 /work/x86_os_my/lib/kernel/stdio-kernel.c:17
 	console_put_str(buf);
-c0006539:	83 ec 0c             	sub    $0xc,%esp
-c000653c:	8d 85 f4 fb ff ff    	lea    -0x40c(%ebp),%eax
-c0006542:	50                   	push   %eax
-c0006543:	e8 18 e1 ff ff       	call   c0004660 <console_put_str>
-c0006548:	83 c4 10             	add    $0x10,%esp
+c000660f:	83 ec 0c             	sub    $0xc,%esp
+c0006612:	8d 85 f4 fb ff ff    	lea    -0x40c(%ebp),%eax
+c0006618:	50                   	push   %eax
+c0006619:	e8 42 e0 ff ff       	call   c0004660 <console_put_str>
+c000661e:	83 c4 10             	add    $0x10,%esp
 /work/x86_os_my/lib/kernel/stdio-kernel.c:18
 }
-c000654b:	90                   	nop
-c000654c:	8b 7d fc             	mov    -0x4(%ebp),%edi
-c000654f:	c9                   	leave  
-c0006550:	c3                   	ret    
+c0006621:	90                   	nop
+c0006622:	8b 7d fc             	mov    -0x4(%ebp),%edi
+c0006625:	c9                   	leave  
+c0006626:	c3                   	ret    

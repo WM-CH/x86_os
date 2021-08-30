@@ -7,11 +7,7 @@
 #include "syscall-init.h"
 #include "syscall.h"
 #include "stdio.h"
-
-void k_thread_a(void*);
-void k_thread_b(void*);
-void u_prog_a(void);
-void u_prog_b(void);
+#include "memory.h"
 
 /*
 （1）上下文保护的第一部分，保存任务进入中断前的全部寄存器，目的是能让任务恢复到中断前。【kernel.S】
