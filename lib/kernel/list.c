@@ -79,10 +79,10 @@ struct list_elem* list_traversal(struct list* plist, function func, int arg) {
 	}
 
 	while (elem != &plist->tail) {
-	if (func(elem, arg)) {		  // func返回ture则认为该元素在回调函数中符合条件,命中,故停止继续遍历
+	if (func(elem, arg)) {		// func返回ture则认为该元素在回调函数中符合条件,命中,故停止继续遍历
 		return elem;
-	}					  // 若回调函数func返回true,则继续遍历
-		elem = elem->next;	       
+	}
+		elem = elem->next;		// 若回调函数func返回false,则继续遍历
 	}
 	return NULL;
 }
