@@ -10,7 +10,7 @@
 #include "global.h"
 #include "debug.h"
 #include "memory.h"
-
+#include "file.h"
 
 struct partition* cur_part;	 // 默认操作的分区
 
@@ -20,6 +20,7 @@ struct partition* cur_part;	 // 默认操作的分区
 这样硬盘资源的变化都用内存中元信息来跟踪，
 如果有写操作，及时将内存中的元信息同步写入到硬盘以持久化。
 */
+//sb_buf没释放！
 static bool mount_partition(struct list_elem* pelem, int arg) {
 	char* part_name = (char*)arg;	// sdb1
 	struct partition* part = elem2entry(struct partition, part_tag, pelem);	// 根据pelem找到partition
@@ -207,6 +208,199 @@ static void partition_format(struct partition* part) {
 	sys_free(buf);
 }
 
+
+/* 将最上层路径名称解析出来，比如pathname="a/b/c"得到name_store="a"
+ * 返回剩下的目录 "b/c" */
+static char* path_parse(char* pathname, char* name_store) {
+	if (pathname[0] == '/') {	// 根目录不需要单独解析
+		/* 路径中出现1个或多个连续的字符'/',将这些'/'跳过,如"///a/b" */
+		while(*(++pathname) == '/');
+	}
+
+	/* 开始一般的路径解析 */
+	while (*pathname != '/' && *pathname != 0) {
+		*name_store++ = *pathname++;
+	}
+
+	if (pathname[0] == 0) {   // 若路径字符串为空则返回NULL
+		return NULL;
+	}
+	return pathname;
+}
+
+/* 返回路径深度,比如/a/b/c,深度为3 */
+int32_t path_depth_cnt(char* pathname) {
+	ASSERT(pathname != NULL);
+	char* p = pathname;
+	char name[MAX_FILE_NAME_LEN];	// 用于path_parse的参数做路径解析
+	uint32_t depth = 0;
+
+	/* 解析路径,从中拆分出各级名称 */
+	p = path_parse(p, name);
+	while (name[0]) {
+		depth++;
+		memset(name, 0, MAX_FILE_NAME_LEN);
+		if (p) {	// 如果p不等于NULL,继续分析路径
+			p  = path_parse(p, name);
+		}
+	}
+	return depth;
+}
+
+/* 搜索文件pathname，若找到则返回其inode号，相应信息填入path_search_record结构【此结构由主调函数提供，也由主调函数释放】
+ * 否则返回-1
+ * 全局变量 struct dir root_dir 定义在 dir.c
+ * 也支持 /./a 或者 /../b 会把.和..当做一个目录项继续往下层找
+ * /a/b/c若c不存在，那么 searched_record.searched_path 是 /a/b/c
+ * 注意下边三种return的地方，是三种情况！
+ */
+static int search_file(const char* pathname, struct path_search_record* searched_record) {
+	/* 如果待查找的是根目录,为避免下面无用的查找,直接返回已知根目录信息 */
+	if (!strcmp(pathname, "/") || !strcmp(pathname, "/.") || !strcmp(pathname, "/..")) {
+		searched_record->parent_dir = &root_dir;	// 直接父目录
+		searched_record->file_type = FT_DIRECTORY;	// FT_UNKNOWN代表没找到，找到才有类型是文件或目录
+		searched_record->searched_path[0] = 0;		// 搜索过的路径置空
+		return 0;
+	}
+
+	uint32_t path_len = strlen(pathname);
+	/* 保证pathname至少是这样的路径/x且小于最大长度 */
+	ASSERT(pathname[0] == '/' && path_len > 1 && path_len < MAX_PATH_LEN);
+	char* sub_path = (char*)pathname;
+	struct dir* parent_dir = &root_dir;
+	struct dir_entry dir_e;
+
+	/* 数组name每次的值分别是各级目录的名字："a","b","c" */
+	char name[MAX_FILE_NAME_LEN] = {0};
+
+	searched_record->parent_dir = parent_dir;	// 直接父目录
+	searched_record->file_type = FT_UNKNOWN;	// 初始值代表没找到，找到才有类型是文件或目录
+	uint32_t parent_inode_no = 0;  // 备份各层解析出来的路径，的父目录，的inode号
+
+	sub_path = path_parse(sub_path, name);
+	while (name[0]) {	   // 若第一个字符就是结束符,结束循环
+		/* 记录查找过的路径,但不能超过searched_path的长度512字节 */
+		ASSERT(strlen(searched_record->searched_path) < 512);
+
+		/* 追加到已存在的父目录 */
+		strcat(searched_record->searched_path, "/");
+		strcat(searched_record->searched_path, name);
+
+		/* 在所给的目录中查找目录项，找到后将目录项填入dir_e */
+		if (false != search_dir_entry(cur_part, parent_dir, name, &dir_e)) {
+			memset(name, 0, MAX_FILE_NAME_LEN);
+			/* 若sub_path不等于NULL，也就是搜索未结束，继续拆分路径 */
+			if (sub_path) {
+				sub_path = path_parse(sub_path, name);
+			}
+
+			if (FT_DIRECTORY == dir_e.f_type) {			// 如果被打开的是目录
+				parent_inode_no = parent_dir->inode->i_no;
+				dir_close(parent_dir);
+
+				parent_dir = dir_open(cur_part, dir_e.i_no);
+				searched_record->parent_dir = parent_dir;	// 更新直接父目录
+				continue;
+			} else if (FT_REGULAR == dir_e.f_type) {	// 若是普通文件
+				/* 如果搜索路径为 /a/b 但是目录下只有文件a 此时也会返回文件a的inode号【中间某个目录不存在】
+				 * 由主调函数根据 searched_record.searched_path 判断："提供的 pathname 是否正确，是否处理完了"
+				 * 【情况1】
+				 */
+				searched_record->file_type = FT_REGULAR;
+				return dir_e.i_no;
+			}
+		} else {	//若找不到,则返回-1
+			/* 找不到目录项时，要留着 parent_dir 不要关闭，
+			 * 主调函数需要据此知道在哪个目录中创建文件，此时的 searched_record->parent_dir 指向父目录，主调函数负责关闭该目录
+			 * 主调函数，创建新文件的话需要在 parent_dir 中创建
+			 * 【情况2】
+			 */
+			return -1;
+		}
+	}
+
+	/* 执行到此，必然是遍历了完整路径，并且查找的名字，只找到了一个目录【最后一级路径是目录】
+	 * 待查找的目标是目录，如“/a/b/c”， c 是目录，不是普通文件。
+	 * 此时 searched_record-> parent_dir 是路径 pathname 中的最后一级目录 c，并不是倒数第二级的父目录 b
+	 * 要保证，无论搜索目标是普通文件，还是目录，searched_record->parent_dir 中记录的都应该是父目录！
+	 * 因此要关闭目录c，重新打开目录b
+	 * 【情况3】
+	 */
+	dir_close(searched_record->parent_dir);
+	searched_record->parent_dir = dir_open(cur_part, parent_inode_no);
+	searched_record->file_type = FT_DIRECTORY;
+	return dir_e.i_no;	//目录c的inode号
+}
+
+/* 打开或创建文件成功后,返回文件描述符,否则返回-1
+ * 对应 file.c 中的 file_create
+ *
+ * open(const char * pathname, (O_CREAT|O_WRONLY|O_TRUNC));
+ */
+int32_t sys_open(const char* pathname, uint8_t flags) {
+	/* 对目录要用dir_open,这里只有open文件 */
+	if (pathname[strlen(pathname) - 1] == '/') {
+		printk("can`t open a directory %s\n", pathname);
+		return -1;
+	}
+	ASSERT(flags <= 7);
+	int32_t fd = -1;	// 默认为找不到
+
+	struct path_search_record searched_record;
+	memset(&searched_record, 0, sizeof(struct path_search_record));
+
+	/* 记录目录深度.帮助判断中间某个目录不存在的情况 */
+	uint32_t pathname_depth = path_depth_cnt((char*)pathname);
+
+	/* 先检查文件是否存在 */
+	int inode_no = search_file(pathname, &searched_record);
+	bool found = (inode_no != -1 ? true : false);
+
+	if (searched_record.file_type == FT_DIRECTORY) {
+		printk("can`t open a direcotry with open(), use opendir() to instead\n");
+		dir_close(searched_record.parent_dir);	//主调函数负责关闭该目录
+		return -1;
+	}
+
+	uint32_t path_searched_depth = path_depth_cnt(searched_record.searched_path);
+
+	/* 先判断是否把pathname的各层目录都访问到了 */
+	// 【search_file情况1】说明并没有访问到全部的路径,某个中间目录是不存在的【是一个同名的普通文件】
+	if (pathname_depth != path_searched_depth) {
+		printk("cannot access %s: Not a directory, subpath %s is`t exist\n",
+			pathname, searched_record.searched_path);
+		dir_close(searched_record.parent_dir);
+		return -1;
+	}
+
+	// 【search_file情况2】若是在最后一个路径上没找到
+	// 并且此时也不是要创建文件,直接返回-1 */
+	if (!found && !(flags & O_CREAT)) {
+		printk("in path %s, file %s is`t exist\n",
+			searched_record.searched_path, (strrchr(searched_record.searched_path, '/') + 1));
+		dir_close(searched_record.parent_dir);
+		return -1;
+	} else if (found && flags & O_CREAT) {	// 若要创建的文件已存在，相同目录下不可以有同名文件，返回-1
+		printk("%s has already exist!\n", pathname);
+		dir_close(searched_record.parent_dir);
+		return -1;
+	}
+
+	switch (flags & O_CREAT) {	// sys_open("xxx", O_CREAT|O_XXX)
+		case O_CREAT:
+		printk("creating file\n");
+		// 【search_file情况3】主调函数用到此目录，在该目录下创建文件
+		fd = file_create(searched_record.parent_dir, (strrchr(pathname, '/') + 1), flags);
+		dir_close(searched_record.parent_dir);
+		// 其余为打开文件
+	}
+
+	/* 此fd是指任务pcb->fd_table数组中的元素下标,
+	 * 并不是指全局file_table中的下标 */
+	return fd;
+}
+
+
 /* 功能：
  * 1.在磁盘上搜索文件系统，若没有则格式化分区，创建文件系统。
  * 2.挂载分区
@@ -282,5 +476,13 @@ void filesys_init() {
 	(int)default_part 将数组地址转换成整型作为 mount_partition 的参数
 	*/
 	list_traversal(&partition_list, mount_partition, (int)default_part);
+
+
+	/* 将当前分区的根目录打开 + 初始化文件表 */
+	open_root_dir(cur_part);
+	uint32_t fd_idx = 0;
+	while (fd_idx < MAX_FILE_OPEN) {
+		file_table[fd_idx++].fd_inode = NULL;
+	}
 }
 

@@ -8,6 +8,7 @@
 #include "syscall.h"
 #include "stdio.h"
 #include "memory.h"
+#include "fs.h"
 
 /*
 （1）上下文保护的第一部分，保存任务进入中断前的全部寄存器，目的是能让任务恢复到中断前。【kernel.S】
@@ -32,11 +33,11 @@ void u_prog_b(void);
 int main(void) {
 	put_str("I am kernel\n");
 	init_all();
-	while(1);
 	process_execute(u_prog_a, "u_prog_a");
 	process_execute(u_prog_b, "u_prog_b");
 	thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
 	thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
+	sys_open("/file1", O_CREAT);
 	while(1);
 	return 0;
 }

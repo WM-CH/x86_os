@@ -15,7 +15,7 @@ struct partition {
 	struct super_block* sb;		// 本分区的超级块
 	struct bitmap block_bitmap;	// 块位图，多个同时读写的扇区叫块
 	struct bitmap inode_bitmap;	// i结点位图
-	struct list open_inodes;	// 本分区打开的i结点队列
+	struct list open_inodes;	// 本分区打开的inode缓存队列，用于加速查找
 };
 
 /* 硬盘结构 */

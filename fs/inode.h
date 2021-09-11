@@ -2,6 +2,7 @@
 #define __FS_INODE_H
 #include "stdint.h"
 #include "list.h"
+#include "ide.h"
 
 /* inode结构 */
 struct inode {
@@ -18,4 +19,9 @@ struct inode {
 	uint32_t i_sectors[13];	// 应该叫 i_block 但是我们块大小=扇区大小，所以叫 i_sectors
 	struct list_elem inode_tag;		//加入“已打开的 inode 列表”作为一个缓存方便查找已打开的文件
 };
+
+struct inode* inode_open(struct partition* part, uint32_t inode_no);
+void inode_sync(struct partition* part, struct inode* inode, void* io_buf);
+void inode_init(uint32_t inode_no, struct inode* new_inode);
+void inode_close(struct inode* inode);
 #endif
