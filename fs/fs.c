@@ -744,7 +744,6 @@ int32_t sys_rmdir(const char* pathname) {
 	return retval;
 }
 
-
 /* 获得父目录的inode编号 */
 static uint32_t get_parent_dir_inode_nr(uint32_t child_inode_nr, void* io_buf) {
    struct inode* child_dir_inode = inode_open(cur_part, child_inode_nr);
@@ -756,48 +755,48 @@ static uint32_t get_parent_dir_inode_nr(uint32_t child_inode_nr, void* io_buf) {
    struct dir_entry* dir_e = (struct dir_entry*)io_buf;
    /* 第0个目录项是".",第1个目录项是".." */
    ASSERT(dir_e[1].i_no < 4096 && dir_e[1].f_type == FT_DIRECTORY);
-   return dir_e[1].i_no;      // 返回..即父目录的inode编号
+   return dir_e[1].i_no;	// 返回..即父目录的inode编号
 }
 
 /* 在inode编号为p_inode_nr的目录中查找inode编号为c_inode_nr的子目录的名字,
  * 将名字存入缓冲区path.成功返回0,失败返-1 */
 static int get_child_dir_name(uint32_t p_inode_nr, uint32_t c_inode_nr, char* path, void* io_buf) {
-   struct inode* parent_dir_inode = inode_open(cur_part, p_inode_nr);
-   /* 填充all_blocks,将该目录的所占扇区地址全部写入all_blocks */
-   uint8_t block_idx = 0;
-   uint32_t all_blocks[140] = {0}, block_cnt = 12;
-   while (block_idx < 12) {
-      all_blocks[block_idx] = parent_dir_inode->i_sectors[block_idx];
-      block_idx++;
-   }
-   if (parent_dir_inode->i_sectors[12]) {	// 若包含了一级间接块表,将共读入all_blocks.
-      ide_read(cur_part->my_disk, parent_dir_inode->i_sectors[12], all_blocks + 12, 1);
-      block_cnt = 140;
-   }
-   inode_close(parent_dir_inode);
+	struct inode* parent_dir_inode = inode_open(cur_part, p_inode_nr);
+	/* 填充all_blocks,将该目录的所占扇区地址全部写入all_blocks */
+	uint8_t block_idx = 0;
+	uint32_t all_blocks[140] = {0}, block_cnt = 12;
+	while (block_idx < 12) {
+		all_blocks[block_idx] = parent_dir_inode->i_sectors[block_idx];
+		block_idx++;
+	}
+	if (parent_dir_inode->i_sectors[12]) {	// 若包含了一级间接块表,将共读入all_blocks.
+		ide_read(cur_part->my_disk, parent_dir_inode->i_sectors[12], all_blocks + 12, 1);
+		block_cnt = 140;
+	}
+	inode_close(parent_dir_inode);
 
-   struct dir_entry* dir_e = (struct dir_entry*)io_buf;
-   uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
-   uint32_t dir_entrys_per_sec = (512 / dir_entry_size);
-   block_idx = 0;
-  /* 遍历所有块 */
-   while(block_idx < block_cnt) {
-      if(all_blocks[block_idx]) {      // 如果相应块不为空则读入相应块
-	 ide_read(cur_part->my_disk, all_blocks[block_idx], io_buf, 1);
-	 uint8_t dir_e_idx = 0;
-	 /* 遍历每个目录项 */
-	 while(dir_e_idx < dir_entrys_per_sec) {
-	    if ((dir_e + dir_e_idx)->i_no == c_inode_nr) {
-	       strcat(path, "/");
-	       strcat(path, (dir_e + dir_e_idx)->filename);
-	       return 0;
-	    }
-	    dir_e_idx++;
-	 }
-      }
-      block_idx++;
-   }
-   return -1;
+	struct dir_entry* dir_e = (struct dir_entry*)io_buf;
+	uint32_t dir_entry_size = cur_part->sb->dir_entry_size;
+	uint32_t dir_entrys_per_sec = (512 / dir_entry_size);
+	block_idx = 0;
+	/* 遍历所有块 */
+	while(block_idx < block_cnt) {
+		if(all_blocks[block_idx]) {      // 如果相应块不为空则读入相应块
+			ide_read(cur_part->my_disk, all_blocks[block_idx], io_buf, 1);
+			uint8_t dir_e_idx = 0;
+			/* 遍历每个目录项 */
+			while(dir_e_idx < dir_entrys_per_sec) {
+				if ((dir_e + dir_e_idx)->i_no == c_inode_nr) {
+					strcat(path, "/");
+					strcat(path, (dir_e + dir_e_idx)->filename);
+					return 0;
+				}
+				dir_e_idx++;
+			}
+		}
+		block_idx++;
+	}
+	return -1;
 }
 
 /* 把当前工作目录绝对路径写入buf, size是buf的大小.
@@ -865,6 +864,34 @@ int32_t sys_chdir(const char* path) {
 		} else {
 			printk("sys_chdir: %s is regular file or other!\n", path);
 		}
+	}
+	dir_close(searched_record.parent_dir);
+	return ret;
+}
+
+/* 在buf中填充文件结构相关信息,成功时返回0,失败返回-1 */
+int32_t sys_stat(const char* path, struct stat* buf) {
+	/* 若直接查看根目录'/' */
+	if (!strcmp(path, "/") || !strcmp(path, "/.") || !strcmp(path, "/..")) {
+		buf->st_filetype = FT_DIRECTORY;
+		buf->st_ino = 0;
+		buf->st_size = root_dir.inode->i_size;
+		return 0;
+	}
+
+	int32_t ret = -1;	// 默认返回值
+	struct path_search_record searched_record;
+	memset(&searched_record, 0, sizeof(struct path_search_record));   // 记得初始化或清0,否则栈中信息不知道是什么
+	int inode_no = search_file(path, &searched_record);
+	if (inode_no != -1) {
+		struct inode* obj_inode = inode_open(cur_part, inode_no);   // 只为获得文件大小
+		buf->st_size = obj_inode->i_size;
+		inode_close(obj_inode);
+		buf->st_filetype = searched_record.file_type;
+		buf->st_ino = inode_no;
+		ret = 0;
+	} else {
+		printk("sys_stat: %s not found\n", path);
 	}
 	dir_close(searched_record.parent_dir);
 	return ret;
