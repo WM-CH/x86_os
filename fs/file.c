@@ -60,7 +60,7 @@ int32_t inode_bitmap_alloc(struct partition* part) {
 	return bit_idx;
 }
    
-/* 从分区的block位图中，分配1个扇区，返回"扇区地址" */
+/* 从分区的block位图中，分配1个扇区，返回"扇区地址" 【操作的是 空闲块区域 】*/
 int32_t block_bitmap_alloc(struct partition* part) {
 	int32_t bit_idx = bitmap_scan(&part->block_bitmap, 1);
 	if (bit_idx == -1) {
