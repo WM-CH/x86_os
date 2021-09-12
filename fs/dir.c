@@ -234,7 +234,13 @@ bool sync_dir_entry(struct dir* parent_dir, struct dir_entry* p_de, void* io_buf
 	return false;
 }
 
-/* 把分区part目录pdir中编号为inode_no的"目录项"删除 */
+/* 把分区part目录pdir中编号为inode_no的"目录项"删除
+（1）在文件所在的目录中擦除该文件的目录项，使其为 0。
+（2）根目录是必须存在的，它是文件读写的根基，不应该被清空，它至少要保留 1 个块。
+	 如果目录项独占 1个块，并且该块不是根目录最后一个块的话，将其回收。
+（3）目录 inode 的 i_size 是目录项大小的总和，因此还要将 i_size 减去一个目录项的单位大小。
+（4）目录 inode 改变后，要同步到硬盘。
+ */
 bool delete_dir_entry(struct partition* part, struct dir* pdir, uint32_t inode_no, void* io_buf) {
 	struct inode* dir_inode = pdir->inode;
 	uint32_t block_idx = 0, all_blocks[140] = {0};

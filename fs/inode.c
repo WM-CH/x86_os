@@ -170,7 +170,12 @@ void inode_delete(struct partition* part, uint32_t inode_no, void* io_buf) {
 	}
 }
 
-/* 回收inode管理的数据块和inode本身 */
+/* 回收inode管理的数据块和inode本身
+（1）inode 位图
+（2）inode_table
+（3）inode 中 i_sectors[0～11]中的直接块和一级间接索引块表 i_sectors[12]中的间接块
+（4）一级间接索引块表本身的扇区地址
+ */
 void inode_release(struct partition* part, uint32_t inode_no) {
 	struct inode* inode_to_del = inode_open(part, inode_no);
 	ASSERT(inode_to_del->i_no == inode_no);
