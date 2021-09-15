@@ -127,45 +127,120 @@ MBR 0x7c00
 
 ## 虚拟内存布局
 
+```
 |
-
 |
-
-+---------0xC009A000---------位图地址
-
++---------0xC009A000---------位图地址（位图占4个页，管理512M内存，往高地址处使用）
 |
-
 +0xC009B000
-
 | ··· ··· 4个页大小的位图，管理512M内存
-
 +0xC009C000
-
 | ··· ··· 512M是本系统最大的内存空间
-
 +0xC009D000
-
 |
-
-+---------0xC009E000---------内核主线程PCB（往下使用）
-
++---------0xC009E000---------内核主线程PCB（往高地址处使用）
 |
-
-+---------0xC009F000---------内核主线程栈顶（先自减/再入栈）
-
++---------0xC009F000---------内核主线程栈顶（先自减/再入栈，往低地址处使用）
 |
-
 | ··· ··· 装载内核，约70k=0x11800
-
 |
-
-+---------0xC0100000---------K_HEAP_START 跨过1M，使虚拟内存地址连续
-
++---------0xC0100000---------K_HEAP_START 跨过1M(0x10_0000)，使虚拟内存地址连续
 |
-
 |
+```
+
+&nbsp;
+
+## 保护
+
+保护模式对内存段的保护：选择子、代码段数据段、栈段
+
+调用门过程的保护（RPL）
+
++跳转call/jmp时的保护
+
+中断过程的保护
 
 
+
+&nbsp;
+
+## 中断（自动压栈+手动压栈）
+
+着重看 7.4.1 中断时的保护
+下边是 7.4.2 中断时的`自动压栈`
+1）如果发生了特权级转移，比如被中断的进程是 3 特权级，中断处理程序是 0 特权级，
+此时要把低特权级的栈段选择子 ss 及栈指针 esp 保存到栈中。
+2）压入标志寄存器 eflags
+3）压入返回地址，先压入 cs，后压入 eip
+4）如果此中断没有相应的错误码，至此，处理器把寄存器压栈的工作完成.
+如果此中断有错误码的话，处理器在压入 eip 之后，会压入错误码
+5）如果栈中有错误码，在 iret 指令执行前必须要把栈中的错误码跨过！！！
+ 此后开始使用 0 特权级的栈（ss/esp）
+
+&nbsp;
+
+以上是硬件自动处理的，在kernel.S的中断处理函数中，我们`手动压栈`的情况：
+
+```
+;宏 VECTOR 接受两个参数，使用时用%1/%2表示
+%macro VECTOR 2
+section .text
+intr%1entry:		; 每个中断处理程序都要压入中断向量号（第一个参数%1）；intr%1entry在宏参数替换之后，就是个标号，标号就是个地址
+	%2				; 会被展开成 nop，或者是 push 0【错误码的统一处理】
+	; 以下是保存上下文环境
+	push ds
+	push es
+	push fs
+	push gs
+	pushad			; PUSHAD指令压入32位寄存器,其入栈顺序是: EAX,ECX,EDX,EBX,ESP,EBP,ESI,EDI
+...
+```
+
+在switch_to中，我们`手动压栈`的情况：
+
+```
+[bits 32]
+section .text
+global switch_to
+; 这样被调用的 switch_to(cur, next); 两个参数是两个线程的PCB
+; switch_to时的栈：
+; next		<-- esp+24
+; cur		<-- esp+20
+; 返回地址	<-- esp+16
+; esi		<-- esp+12
+; edi		<-- esp+8
+; ebx		<-- esp+4
+; ebp 		<-- esp
+switch_to:
+   ;栈中此处是返回地址
+   push esi
+   push edi
+   push ebx
+   push ebp
+
+   mov eax, [esp + 20]	; 得到栈中的参数 cur = [esp+20]
+   mov [eax], esp		; 保存pcb第一个成员：栈顶指针esp，即task_struct(pcb)的self_kstack字段
+;------------------  以上是备份当前线程的环境，下面是恢复下一个线程的环境  ----------------
+; 在同一次 switch_to 的调用执行中，
+; 之前保存的寄存器属于当前线程 cur
+; 之后恢复的寄存器属于下一个线程 next
+;------------------------------------------------------------------------------------------
+   mov eax, [esp + 24]	; 得到栈中的参数 next = [esp+24]
+   mov esp, [eax]		; pcb的第一个成员是self_kstack字段，它就是0级栈顶指针
+						; 用来上cpu时恢复0级栈，0级栈中保存了进程或线程所有信息,包括3级栈指针
+   pop ebp
+   pop ebx
+   pop edi
+   pop esi
+   ret					; 返回到上面switch_to第一行那句注释的返回地址,
+						; 1.如果线程是第一次执行，则会返回到kernel_thread，是在thread_create中设置的
+						; 2.如果线程执行过了，则会返回到schedule函数，再返回到intr_timer_handler函数
+						; 再返回到kernel.S中的jmp intr_exit 从而恢复任务的全部寄存器映像，
+						; 之后通过 iretd 指令退出中断，任务被完全彻底地恢复。
+```
+
+&nbsp;
 
 ## 线程切换
 
@@ -176,29 +251,21 @@ thread_start 给普通线程，分配一个页，作为PCB。然后调用 init_t
 - init_thread 给普通线程，填充PCB，其中将 self_kstack 赋值为PCB最顶端！
 - thread_create 给普通线程，预留出"中断栈intr_stack"空间，预留出"线程栈thread_stack"并赋值。注意 self_kstack 的位置：
 
+```
 ; PCB最顶端
-
 ; intr_stack ~
-
 ; thread_stack <---- self_kstack
 
 thread_stack内容如下：
-
 ; fun_arg
-
 ; function
-
 ; unused_retaddr
-
 ; eip
-
 ; esi
-
 ; edi
-
 ; ebx
-
 ; ebp 		<---- self_kstack 赋值给 esp
+```
 
 本次演示 thread_start 中 调用内联汇编进行任务切换。
 
@@ -208,11 +275,11 @@ ret使当前esp赋值给eip，调用到 kernel_thread 函数
 
 在 kernel_thread 函数中时栈的内容是：
 
+```
 ; fun_arg
-
 ; function
-
 ; unused_retaddr		<--- esp
+```
 
 问：这里一直用的是0特权级的栈？
 
@@ -234,6 +301,8 @@ PCB结构从 0xC009E000 开始，最后一个成员是magic_num，
 
 栈顶从 0xC009F000 开始往低地址处压栈，检测到magic_num时，说明破坏了PCB结构。
 
+参考【虚拟内存布局】一节。
+
 &nbsp;
 
 - 主线程执行时，发生时钟中断并切换线程。
@@ -250,23 +319,17 @@ switch_to(cur, next); 两个参数是两个线程的PCB
 
 调用switch_to时"主线程"的栈：
 
+```
 ; 前边还有很多压栈的数据，包括主线程中断之前压栈的一些返回地址，中断栈，以及intr_timer_handler、schedule和switch_to的返回地址。
-
 ; next <---- esp+24
-
 ; cur <---- esp+20
-
 ; 返回地址 <---- esp+16
-
 在switch_to中根据ABI规定，压入"cur线程"的4个寄存器
-
 ; esi <---- esp+12
-
 ; edi <---- esp+8
-
 ; ebx <---- esp+4
-
 ; ebp <---- esp 赋值给 self_kstack
+```
 
 最后将栈顶指针esp赋值给 => PCB的第一个成员"线程内核栈栈顶指针"self_kstack
 
@@ -306,23 +369,17 @@ switch_to(cur, next); 两个参数是两个线程的PCB
 
 调用switch_to时"线程"的栈：
 
+```
 ; 前边还有很多压栈的数据，包括一个中断栈，以及intr_timer_handler、schedule和switch_to的返回地址。
-
 ; next <---- esp+24
-
 ; cur <---- esp+20
-
 ; 返回地址 <---- esp+16
-
 在switch_to中根据ABI规定，压入"cur线程"的4个寄存器
-
 ; esi <---- esp+12
-
 ; edi <---- esp+8
-
 ; ebx <---- esp+4
-
 ; ebp <---- esp 赋值给 self_kstack
+```
 
 最后将栈顶指针esp赋值给 => PCB的第一个成员"线程内核栈栈顶指针"self_kstack
 
@@ -335,6 +392,18 @@ switch_to(cur, next); 两个参数是两个线程的PCB
 然后退回到 intr_timer_handler，intr_exit
 
 接着被中断前的位置继续执行了。。。
+
+&nbsp;
+
+### self_kstack
+
+是各线程的内核栈，栈顶指针！
+当线程被创建时， self_kstack 被初始化为自己 PCB 所在页的顶端。
+之后在运行时，
+在被换下处理器前，我们会把线程的上下文信息保存在 0 特权级栈中，
+self_kstack 便用来记录 0 特权级栈在保存线程上下文后，新的栈顶，
+在下一次此线程又被调度到处理器上时，
+把 self_kstack 的值加载到 esp 寄存器，这样便从 0 特权级栈中获取了线程上下文，从而可以加载到处理器中运行。
 
 &nbsp;
 
@@ -366,33 +435,92 @@ console_release();
 
 回顾之前线程的流程：
 
+```
 thread_start(...,function,...)
-
 thread = get_kernel_pages(1)
-
 init_thread(thread,...)
-
 thread_create(thread,function,...)
-
 kernel_thread(function, args)
-
 function
+```
 
 把 function 替换为创建进程的新函数。
 
 &nbsp;
 
-### 自问自答
-
-1.self_kstack的位置
+### 1> self_kstack的位置
 
 答：是进程初始化之后，self_kstack的位置没动，见线程一节的描述。
 
-2.用户进程3特权级栈在 **USER_STACK3_VADDR=(0xc0000000 - 0x1000)**
+### 2> 0/3特权级栈的位置
 
-用户进程0特权级栈在 **PCB + PG_SIZE**
+2.1> 用户进程3特权级栈在 **USER_STACK3_VADDR=(0xc0000000 - 0x1000)**
 
-3.update_tss_esp只用了一个全局变量g_tss，怎么区分内核进程和用户进程的？
+```
+在 4GB 的虚拟地址空间中
+(0xc0000000-1)是用户空间的最高地址，0xc0000000～0xffffffff 是内核空间。
+
+命令行参数和环境变量也是被压栈的
+所以栈底是0xc000_0000
+栈顶是0xc0000_0000 - 0x1000
++----------------------+ --栈底 0xc0000_0000 - 1
+| 命令行参数和环境变量   |
++----------------------+
+|      特权级3的栈      |
++----------------------+
+|          ↓           |
+|                      | --栈顶 0xc0000_0000 - 0x1000【start_process函数】
+|                      |
+|          ↑           |
++----------------------+
+|          堆          |
++----------------------+
+|          bss         |
++----------------------+
+|          data        |
++----------------------+
+|          text        |
++----------------------+ 0
+    C程序内存布局
+```
+
+用户进程的页表、虚拟地址位图、PCB都在内核的内存中分配和管理。
+
+&nbsp;
+
+2.2> 用户进程0特权级栈在 **PCB + PG_SIZE**
+
+见虚拟内存布局
+
+内核线程：
+
+PCB地址0xc009e000（往高地址增长，有magic数和栈做间隔）
+
+0特权级栈0xc009f000（先自减，再压栈）
+
+普通线程：
+
+PCB地址在thread.c中thread_start函数里面，通过get_kernel_pages分配。
+
+PCB结构和0特权级栈是在同一个页的。
+
+```
+init_thread：
+一开始指向0特权级栈顶
+pthread->self_kstack = (uint32_t*)((uint32_t)pthread + PG_SIZE);
+pthread就是PCB的起始地址
+
+thread_create：
+后来预留出两个空间，一个是中断栈，一个线程内核栈
+pthread->self_kstack -= sizeof(struct intr_stack);
+pthread->self_kstack -= sizeof(struct thread_stack);
+```
+
+&nbsp;
+
+### 3> update_tss_esp函数
+
+只用了一个全局变量g_tss，怎么区分内核进程和用户进程的？
 
 答：update_tss_esp函数只会被用户进程调用。
 
@@ -408,9 +536,7 @@ readelf 选项
 
 ### 进程创建/切换流程
 
-给用户进程创建内存位图，使用地址是：linux用户程序入口地址 0x80480000
-
-给用户进程创建内存位图，使用地址是：linux用户程序入口地址 0x80480000
+给用户进程创建内存位图，使用地址是：linux用户程序入口地址 `0x80480000`
 
 ```c
 /* 用户进程创建过程 */
@@ -458,6 +584,7 @@ void start_process(void* filename_) {
 	 * 这里gs的选择子在iretd返回后，会被自动清零。*/
 	proc_stack->gs = 0;					// 用户态用不上,直接初始为0
 	proc_stack->ds = proc_stack->es = proc_stack->fs = SELECTOR_U_DATA;		// 用户级数据段
+    /* 中断栈中，上边几个是中断处理函数手动压栈的，下边几个是硬件自动压栈的 */
 	proc_stack->eip = function;			// 待执行的用户程序地址
 	proc_stack->cs = SELECTOR_U_CODE;	// 用户级代码段
 	proc_stack->eflags = (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1);
@@ -993,9 +1120,20 @@ PCB 中文件描述符数组，文件表（全局变量），inode 队列，三�
 
 ## 交互系统
 
+### fork的实现
 
+进程的资源：
 
+（1）进程的 pcb，即 task_struct
+（2）程序体，即代码段数据段等，这是进程的实体。
+（3）用户栈，用于局部变量、函数调用。
+（4）内核栈，进入内核态时，一方面要用它来保存上下文环境，另一方面的作用同用户栈一样。
+（5）虚拟地址池，每个进程拥有独立的内存空间，其虚拟地址是用虚拟地址池来管理的。
+（6）页表，让进程拥有独立的内存空间。
 
+新进程加入调度队列即可，但是要准备好他的**栈**，
+
+不是0级栈，不是3级栈，是0级栈中的用户线程栈 thread_stack。
 
 
 

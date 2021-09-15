@@ -259,6 +259,22 @@ void* get_a_page(enum pool_flags pf, uint32_t vaddr) {
 	return (void*)vaddr;
 }
 
+/* 安装1页大小的vaddr，专门针对fork时不修改虚拟地址位图的情况
+ * 函数功能和 get_a_page 类似，为 vaddr 分配一物理页，只是少了虚拟地址池位图的操作
+ */
+void* get_a_page_without_opvaddrbitmap(enum pool_flags pf, uint32_t vaddr) {
+	struct pool* mem_pool = pf & PF_KERNEL ? &kernel_pool : &user_pool;
+	lock_acquire(&mem_pool->lock);
+	void* page_phyaddr = palloc(mem_pool);
+	if (page_phyaddr == NULL) {
+		lock_release(&mem_pool->lock);
+		return NULL;
+	}
+	page_table_add((void*)vaddr, page_phyaddr);
+	lock_release(&mem_pool->lock);
+	return (void*)vaddr;
+}
+
 /* 得到虚拟地址映射到的物理地址 */
 uint32_t addr_v2p(uint32_t vaddr) {
 	uint32_t* pte = pte_ptr(vaddr);

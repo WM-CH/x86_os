@@ -17,6 +17,7 @@ struct lock pid_lock;				// 分配pid锁
 static struct list_elem* g_thread_tag;// 用于临时保存队列中的线程结点
 
 extern void switch_to(struct task_struct* cur, struct task_struct* next);
+extern void init(void);
 
 /* idle线程 */
 static void idle(void* arg UNUSED) {
@@ -57,6 +58,11 @@ static pid_t allocate_pid(void) {
    next_pid++;
    lock_release(&pid_lock);
    return next_pid;
+}
+
+/* fork进程时为其分配pid，只是再封装一次 allocate_pid */
+pid_t fork_pid(void) {
+	return allocate_pid();
 }
 
 /* 初始化线程栈结构体 struct thread_stack */
@@ -116,6 +122,7 @@ void init_thread(struct task_struct* pthread, char* name, int prio) {
 	}
 
 	pthread->cwd_inode_nr = 0;			// 以根目录做为默认工作路径
+	pthread->parent_pid = -1;			// -1表示没有父进程
 	pthread->stack_magic = 0x19870916;	// 自定义的魔数
 }
 
@@ -257,6 +264,8 @@ void thread_init(void) {
 	list_init(&thread_ready_list);
 	list_init(&thread_all_list);
 	lock_init(&pid_lock);
+	/* 先创建第一个用户进程:init */
+	process_execute(init, "init");	// 放在第一个初始化,这是第一个进程,init进程的pid为1
 	/* 将当前main函数创建为线程 */
 	make_main_thread();
 	/* 创建idle线程 */

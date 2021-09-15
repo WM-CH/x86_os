@@ -27,6 +27,9 @@ void start_process(void* filename_) {
 	 * 这里gs的选择子在iretd返回后，会被自动清零。*/
 	proc_stack->gs = 0;					// 用户态用不上,直接初始为0
 	proc_stack->ds = proc_stack->es = proc_stack->fs = SELECTOR_U_DATA;		// 用户级数据段
+
+	/* 中断栈中，上边几个是中断处理函数手动压栈的，下边几个是硬件自动压栈的 */
+
 	proc_stack->eip = function;			// 待执行的用户程序地址
 	proc_stack->cs = SELECTOR_U_CODE;	// 用户级代码段
 	proc_stack->eflags = (EFLAGS_IOPL_0 | EFLAGS_MBS | EFLAGS_IF_1);
