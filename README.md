@@ -464,9 +464,9 @@ function
 所以栈底是0xc000_0000
 栈顶是0xc0000_0000 - 0x1000
 +----------------------+ --栈底 0xc0000_0000 - 1
-| 命令行参数和环境变量   |
+| 命令行参数和环境变量 |
 +----------------------+
-|      特权级3的栈      |
+|      特权级3的栈     |
 +----------------------+
 |          ↓           |
 |                      | --栈顶 0xc0000_0000 - 0x1000【start_process函数】
@@ -498,7 +498,7 @@ PCB地址0xc009e000（往高地址增长，有magic数和栈做间隔）
 
 0特权级栈0xc009f000（先自减，再压栈）
 
-普通线程：
+用户线程：
 
 PCB地址在thread.c中thread_start函数里面，通过get_kernel_pages分配。
 
@@ -524,9 +524,34 @@ pthread->self_kstack -= sizeof(struct thread_stack);
 
 答：update_tss_esp函数只会被用户进程调用。
 
+```
+/* 更新tss中esp0字段的值为pthread的0级栈 */
+void update_tss_esp(struct task_struct* pthread) {
+	g_tss.esp0 = (uint32_t*)((uint32_t)pthread + PG_SIZE);
+}
+```
+
 &nbsp;
 
-readelf 选项
+### 4> 因为PCB和0级栈在同一个page里面！
+
+不管是内核线程，还是用户线程，都是如此！
+
+```
+/* 返回线程 PCB 地址。
+ * 各个线程所用的 0 级栈都是在自己的 PCB 当中，
+ * 取当前栈指针的高 20 位，就是当前运行线程的 PCB（PCB是在自然页的起始地址！）
+ */
+struct task_struct* running_thread() {
+	uint32_t esp;
+	asm ("mov %%esp, %0" : "=g" (esp));	//esp寄存器的值，放入变量esp
+	return (struct task_struct*)(esp & 0xfffff000);
+}
+```
+
+&nbsp;
+
+### 5> readelf 选项
 
 选项 -e,headers 显示全部头信息，等价于: -h -l -S 。
 
@@ -1125,10 +1150,15 @@ PCB 中文件描述符数组，文件表（全局变量），inode 队列，三�
 进程的资源：
 
 （1）进程的 pcb，即 task_struct
+
 （2）程序体，即代码段数据段等，这是进程的实体。
+
 （3）用户栈，用于局部变量、函数调用。
+
 （4）内核栈，进入内核态时，一方面要用它来保存上下文环境，另一方面的作用同用户栈一样。
+
 （5）虚拟地址池，每个进程拥有独立的内存空间，其虚拟地址是用虚拟地址池来管理的。
+
 （6）页表，让进程拥有独立的内存空间。
 
 新进程加入调度队列即可，但是要准备好他的**栈**，
