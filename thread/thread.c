@@ -8,6 +8,10 @@
 #include "memory.h"
 #include "process.h"
 #include "sync.h"
+#include "stdio.h"
+//#include "console.h"
+#include "fs.h"
+#include "file.h"
 
 struct task_struct* g_main_thread;	// 主线程PCB
 struct task_struct* idle_thread;	// idle线程

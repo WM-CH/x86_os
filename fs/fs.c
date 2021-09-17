@@ -214,7 +214,7 @@ static void partition_format(struct partition* part) {
 
 /* 将最上层路径名称解析出来，比如pathname="a/b/c"得到name_store="a"
  * 返回剩下的目录 "b/c" */
-static char* path_parse(char* pathname, char* name_store) {
+char* path_parse(char* pathname, char* name_store) {
 	if (pathname[0] == '/') {	// 根目录不需要单独解析
 		/* 路径中出现1个或多个连续的字符'/',将这些'/'跳过,如"///a/b" */
 		while(*(++pathname) == '/');
@@ -734,9 +734,9 @@ int32_t sys_rmdir(const char* pathname) {
 	/* 先检查待删除的文件是否存在 */
 	struct path_search_record searched_record;
 	memset(&searched_record, 0, sizeof(struct path_search_record));
-	int inode_no = search_file(pathname, &searched_record);
+	int32_t inode_no = search_file(pathname, &searched_record);
 	ASSERT(inode_no != 0);
-	int retval = -1;	// 默认返回值
+	int32_t retval = -1;	// 默认返回值
 	if (inode_no == -1) {
 		printk("In %s, sub path %s not exist\n", pathname, searched_record.searched_path);
 	} else {
@@ -833,6 +833,7 @@ char* sys_getcwd(char* buf, uint32_t size) {
 	if (child_inode_nr == 0) {
 		buf[0] = '/';
 		buf[1] = 0;
+		sys_free(io_buf);
 		return buf;
 	}
 
