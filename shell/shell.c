@@ -35,9 +35,29 @@ static void readline(char* buf, int32_t count) {
 			return;
 
 			case '\b':
-			if (buf[0] != '\b') {	// 阻止删除非本次输入的信息
+			if (cmd_line[0] != '\b') {	// 阻止删除非本次输入的信息
 				--pos;				// 退回到缓冲区cmd_line中上一个字符
 				putchar('\b');		// 屏幕显示也删掉前一个字符
+			}
+			break;
+
+			/* ctrl+l 清屏 */
+			case 'l' - 'a':
+			/* 1 先将当前的字符'l'-'a'置为0 */
+			*pos = 0;
+			/* 2 再将屏幕清空 */
+			clear();
+			/* 3 打印提示符 */
+			print_prompt();
+			/* 4 将之前键入的内容再次打印 */
+			printf("%s", buf);
+			break;
+
+			/* ctrl+u 清掉输入 */
+			case 'u' - 'a':
+			while (buf != pos) {
+				putchar('\b');
+				*(pos--) = 0;
 			}
 			break;
 
