@@ -12,7 +12,8 @@
 
 # 目标文件的链接顺序，本着 “调用在前，定义在后”
 
-# 写入没有文件系统的裸盘第300号逻辑扇区
+# prog_no_arg 写入没有文件系统的裸盘第300号逻辑扇区
+# prog_arg    写入没有文件系统的裸盘第400号逻辑扇区
 
 if [[ ! -d "../lib" || ! -d "../build" ]];then
    echo "dependent dir don\`t exist!"
@@ -25,28 +26,51 @@ if [[ ! -d "../lib" || ! -d "../build" ]];then
    exit
 fi
 
-BIN="prog_no_arg"
+BIN1="prog_no_arg"
+BIN2="prog_arg"
 CFLAGS="-Wall -c -fno-builtin -W -Wstrict-prototypes \
-      -Wmissing-prototypes -Wsystem-headers -m32 -fno-stack-protector -g "
-LIB="../lib/"
-OBJS="-m elf_i386 ../build/string.o ../build/syscall.o \
-      ../build/stdio.o ../build/assert.o"
-DD_IN=$BIN
-DD_OUT="/home/work/my_workspace/bochs/hd60M.img" 
+      -Wmissing-prototypes -Wsystem-headers -m32 -fno-stack-protector -g \
+	  -I ../lib -I ../lib/user -I ../fs"
+OBJS="../build/string.o ../build/syscall.o \
+      ../build/stdio.o ../build/assert.o start.o"
+#DD_IN=$BIN
+#DD_OUT="/home/work/my_workspace/bochs/hd60M.img" 
 
-gcc $CFLAGS -I $LIB -o $BIN".o" $BIN".c"
-ld -e main $BIN".o" $OBJS -o $BIN
+# 1 -v 打印详细信息
+gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN1".o" $BIN1".c"
+ld -v  -nostdinc -nostdlib -m elf_i386 -e main $BIN1".o" $OBJS -o $BIN1
+echo "-------------------------------------------------------"
+
+# 2
+nasm -f elf ./start.S -o ./start.o
+ar rcs simple_crt.a $OBJS start.o
+# ar 命令，将 string.o、 syscall.o、 stdio.o、 assert.o 和 start.o 打包成静态库文件 simple_crt.a
+# simple_crt.a 类似于 CRT 的作用，它就是我们所说的简陋版 C 运行库。
+# 后面的用户程序目标文件 prog_arg.o 和它直接链接就可以了。 
+gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN2".o" $BIN2".c"
+ld -v  -nostdinc -nostdlib -m elf_i386 $BIN2".o" simple_crt.a -o $BIN2
 SEC_CNT=$(ls -l $BIN|awk '{printf("%d", ($5+511)/512)}')
+
 
 #if [[ -f $BIN ]];then
 #   dd if=./$DD_IN of=$DD_OUT bs=512 \
 #   count=$SEC_CNT seek=300 conv=notrunc
 #fi
 
-##########   以上核心就是下面这三条命令   ##########
+##########   1. 以上核心就是下面这三条命令   ##########
 #gcc -Wall -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes \
 #   -Wsystem-headers -I ../lib -o prog_no_arg.o prog_no_arg.c
 #ld -e main prog_no_arg.o ../build/string.o ../build/syscall.o\
 #   ../build/stdio.o ../build/assert.o -o prog_no_arg
 #dd if=prog_no_arg of=/home/work/my_workspace/bochs/hd60M.img \
 #   bs=512 count=10 seek=300 conv=notrunc
+
+##########   2. 以上核心就是下面这五条命令   ##########
+#nasm -f elf ./start.S -o ./start.o
+#ar rcs simple_crt.a ../build/string.o ../build/syscall.o \
+#   ../build/stdio.o ../build/assert.o ./start.o
+#gcc -Wall -c -fno-builtin -W -Wstrict-prototypes -Wmissing-prototypes \
+#   -Wsystem-headers -I ../lib/ -I ../lib/user -I ../fs prog_arg.c -o prog_arg.o
+#ld prog_arg.o simple_crt.a -o prog_arg
+#dd if=prog_arg of=/home/work/my_workspace/bochs/hd60M.img \
+#   bs=512 count=11 seek=300 conv=notrunc

@@ -55,6 +55,26 @@ Print warning messages for constructs found in system header files. **Warnings f
 
 &nbsp;
 
+在15章编译用户程序prog_arg时，遇到错误：
+
+**fs.h中 SEEK_SET=1, expected identifier before numeric constant**
+
+原因是有头文件定义过SEEK_SET，不用问，一定是系统的头文件，
+
+gcc加上-v查看详细信息，果然，搜索路径里面有系统头文件的路径。
+
+因此引入下边的两个选项：
+
+-nostdinc
+
+不搜索默认路径头文件
+
+ -nostdlib
+
+不使用标准库
+
+&nbsp;
+
 ## 反汇编
 
 ### 反汇编main.c
@@ -1247,7 +1267,7 @@ struct Elf32_Phdr {
 
 &nbsp;
 
-4> 用户的应用程序
+### 用户的应用程序
 
 用户的应用程序 prog_no_arg.c 中用到了函数 printf，
 
@@ -1272,6 +1292,77 @@ struct Elf32_Phdr {
 不同的库文件最终的出路都是相同的，都是通过系统调用发送 0x80 号中断，利用中断门连接到唯一的内核。
 
 一定要注意目标文件的链接顺序，本着 “调用在前，定义在后”
+
+
+
+### C 标准库和 C 运行库
+
+C 标准库
+
+美国国家标准协会，即 ANSI（American National Standards Institute），
+
+规定了一套 C 函数标准接口，即 C 标准库，明确规定了每个函数的作用及原型 。
+
+C 标准库与OS平台无关， 它就是为了实现用户程序跨OS平台而约定的标准接口，
+
+使用户进程无论在哪个操作系统上调用同样的函数接口，执行的结果都是一样的。
+
+C运行库
+
+C 运行库也称为 CRT（ C RunTime library）， 它是与操作系统息息相关的，
+
+它的实现也基于 C 标准库，因此 CRT 属于 C 标准库的扩展。
+
+CRT 多是补充 C 标准库中没有的功能，为适配本操作系统环境而定制开发的。
+
+因此 CRT 并不通用，只适用于在本操作系统上运行的程序。
+
+CRT功能：
+
+1.初始化运行环境，在进入 main 函数之前，为用户进程准备条件，传递参数。
+
+2.当用户进程结束时， CRT 还要负责回收用户进程的资源。
+
+例如，使用系统调用 exit 或 _exit，用户程序结束时将陷入内核，
+
+使处理器的控制权重新回到操作系统手中，调度下个任务。
+
+```
+[bits 32]
+extern	 main
+section .text
+global _start
+_start:
+   ;下面这两个寄存器，要和execv中load之后指定的寄存器一致
+   push	 ebx	  ;压入argv
+   push  ecx	  ;压入argc
+   call  main
+
+1.extern 声明main函数
+2._start才是用户程序的真正入口
+标号_start，它是链接器默认的入口符号，如果 ld 命令链接时未使用链接脚本或-e 参数指定入口符号的话，
+默认会以符号_start 为程序入口。
+```
+
+
+
+ar 命令，将 string.o、 syscall.o、 stdio.o、 assert.o 和 start.o 打包成静态库文件 simple_crt.a
+
+simple_crt.a 类似于 CRT 的作用，它就是我们所说的简陋版 C 运行库。
+
+后面的用户程序目标文件 prog_arg.o 和它直接链接就可以了。
+
+&nbsp;
+
+-nostdinc 和 -nostdlib 见**编译选项**一节。
+
+
+
+
+
+
+
+
 
 
 

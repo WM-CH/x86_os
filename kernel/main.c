@@ -38,15 +38,36 @@ int main(void) {
 	init_all();
 
 	/*************    写入应用程序    *************/
-	// 就第一次写入到hd80M.img就行，之后注释掉这块代码。
-	uint32_t file_size = 4777;
+	// 1.就第一次写入到hd80M.img就行，之后注释掉这块代码。
+	// 2.不用注释掉了，我们每次都让他删掉重新写入，虽然写入文件系统时的 file_size 很大，
+	// 但是load程序时，读的elf头里面告诉了有几个segment是PT_LOAD可加载的，所以没关系！！！
+	uint32_t file_size = 512*50;	//书上编译出来可执行程序大小是 4777 字节【改成自己程序的大小，多个程序的话，取最大值，直接搞50个扇区(25k)，省的麻烦，】
 	uint32_t sec_cnt = DIV_ROUND_UP(file_size, 512);
 	struct disk* sda = &channels[0].devices[0];
 	void* prog_buf = sys_malloc(file_size);
+	if(NULL == prog_buf) {
+		printk("sys_malloc error!\n");
+		return 0;
+	}
+
+	int32_t fd;
+	// 在文件系统中 写入 prog_no_arg
+	sys_unlink("/prog_no_arg");						//先删掉
 	ide_read(sda, 300, prog_buf, sec_cnt);
-	int32_t fd = sys_open("/prog_no_arg", O_CREAT|O_RDWR);
+	fd = sys_open("/prog_no_arg", O_CREAT|O_RDWR);	//创建文件
 	if (fd != -1) {
-		if(sys_write(fd, prog_buf, file_size) == -1) {
+		if(sys_write(fd, prog_buf, file_size) == -1) {		//写入文件
+			printk("file write error!\n");
+			while(1);
+		}
+	}
+
+	// 在文件系统中 写入 prog_arg
+	sys_unlink("/prog_arg");						//先删掉
+	ide_read(sda, 400, prog_buf, sec_cnt);
+	fd = sys_open("/prog_arg", O_CREAT|O_RDWR);		//创建文件
+	if (fd != -1) {
+		if(sys_write(fd, prog_buf, file_size) == -1) {		//写入文件
 			printk("file write error!\n");
 			while(1);
 		}
@@ -60,12 +81,12 @@ int main(void) {
 
 /* init进程 */
 void init(void) {
-   uint32_t ret_pid = fork();
-   if(ret_pid) {  // 父进程
-      while(1);
-   } else {	  // 子进程
-      my_shell();
-   }
-   panic("init: should not be here");
+	uint32_t ret_pid = fork();
+	if(ret_pid) {  // 父进程
+		while(1);
+	} else {	  // 子进程
+		my_shell();
+	}
+	panic("init: should not be here");
 }
 
