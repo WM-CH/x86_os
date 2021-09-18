@@ -4,7 +4,7 @@ learn 《真象还原》
 
 &nbsp;
 
-逻辑扇区号：mbr=0, loader=2, kenerl=9
+逻辑扇区号：mbr=0, loader=2, kenerl=9, 用户应用程序=300
 
 &nbsp;
 
@@ -43,7 +43,7 @@ ld的时候加上 -m elf_i386
 
 &nbsp;
 
--Wmissing-prototypes 选项要求函数必须有声明，否则编译时发出警告。 
+-Wmissing-prototypes 要求函数必须有声明，否则编译时发出警告。 
 
 &nbsp;
 
@@ -1167,11 +1167,111 @@ PCB 中文件描述符数组，文件表（全局变量），inode 队列，三�
 
 
 
+### exec的实现
 
+1> 以前是用汇编加载的elf格式的内核，现在使用C语言方式加载elf格式的应用程序。
 
+&nbsp;
 
+2> 校验ELF头
 
+2.1> 
 
+elf 头的 e_ident 字段是 elf 格式的魔数，它是个 16 字节的数组， e_ident[7～15] 暂时未用，因此只需检测 e_ident[0～6]
+	开头的 4 个字节是固定不变的，分别是 0x7f(八进制177十进制127) 和字符串“ELF”的 ascii 码
+	e_ident[4] 值为 1 表示 32 位的elf，值为 2 表示 64 位
+	e_ident[5] 值为 1 表示小端字节序，值为 2 表示大端字节序
+	e_ident[6] 表示 elf 版本信息，默认为 1。
+	e_ident[4-6] 值为 0 都是非法的
+	在 8086 平台上，是小端字节序，并且是 32 位系统，因此这三位值均取 1
+故 e_ident[0-6] 应分别是十六进制 0x7F、 0x45、 0x4C、 0x46、 0x1、 0x1 和 0x1
+
+2.2>
+
+e_type 表示目标文件类型，其值应该为 ET_EXEC，即等于 2。
+
+e_machine 表示体系结构，其值应该为 EM_386，即等于 3。
+
+e_version 表示版本信息，其值应该为 1。
+
+e_phnum 用来指明程序头表中**条目的数量**，也就是段的个数，基值应该小于等于 1024。
+
+e_phentsize 用来指明程序头表中**每个条目的字节大小**，
+
+即每个用来描述段信息的数据结构的字节大小，该结构就是 struct Elf32_Phdr
+
+```
+/* 32位elf头 */
+struct Elf32_Ehdr {
+	unsigned char e_ident[16];
+	Elf32_Half    e_type;		// 32 or 64 ELF
+	Elf32_Half    e_machine;	// x86
+	Elf32_Word    e_version;
+	Elf32_Addr    e_entry;		// 入口地址（虚拟地址）
+	Elf32_Off     e_phoff;		// 程序头在elf文件中的起始地址
+	Elf32_Off     e_shoff;
+	Elf32_Word    e_flags;
+	Elf32_Half    e_ehsize;
+	Elf32_Half    e_phentsize;
+	Elf32_Half    e_phnum;		// 程序头表中条目的数量，也就是段的个数
+	Elf32_Half    e_shentsize;	// 程序头表中每个条目的字节大小，即 描述段的数据结构的大小 == sizeof(struct Elf32_Phdr)
+	Elf32_Half    e_shnum;
+	Elf32_Half    e_shstrndx;
+};
+
+/* 程序头表Program header.就是段segment描述头 */
+struct Elf32_Phdr {
+	Elf32_Word p_type;		// PT_LOAD可加载的段，等等
+	Elf32_Off  p_offset;	// 在elf文件中，segment的偏移地址
+	Elf32_Addr p_vaddr;		// 在内存中，希望被加载到的地址
+	Elf32_Addr p_paddr;
+	Elf32_Word p_filesz;	// Segment的大小
+	Elf32_Word p_memsz;		// 因为BSS段，所以 memsz 不等于 filesz
+	Elf32_Word p_flags;
+	Elf32_Word p_align;
+};
+```
+
+&nbsp;
+
+3> 在c语言字符串中，有些不可见字符（多是控制字符）是没法直接通过“键入字符”的方式来表示的，
+
+因此用 ASCII 码来表示，采用“\加 3 位八进制”或“ \x 加 2 位十六进制”来表示，注意，字符“ \”不可少。
+
+```
+"\177ELF" 是八进制的177=0x7F
+如果用16进制，写成
+"\x7fELF" 会被编译器识别为 "x7fE"LF
+因为E被认为是16进制数了
+```
+
+&nbsp;
+
+4> 用户的应用程序
+
+用户的应用程序 prog_no_arg.c 中用到了函数 printf，
+
+头文件 stdio.h 要指定路径 -I ../lib
+
+在链接的时候除了要加上 stdio.o 外， 还要加上 stdio.h（也是 stdio.o）所依赖的目标文件，
+
+包括 string.o、 syscall.o 和 assert.o。
+
+这些目标文件都是 build 目录下的，因此一定要先编译内核
+
+但这并不是说，用户程序的库文件依赖于内核的目标文件，
+
+并不是用了内核的目标文件就是执行了内核的代码，
+
+这仅仅表示用户进程中执行的代码和内核目标文件中的代码是一样的，
+
+在内存中它们是独立的两份拷贝，互不干涉。
+
+无论是用谁的目标文件都不重要，目标（库）文件只是系统调用的封装而已，
+
+不同的库文件最终的出路都是相同的，都是通过系统调用发送 0x80 号中断，利用中断门连接到唯一的内核。
+
+一定要注意目标文件的链接顺序，本着 “调用在前，定义在后”
 
 
 

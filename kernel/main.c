@@ -13,6 +13,8 @@
 #include "dir.h"
 #include "assert.h"
 #include "shell.h"
+#include "ide.h"
+#include "stdio-kernel.h"
 
 /*
 （1）上下文保护的第一部分，保存任务进入中断前的全部寄存器，目的是能让任务恢复到中断前。【kernel.S】
@@ -32,12 +34,28 @@ u_prog_a 的地址是在 0xc0000000 以上，位于内核空间，但这并不�
 void init(void);
 
 int main(void) {
-   put_str("I am kernel\n");
-   init_all();
-   cls_screen();
-   console_put_str("[rabbit@localhost /]$ ");
-   while(1);
-   return 0;
+	put_str("I am kernel\n");
+	init_all();
+
+	/*************    写入应用程序    *************/
+	// 就第一次写入到hd80M.img就行，之后注释掉这块代码。
+	uint32_t file_size = 4777;
+	uint32_t sec_cnt = DIV_ROUND_UP(file_size, 512);
+	struct disk* sda = &channels[0].devices[0];
+	void* prog_buf = sys_malloc(file_size);
+	ide_read(sda, 300, prog_buf, sec_cnt);
+	int32_t fd = sys_open("/prog_no_arg", O_CREAT|O_RDWR);
+	if (fd != -1) {
+		if(sys_write(fd, prog_buf, file_size) == -1) {
+			printk("file write error!\n");
+			while(1);
+		}
+	}
+	/*************    写入应用程序结束   *************/
+	cls_screen();
+	console_put_str("[rabbit@localhost /]$ ");
+	while(1);
+	return 0;
 }
 
 /* init进程 */
