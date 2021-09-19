@@ -128,7 +128,7 @@ struct task_struct {
 	 * 也就是此任务执行了多久*/
 	uint32_t elapsed_ticks;
 
-	int32_t fd_table[MAX_FILES_OPEN_PER_PROC];	// 文件描述符数组，线程最多打开8个文件
+	int32_t fd_table[MAX_FILES_OPEN_PER_PROC];	// 文件描述符数组，线程最多打开8个文件，保存文件结构表 file_table 的下标
 
 	/* 线程在"就绪队列"中的结点 */
 	struct list_elem general_tag;

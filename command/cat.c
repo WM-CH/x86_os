@@ -2,10 +2,19 @@
 #include "stdio.h"
 #include "string.h"
 int main(int argc, char** argv) {
-	if (argc > 2 || argc == 1) {
+	if (argc > 2) {
 		printf("cat: only support 1 argument.\neg: cat filename\n");
 		exit(-2);
 	}
+
+	// 当无参数时，直接调用 read 系统调用从键盘获取数据。
+	if (argc == 1) {
+		char buf[512] = {0};
+		read(0, buf, 512);
+		printf("%s", buf);
+		exit(0);
+	}
+
 	int buf_size = 1024;
 	char abs_path[512] = {0};
 	void* buf = malloc(buf_size);
