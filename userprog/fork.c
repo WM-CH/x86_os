@@ -6,6 +6,7 @@
 #include "thread.h"    
 #include "string.h"
 #include "file.h"
+#include "pipe.h"
 
 extern void intr_exit(void);
 
@@ -215,11 +216,15 @@ static int32_t build_child_stack(struct task_struct* child_thread) {
 /* 更新inode打开数 */
 static void update_inode_open_cnts(struct task_struct* thread) {
 	int32_t local_fd = 3, global_fd = 0;
-	while (local_fd < MAX_FILES_OPEN_PER_PROC) {	//遍历线程打开的所有文件
+	while (local_fd < MAX_FILES_OPEN_PER_PROC) {
 		global_fd = thread->fd_table[local_fd];
 		ASSERT(global_fd < MAX_FILE_OPEN);
 		if (global_fd != -1) {
-			file_table[global_fd].fd_inode->i_open_cnts++;	//线程打开的所有文件的inode->open_cnt加一
+			if (is_pipe(local_fd)) {
+				file_table[global_fd].fd_pos++;
+			} else {
+				file_table[global_fd].fd_inode->i_open_cnts++;
+			}
 		}
 		local_fd++;
 	}

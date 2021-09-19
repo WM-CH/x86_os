@@ -175,6 +175,7 @@ int32_t sys_execv(const char* path, const char* argv[]) {
 	memcpy(cur->name, path, TASK_NAME_LEN);
 	cur->name[TASK_NAME_LEN-1] = 0;
 
+	/* 修改栈中参数 */
 	struct intr_stack* intr_0_stack = (struct intr_stack*)((uint32_t)cur + PG_SIZE - sizeof(struct intr_stack));
 	/* 参数传递给用户进程 */
 	/* 新进程从 intr_exit 返回后是第一次运行，因此运行之初通用寄存器中的值都是无效的，只有运行之后寄存器中的值才是有意义的，

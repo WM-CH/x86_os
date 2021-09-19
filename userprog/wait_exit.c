@@ -7,6 +7,8 @@
 #include "memory.h"
 #include "bitmap.h"
 #include "fs.h"
+#include "file.h"
+#include "pipe.h"
 
 /* 释放用户进程资源: 
  * 1 页表中对应的物理页
@@ -65,12 +67,20 @@ static void release_prog_resource(struct task_struct* release_thread) {
 	mfree_page(PF_KERNEL, user_vaddr_pool_bitmap, bitmap_pg_cnt);
 
 	/* 关闭进程打开的文件 */
-	uint8_t fd_idx = 3;
-	while(fd_idx < MAX_FILES_OPEN_PER_PROC) {
-		if (release_thread->fd_table[fd_idx] != -1) {
-			sys_close(fd_idx);
+	uint8_t local_fd = 3;
+	while(local_fd < MAX_FILES_OPEN_PER_PROC) {
+		if (release_thread->fd_table[local_fd] != -1) {
+			if (is_pipe(local_fd)) {
+				uint32_t global_fd = fd_local2global(local_fd);
+				if (--file_table[global_fd].fd_pos == 0) {
+					mfree_page(PF_KERNEL, file_table[global_fd].fd_inode, 1);
+					file_table[global_fd].fd_inode = NULL;
+				}
+			} else {
+				sys_close(local_fd);
+			}
 		}
-		fd_idx++;
+		local_fd++;
 	}
 }
 
@@ -116,7 +126,7 @@ pid_t sys_wait(int32_t* status) {
 		/* 若有挂起的子进程 */
 		if (child_elem != NULL) {
 			struct task_struct* child_thread = elem2entry(struct task_struct, all_list_tag, child_elem);
-			*status = child_thread->exit_status; 
+			*status = child_thread->exit_status;
 
 			/* thread_exit之后,pcb会被回收,因此提前获取pid */
 			uint16_t child_pid = child_thread->pid;

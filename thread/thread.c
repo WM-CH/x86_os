@@ -9,8 +9,9 @@
 #include "process.h"
 #include "sync.h"
 #include "stdio.h"
-#include "file.h"
+#include "console.h"
 #include "fs.h"
+#include "file.h"
 
 /* pid的位图,最大支持1024个pid */
 uint8_t pid_bitmap_bits[128] = {0};

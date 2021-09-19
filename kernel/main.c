@@ -83,6 +83,17 @@ int main(void) {
 			while(1);
 		}
 	}
+
+	// 在文件系统中 写入 prog_pipe
+	sys_unlink("/prog_pipe");							//先删掉
+	ide_read(sda, 600, prog_buf, sec_cnt);
+	fd = sys_open("/prog_pipe", O_CREAT|O_RDWR);		//创建文件
+	if (fd != -1) {
+		if(sys_write(fd, prog_buf, file_size) == -1) {		//写入文件
+			printk("file write error!\n");
+			while(1);
+		}
+	}
 	/*************    写入应用程序结束   *************/
 	cls_screen();
 	console_put_str("[rabbit@localhost /]$ ");

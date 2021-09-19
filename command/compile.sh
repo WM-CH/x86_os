@@ -15,6 +15,7 @@
 # prog_no_arg	写入没有文件系统的裸盘第300号逻辑扇区
 # prog_arg		写入没有文件系统的裸盘第400号逻辑扇区
 # cat			写入没有文件系统的裸盘第500号逻辑扇区
+# prog_pipe		写入没有文件系统的裸盘第600号逻辑扇区
 
 if [[ ! -d "../lib" || ! -d "../build" ]];then
    echo "dependent dir don\`t exist!"
@@ -30,6 +31,7 @@ fi
 BIN1="prog_no_arg"
 BIN2="prog_arg"
 BIN3="cat"
+BIN4="prog_pipe"
 CFLAGS="-Wall -c -fno-builtin -W -Wstrict-prototypes \
       -Wmissing-prototypes -Wsystem-headers -m32 -fno-stack-protector -g \
 	  -I ../lib/ -I ../lib/kernel/ -I ../lib/user/ -I \
@@ -60,6 +62,11 @@ ld -v  -nostdinc -nostdlib -m elf_i386 $BIN2".o" simple_crt.a -o $BIN2
 gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN3".o" $BIN3".c"
 ld -v  -nostdinc -nostdlib -m elf_i386 $BIN3".o" simple_crt.a -o $BIN3
 
+# 4
+#nasm -f elf ./start.S -o ./start.o
+#ar rcs simple_crt.a $OBJS start.o
+gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN4".o" $BIN4".c"
+ld -v  -nostdinc -nostdlib -m elf_i386 $BIN4".o" simple_crt.a -o $BIN4
 
 #SEC_CNT=$(ls -l $BIN|awk '{printf("%d", ($5+511)/512)}')
 #if [[ -f $BIN ]];then
