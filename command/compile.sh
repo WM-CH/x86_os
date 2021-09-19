@@ -12,8 +12,9 @@
 
 # 目标文件的链接顺序，本着 “调用在前，定义在后”
 
-# prog_no_arg 写入没有文件系统的裸盘第300号逻辑扇区
-# prog_arg    写入没有文件系统的裸盘第400号逻辑扇区
+# prog_no_arg	写入没有文件系统的裸盘第300号逻辑扇区
+# prog_arg		写入没有文件系统的裸盘第400号逻辑扇区
+# cat			写入没有文件系统的裸盘第500号逻辑扇区
 
 if [[ ! -d "../lib" || ! -d "../build" ]];then
    echo "dependent dir don\`t exist!"
@@ -28,9 +29,12 @@ fi
 
 BIN1="prog_no_arg"
 BIN2="prog_arg"
+BIN3="cat"
 CFLAGS="-Wall -c -fno-builtin -W -Wstrict-prototypes \
       -Wmissing-prototypes -Wsystem-headers -m32 -fno-stack-protector -g \
-	  -I ../lib -I ../lib/user -I ../fs"
+	  -I ../lib/ -I ../lib/kernel/ -I ../lib/user/ -I \
+      ../kernel/ -I ../device/ -I ../thread/ -I \
+      ../userprog/ -I ../fs/ -I ../shell/ "
 OBJS="../build/string.o ../build/syscall.o \
       ../build/stdio.o ../build/assert.o start.o"
 #DD_IN=$BIN
@@ -49,9 +53,15 @@ ar rcs simple_crt.a $OBJS start.o
 # 后面的用户程序目标文件 prog_arg.o 和它直接链接就可以了。 
 gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN2".o" $BIN2".c"
 ld -v  -nostdinc -nostdlib -m elf_i386 $BIN2".o" simple_crt.a -o $BIN2
-SEC_CNT=$(ls -l $BIN|awk '{printf("%d", ($5+511)/512)}')
+
+# 3
+#nasm -f elf ./start.S -o ./start.o
+#ar rcs simple_crt.a $OBJS start.o
+gcc -v -nostdinc -nostdlib $CFLAGS -o $BIN3".o" $BIN3".c"
+ld -v  -nostdinc -nostdlib -m elf_i386 $BIN3".o" simple_crt.a -o $BIN3
 
 
+#SEC_CNT=$(ls -l $BIN|awk '{printf("%d", ($5+511)/512)}')
 #if [[ -f $BIN ]];then
 #   dd if=./$DD_IN of=$DD_OUT bs=512 \
 #   count=$SEC_CNT seek=300 conv=notrunc

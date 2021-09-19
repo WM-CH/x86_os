@@ -34,7 +34,9 @@ static int32_t copy_pcb_vaddrbitmap_stack0(struct task_struct* child_thread, str
 	 * 下面将child_thread->userprog_vaddr.vaddr_bitmap.bits指向自己的位图vaddr_btmp */
 	memcpy(vaddr_btmp, child_thread->userprog_vaddr.vaddr_bitmap.bits, bitmap_pg_cnt * PG_SIZE);	//复制父进程的虚拟地址位图
 	child_thread->userprog_vaddr.vaddr_bitmap.bits = vaddr_btmp;	//指向子进程自己的了
-
+	/* 调试用 */
+//	ASSERT(strlen(child_thread->name) < 11);	// pcb.name的长度是16,为避免下面strcat越界
+//	strcat(child_thread->name,"_fork");
 	return 0;
 }
 

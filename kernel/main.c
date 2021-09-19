@@ -72,10 +72,21 @@ int main(void) {
 			while(1);
 		}
 	}
+
+	// 在文件系统中 写入 cat
+	sys_unlink("/cat");							//先删掉
+	ide_read(sda, 500, prog_buf, sec_cnt);
+	fd = sys_open("/cat", O_CREAT|O_RDWR);		//创建文件
+	if (fd != -1) {
+		if(sys_write(fd, prog_buf, file_size) == -1) {		//写入文件
+			printk("file write error!\n");
+			while(1);
+		}
+	}
 	/*************    写入应用程序结束   *************/
 	cls_screen();
 	console_put_str("[rabbit@localhost /]$ ");
-	while(1);
+	thread_exit(running_thread(), true);
 	return 0;
 }
 
@@ -83,7 +94,13 @@ int main(void) {
 void init(void) {
 	uint32_t ret_pid = fork();
 	if(ret_pid) {  // 父进程
-		while(1);
+		int status;
+		int child_pid;
+		/* init在此处不停的回收僵尸进程 */
+		while(1) {
+			child_pid = wait(&status);
+			printf("I`m init, My pid is 1, I recieve a child, It`s pid is %d, status is %d\n", child_pid, status);
+		}
 	} else {	  // 子进程
 		my_shell();
 	}

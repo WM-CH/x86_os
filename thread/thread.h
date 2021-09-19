@@ -140,7 +140,8 @@ struct task_struct {
 	struct mem_block_desc u_block_desc[DESC_CNT];   // 用户进程内存块描述符
 
 	uint32_t cwd_inode_nr;		// 进程所在的工作目录的inode编号
-	int16_t parent_pid;			// 父进程pid
+	pid_t parent_pid;			// 父进程pid
+	int8_t  exit_status;		// 进程结束时自己调用exit传入的参数
 	/* PCB 和 0 级栈是在同一个页中，栈位于页的顶端并向下发展，
 	 * 因此担心压栈过程中会把 PCB 中的信息给覆盖，
 	 * 所以每次在线程或进程调度时，要判断是否触及到了进程信息的边界， */
@@ -161,4 +162,7 @@ void thread_unblock(struct task_struct* pthread);
 void thread_yield(void);
 pid_t fork_pid(void);
 void sys_ps(void);
+void thread_exit(struct task_struct* thread_over, bool need_schedule);
+struct task_struct* pid2thread(int32_t pid);
+void release_pid(pid_t pid);
 #endif
